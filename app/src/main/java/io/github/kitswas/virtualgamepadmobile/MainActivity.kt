@@ -2,30 +2,28 @@ package io.github.kitswas.virtualgamepadmobile
 
 import android.os.Bundle
 import androidx.activity.compose.setContent
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.material.Button
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Surface
-import androidx.compose.material.Text
-import androidx.compose.runtime.*
-import androidx.compose.ui.Alignment
+import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.fragment.app.FragmentActivity
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
+import androidx.navigation.compose.rememberNavController
 import io.github.kitswas.virtualgamepadmobile.ui.theme.VirtualGamePadMobileTheme
-import kotlin.system.exitProcess
 
 class MainActivity : FragmentActivity() {
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
         setContent {
             VirtualGamePadMobileTheme {
                 // A surface container using the 'background' color from the theme
                 Surface(modifier = Modifier.fillMaxSize(), color = MaterialTheme.colors.background) {
-                    MainMenu()
+                    Holder()
                 }
             }
         }
@@ -33,29 +31,22 @@ class MainActivity : FragmentActivity() {
 }
 
 @Composable
-fun MainMenu() {
-    Column(
-        modifier = Modifier.fillMaxSize(),
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Center
-    ) {
-        var name by remember { mutableStateOf("Start") }
-        Button(onClick = { name = "Clicked..." }, shape = CircleShape) {
-            Text(text = name)
+fun Holder() {
+    val navController = rememberNavController()
+    NavHost(navController = navController, startDestination = "main_menu") {
+        composable("main_menu") {
+            MainMenu(navController)
         }
-        Button(onClick = { }, shape = CircleShape) {
-            Text(text = "Settings")
-        }
-        Button(onClick = { exitProcess(0) }, shape = CircleShape) {
-            Text(text = "Exit")
+        composable("connect_screen") {
+            ConnectMenu(navController)
         }
     }
 }
 
-@Preview(showBackground = true)
 @Composable
+@Preview(showBackground = true)
 fun DefaultPreview() {
     VirtualGamePadMobileTheme {
-        MainMenu()
+        Holder()
     }
 }

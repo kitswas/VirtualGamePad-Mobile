@@ -71,10 +71,6 @@ dependencies {
     debugImplementation "androidx.compose.ui:ui-tooling:$compose_ui_version"
     debugImplementation "androidx.compose.ui:ui-test-manifest:$compose_ui_version"
 
-    def fragment_version = "1.5.7"
-    implementation "androidx.fragment:fragment-ktx:$fragment_version"  // Fragments in Kotlin
-    implementation "androidx.fragment:fragment:$fragment_version"      // Fragments in Java
-
     def nav_version = "2.6.0"
     // Java language implementation
     implementation "androidx.navigation:navigation-fragment:$nav_version"
