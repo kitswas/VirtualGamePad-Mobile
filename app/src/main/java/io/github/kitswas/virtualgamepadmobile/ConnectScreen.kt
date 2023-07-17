@@ -51,8 +51,8 @@ fun ConnectMenu(
     ) {
         var ipAddress by remember { mutableStateOf("") }
         var port by remember { mutableStateOf("") }
-        var isIPValid by remember { mutableStateOf(true) }
-        var isPortValid by remember { mutableStateOf(true) }
+        var isIPValid by remember { mutableStateOf(false) }
+        var isPortValid by remember { mutableStateOf(false) }
 
         Button(onClick = {
             scanner?.startScan()?.addOnSuccessListener {
