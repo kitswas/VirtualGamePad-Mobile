@@ -9,14 +9,14 @@ import io.github.kitswas.virtualgamepadmobile.R
 
 // Set of Material typography styles to start with
 val Typography = Typography(
-    defaultFontFamily = FontFamily(androidx.compose.ui.text.font.Font(R.font.moonhouse)),
+    defaultFontFamily = FontFamily(androidx.compose.ui.text.font.Font(R.font.audiowide)),
     body1 = TextStyle(
-        fontFamily = FontFamily.Default,
+        fontFamily = FontFamily(androidx.compose.ui.text.font.Font(R.font.android_insomnia)),
         fontWeight = FontWeight.Normal,
         fontSize = 16.sp
     ),
     button = TextStyle(
-        fontFamily = FontFamily(androidx.compose.ui.text.font.Font(R.font.freedom)),
+        fontFamily = FontFamily(androidx.compose.ui.text.font.Font(R.font.astro_space)),
         fontWeight = FontWeight.Normal,
         fontSize = 20.sp
     ),
