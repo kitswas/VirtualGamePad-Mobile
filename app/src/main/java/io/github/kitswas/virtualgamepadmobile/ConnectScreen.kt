@@ -60,6 +60,14 @@ fun ConnectMenu(
                 Log.d("Scanned QR Code", qrCode)
                 ipAddress = getIP(qrCode)
                 port = getPort(qrCode)
+                // recalculate validity
+                isIPValid =
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                        InetAddresses.isNumericAddress(ipAddress)
+                    } else {
+                        Patterns.IP_ADDRESS.matcher(ipAddress).matches()
+                    }
+                isPortValid = port.toIntOrNull() != null
             }
         }, shape = CircleShape) {
             Text(text = "Scan QR Code")
@@ -97,13 +105,12 @@ fun ConnectMenu(
         Button(
             onClick =
             {
-                if (isIPValid && isPortValid) {
-                    CoroutineScope(Dispatchers.IO).launch {
-                        connectAndSayHi(ipAddress, port.toInt())
-                    }
+                CoroutineScope(Dispatchers.IO).launch {
+                    connectAndSayHi(ipAddress, port.toInt())
                 }
             },
-            shape = CircleShape
+            shape = CircleShape,
+            enabled = isIPValid && isPortValid,
         ) {
             Text(text = "Connect")
         }
