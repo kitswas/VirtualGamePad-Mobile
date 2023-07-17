@@ -1,6 +1,9 @@
 package io.github.kitswas.virtualgamepadmobile
 
+import android.net.InetAddresses
+import android.os.Build
 import android.util.Log
+import android.util.Patterns
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
@@ -19,14 +22,18 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import com.google.mlkit.vision.codescanner.GmsBarcodeScanner
 import io.github.kitswas.virtualgamepadmobile.ui.theme.VirtualGamePadMobileTheme
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import java.net.Socket
 
-fun getIP(qrCode: String): String {
+private fun getIP(qrCode: String): String {
     val splitTill = qrCode.lastIndexOf(":")
     if (splitTill == -1) return qrCode
     return qrCode.substring(0, splitTill)
 }
 
-fun getPort(qrCode: String): String {
+private fun getPort(qrCode: String): String {
     val splitAt = qrCode.lastIndexOf(":")
     if (splitAt == -1) return qrCode
     return qrCode.substring(splitAt + 1)
@@ -44,6 +51,8 @@ fun ConnectMenu(
     ) {
         var ipAddress by remember { mutableStateOf("") }
         var port by remember { mutableStateOf("") }
+        var isIPValid by remember { mutableStateOf(true) }
+        var isPortValid by remember { mutableStateOf(true) }
 
         Button(onClick = {
             scanner?.startScan()?.addOnSuccessListener {
@@ -59,22 +68,56 @@ fun ConnectMenu(
         TextField(
             label = { Text(text = "IP Address") },
             value = ipAddress,
-            onValueChange = { ipAddress = it },
+            onValueChange = {
+                ipAddress = it
+                isIPValid =
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                        InetAddresses.isNumericAddress(ipAddress)
+                    } else {
+                        Patterns.IP_ADDRESS.matcher(ipAddress).matches()
+                    }
+            },
             shape = RectangleShape,
-            modifier = Modifier.padding(0.dp, 5.dp)
+            modifier = Modifier.padding(0.dp, 5.dp),
+            isError = !isIPValid
         )
 
         TextField(
             label = { Text(text = "Port") },
             value = port,
-            onValueChange = { port = it },
+            onValueChange = {
+                port = it
+                isPortValid = port.toIntOrNull() != null
+            },
             shape = RectangleShape,
-            modifier = Modifier.padding(0.dp, 5.dp)
+            modifier = Modifier.padding(0.dp, 5.dp),
+            isError = !isPortValid
         )
 
-        Button(onClick = { }, shape = CircleShape) {
+        Button(
+            onClick =
+            {
+                if (isIPValid && isPortValid) {
+                    CoroutineScope(Dispatchers.IO).launch {
+                        connectAndSayHi(ipAddress, port.toInt())
+                    }
+                }
+            },
+            shape = CircleShape
+        ) {
             Text(text = "Connect")
         }
+    }
+}
+
+private fun connectAndSayHi(ipAddress: String, port: Int) {
+    try {
+        val socket = Socket(ipAddress, port)
+        Log.d("SocketHi", socket.toString())
+        socket.outputStream.write("Hello from the client!\n".toByteArray())
+        socket.close()
+    } catch (e: Exception) {
+        Log.e("SocketHi", e.toString())
     }
 }
 
