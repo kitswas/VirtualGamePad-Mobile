@@ -39,6 +39,19 @@ private fun getPort(qrCode: String): String {
     return qrCode.substring(splitAt + 1)
 }
 
+@Suppress("DEPRECATION")
+fun validateIP(ipAddress: String): Boolean {
+    return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+        InetAddresses.isNumericAddress(ipAddress)
+    } else {
+        Patterns.IP_ADDRESS.matcher(ipAddress).matches()
+    }
+}
+
+fun validatePort(port: String): Boolean {
+    return port.toIntOrNull().let { it != null && it in 1..65535 }
+}
+
 @Composable
 fun ConnectMenu(
     navController: NavHostController = rememberNavController(),
@@ -61,13 +74,8 @@ fun ConnectMenu(
                 ipAddress = getIP(qrCode)
                 port = getPort(qrCode)
                 // recalculate validity
-                isIPValid =
-                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-                        InetAddresses.isNumericAddress(ipAddress)
-                    } else {
-                        Patterns.IP_ADDRESS.matcher(ipAddress).matches()
-                    }
-                isPortValid = port.toIntOrNull() != null
+                isIPValid = validateIP(ipAddress)
+                isPortValid = validatePort(port)
             }
         }, shape = CircleShape) {
             Text(text = "Scan QR Code")
@@ -78,12 +86,7 @@ fun ConnectMenu(
             value = ipAddress,
             onValueChange = {
                 ipAddress = it
-                isIPValid =
-                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-                        InetAddresses.isNumericAddress(ipAddress)
-                    } else {
-                        Patterns.IP_ADDRESS.matcher(ipAddress).matches()
-                    }
+                isIPValid = validateIP(ipAddress)
             },
             shape = RectangleShape,
             modifier = Modifier.padding(0.dp, 5.dp),
@@ -95,7 +98,7 @@ fun ConnectMenu(
             value = port,
             onValueChange = {
                 port = it
-                isPortValid = port.toIntOrNull() != null
+                isPortValid = validatePort(port)
             },
             shape = RectangleShape,
             modifier = Modifier.padding(0.dp, 5.dp),
