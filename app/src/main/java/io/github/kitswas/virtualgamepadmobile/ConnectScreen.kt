@@ -1,5 +1,6 @@
 package io.github.kitswas.virtualgamepadmobile
 
+import android.util.Log
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
@@ -16,21 +17,45 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
+import com.google.mlkit.vision.codescanner.GmsBarcodeScanner
 import io.github.kitswas.virtualgamepadmobile.ui.theme.VirtualGamePadMobileTheme
+
+fun getIP(qrCode: String): String {
+    val splitTill = qrCode.lastIndexOf(":")
+    if (splitTill == -1) return qrCode
+    return qrCode.substring(0, splitTill)
+}
+
+fun getPort(qrCode: String): String {
+    val splitAt = qrCode.lastIndexOf(":")
+    if (splitAt == -1) return qrCode
+    return qrCode.substring(splitAt + 1)
+}
 
 @Composable
 fun ConnectMenu(
-    navController: NavHostController = rememberNavController()
+    navController: NavHostController = rememberNavController(),
+    scanner: GmsBarcodeScanner?
 ) {
     Column(
         modifier = Modifier.fillMaxSize(),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center
     ) {
-        Button(onClick = { }, shape = CircleShape) {
+        var ipAddress by remember { mutableStateOf("") }
+        var port by remember { mutableStateOf("") }
+
+        Button(onClick = {
+            scanner?.startScan()?.addOnSuccessListener {
+                val qrCode = it.rawValue ?: ""
+                Log.d("Scanned QR Code", qrCode)
+                ipAddress = getIP(qrCode)
+                port = getPort(qrCode)
+            }
+        }, shape = CircleShape) {
             Text(text = "Scan QR Code")
         }
-        var ipAddress by remember { mutableStateOf("") }
+
         TextField(
             label = { Text(text = "IP Address") },
             value = ipAddress,
@@ -38,7 +63,7 @@ fun ConnectMenu(
             shape = RectangleShape,
             modifier = Modifier.padding(0.dp, 5.dp)
         )
-        var port by remember { mutableStateOf("") }
+
         TextField(
             label = { Text(text = "Port") },
             value = port,
@@ -46,6 +71,7 @@ fun ConnectMenu(
             shape = RectangleShape,
             modifier = Modifier.padding(0.dp, 5.dp)
         )
+
         Button(onClick = { }, shape = CircleShape) {
             Text(text = "Connect")
         }
@@ -56,6 +82,6 @@ fun ConnectMenu(
 @Composable
 fun ConnectMenuPreview() {
     VirtualGamePadMobileTheme {
-        ConnectMenu()
+        ConnectMenu(scanner = null)
     }
 }

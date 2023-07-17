@@ -85,4 +85,9 @@ dependencies {
     // Jetpack Compose Integration
     implementation "androidx.navigation:navigation-compose:$nav_version"
 
+    // Google code scanner API for QR code scanning
+    implementation 'com.google.android.gms:play-services-code-scanner:16.0.0'
+    implementation 'com.google.android.gms:play-services-base:18.2.0'
+    implementation 'com.google.android.gms:play-services-tflite-java:16.1.0'
+
 }
