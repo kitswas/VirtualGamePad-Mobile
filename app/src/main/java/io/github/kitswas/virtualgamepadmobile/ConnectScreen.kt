@@ -21,6 +21,7 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import com.google.mlkit.vision.codescanner.GmsBarcodeScanner
+import io.github.kitswas.VGP_Data_Exchange.Message
 import io.github.kitswas.virtualgamepadmobile.ui.theme.VirtualGamePadMobileTheme
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -124,7 +125,9 @@ private fun connectAndSayHi(ipAddress: String, port: Int) {
     try {
         val socket = Socket(ipAddress, port)
         Log.d("SocketHi", socket.toString())
-        socket.outputStream.write("Hello from the client!\n".toByteArray())
+        val message = Message()
+        message.setContents("Hello from the client!\n")
+        message.marshal(socket.outputStream, null)
         socket.close()
     } catch (e: Exception) {
         Log.e("SocketHi", e.toString())

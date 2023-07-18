@@ -13,3 +13,6 @@
 .externalNativeBuild
 .cxx
 local.properties
+
+# Generated files
+/app/src/main/java/io/github/kitswas/VGP_Data_Exchange

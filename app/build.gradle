@@ -94,3 +94,14 @@ dependencies {
     implementation "androidx.compose.material3:material3:1.1.1"
     implementation "androidx.compose.material3:material3-window-size-class:1.1.1"
 }
+
+task update_VGPDataExchangePackage(type: ProcessResources) {
+    println 'Updating VGP_Data_Exchange package...'
+    from(getRootDir().toPath().resolve('VGP_Data_Exchange/io/github/kitswas/VGP_Data_Exchange'))
+    into(getRootDir().toPath().resolve('app/src/main/java/io/github/kitswas/VGP_Data_Exchange'))
+}
+tasks.matching {
+    it != update_VGPDataExchangePackage
+}.configureEach { Task task ->
+    task.dependsOn update_VGPDataExchangePackage
+}
