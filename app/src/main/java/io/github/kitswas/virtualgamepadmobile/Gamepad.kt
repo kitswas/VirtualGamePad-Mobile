@@ -64,6 +64,10 @@ fun GamePad(widthDp: Float, heightDp: Float) {
 //            .background(Color.Magenta)
             .fillMaxSize()
     ) {
+        AnalogStick(
+            outerCircleWidth = (baseDp / 16).dp,
+            innerCircleRadius = (baseDp / 8).dp,
+        )
     }
 }
 
