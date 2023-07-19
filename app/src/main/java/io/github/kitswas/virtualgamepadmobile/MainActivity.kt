@@ -12,6 +12,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import androidx.window.layout.WindowMetricsCalculator
 import com.google.mlkit.vision.barcode.common.Barcode
 import com.google.mlkit.vision.codescanner.GmsBarcodeScanner
 import com.google.mlkit.vision.codescanner.GmsBarcodeScannerOptions
@@ -27,10 +28,18 @@ class MainActivity : ComponentActivity() {
         prepareQRScanner()
 
         setContent {
+            val metrics = WindowMetricsCalculator.getOrCreate()
+                .computeCurrentWindowMetrics(this)
+
+            val widthDp = metrics.bounds.width() /
+                    resources.displayMetrics.density
+            val heightDp = metrics.bounds.height() /
+                    resources.displayMetrics.density
+
             VirtualGamePadMobileTheme {
                 // A surface container using the 'background' color from the theme
                 Surface(modifier = Modifier.fillMaxSize(), color = MaterialTheme.colorScheme.background) {
-                    Holder()
+                    Holder(widthDp, heightDp)
                 }
             }
         }
@@ -49,7 +58,10 @@ class MainActivity : ComponentActivity() {
     }
 
     @Composable
-    fun Holder() {
+    fun Holder(
+        widthDp: Float,
+        heightDp: Float,
+    ) {
         val navController = rememberNavController()
         NavHost(navController = navController, startDestination = "main_menu") {
             composable("main_menu") {
@@ -58,14 +70,24 @@ class MainActivity : ComponentActivity() {
             composable("connect_screen") {
                 ConnectMenu(navController, scanner)
             }
+            composable("gamepad") {
+                GamePad(widthDp, heightDp)
+            }
         }
     }
 
     @Composable
     @Preview(showBackground = true)
     fun DefaultPreview() {
+        val metrics = WindowMetricsCalculator.getOrCreate()
+            .computeCurrentWindowMetrics(this)
+
+        val widthDp = metrics.bounds.width() /
+                resources.displayMetrics.density
+        val heightDp = metrics.bounds.height() /
+                resources.displayMetrics.density
         VirtualGamePadMobileTheme {
-            Holder()
+            Holder(widthDp, heightDp)
         }
     }
 }
