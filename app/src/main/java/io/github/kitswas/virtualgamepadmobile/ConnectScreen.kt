@@ -27,7 +27,6 @@ import io.github.kitswas.virtualgamepadmobile.ui.theme.VirtualGamePadMobileTheme
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import java.net.Socket
 
 private fun getIP(qrCode: String): String {
     val splitTill = qrCode.lastIndexOf(":")
@@ -57,7 +56,8 @@ fun validatePort(port: String): Boolean {
 @Composable
 fun ConnectMenu(
     navController: NavHostController = rememberNavController(),
-    scanner: GmsBarcodeScanner?
+    scanner: GmsBarcodeScanner?,
+    connectionViewModel: ConnectionViewModel?
 ) {
     Column(
         modifier = Modifier.fillMaxSize(),
@@ -110,8 +110,10 @@ fun ConnectMenu(
         Button(
             onClick =
             {
-                CoroutineScope(Dispatchers.IO).launch {
-                    connectAndSayHi(ipAddress, port.toInt())
+                if (connectionViewModel != null) {
+                    CoroutineScope(Dispatchers.IO).launch {
+                        connectAndSayHi(ipAddress, port.toInt(), connectionViewModel)
+                    }
                 }
             },
             shape = CircleShape,
@@ -122,15 +124,15 @@ fun ConnectMenu(
     }
 }
 
-private fun connectAndSayHi(ipAddress: String, port: Int) {
+private fun connectAndSayHi(ipAddress: String, port: Int, connectionViewModel: ConnectionViewModel) {
     try {
-        val socket = Socket(ipAddress, port)
-        Log.d("SocketHi", socket.toString())
+        connectionViewModel.connect(ipAddress, port)
+        Log.d("SocketHi", connectionViewModel.uiState.value.socket.toString())
         val gamepadState = GamepadReading()
-        gamepadState.ButtonsDown = GameButtons.A.value or GameButtons.B.value;
-        gamepadState.ButtonsUp = GameButtons.A.value or GameButtons.B.value;
-        gamepadState.marshal(socket.outputStream, null)
-        socket.close()
+        gamepadState.ButtonsDown = GameButtons.A.value or GameButtons.B.value
+        gamepadState.ButtonsUp = GameButtons.A.value or GameButtons.B.value
+        connectionViewModel.sendGamepadState(gamepadState)
+        connectionViewModel.disconnect()
     } catch (e: Exception) {
         Log.e("SocketHi", e.toString())
     }
@@ -140,6 +142,6 @@ private fun connectAndSayHi(ipAddress: String, port: Int) {
 @Composable
 fun ConnectMenuPreview() {
     VirtualGamePadMobileTheme {
-        ConnectMenu(scanner = null)
+        ConnectMenu(scanner = null, connectionViewModel = null)
     }
 }
