@@ -21,7 +21,8 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import com.google.mlkit.vision.codescanner.GmsBarcodeScanner
-import io.github.kitswas.VGP_Data_Exchange.Message
+import io.github.kitswas.VGP_Data_Exchange.GameButtons
+import io.github.kitswas.VGP_Data_Exchange.GamepadReading
 import io.github.kitswas.virtualgamepadmobile.ui.theme.VirtualGamePadMobileTheme
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -125,9 +126,10 @@ private fun connectAndSayHi(ipAddress: String, port: Int) {
     try {
         val socket = Socket(ipAddress, port)
         Log.d("SocketHi", socket.toString())
-        val message = Message()
-        message.setContents("Hello from the client!\n")
-        message.marshal(socket.outputStream, null)
+        val gamepadState = GamepadReading()
+        gamepadState.ButtonsDown = GameButtons.A.value or GameButtons.B.value;
+        gamepadState.ButtonsUp = GameButtons.A.value or GameButtons.B.value;
+        gamepadState.marshal(socket.outputStream, null)
         socket.close()
     } catch (e: Exception) {
         Log.e("SocketHi", e.toString())
