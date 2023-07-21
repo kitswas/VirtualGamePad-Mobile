@@ -67,14 +67,17 @@ class MainActivity : ComponentActivity() {
     }
 
     @Composable
-    fun Holder(viewModel: ConnectionViewModel) {
+    fun Holder(connectionViewModel: ConnectionViewModel) {
         val navController = rememberNavController()
         NavHost(navController = navController, startDestination = "main_menu") {
             composable("main_menu") {
                 MainMenu(navController)
             }
             composable("connect_screen") {
-                ConnectMenu(navController, scanner, viewModel)
+                ConnectMenu(navController, scanner, connectionViewModel)
+            }
+            composable("gamepad") {
+                GamePad(connectionViewModel)
             }
         }
     }

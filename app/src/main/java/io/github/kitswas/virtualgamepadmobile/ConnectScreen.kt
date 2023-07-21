@@ -21,8 +21,6 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import com.google.mlkit.vision.codescanner.GmsBarcodeScanner
-import io.github.kitswas.VGP_Data_Exchange.GameButtons
-import io.github.kitswas.VGP_Data_Exchange.GamepadReading
 import io.github.kitswas.virtualgamepadmobile.ui.theme.VirtualGamePadMobileTheme
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -112,7 +110,14 @@ fun ConnectMenu(
             {
                 if (connectionViewModel != null) {
                     CoroutineScope(Dispatchers.IO).launch {
-                        connectAndSayHi(ipAddress, port.toInt(), connectionViewModel)
+                        connectionViewModel.connect(ipAddress, port.toInt())
+                    }.invokeOnCompletion {
+                        CoroutineScope(Dispatchers.Main).launch {
+                            // Update UI elements
+                            if (connectionViewModel.uiState.value.connected) {
+                                navController.navigate("gamepad")
+                            }
+                        }
                     }
                 }
             },
@@ -121,20 +126,6 @@ fun ConnectMenu(
         ) {
             Text(text = "Connect")
         }
-    }
-}
-
-private fun connectAndSayHi(ipAddress: String, port: Int, connectionViewModel: ConnectionViewModel) {
-    try {
-        connectionViewModel.connect(ipAddress, port)
-        Log.d("SocketHi", connectionViewModel.uiState.value.socket.toString())
-        val gamepadState = GamepadReading()
-        gamepadState.ButtonsDown = GameButtons.A.value or GameButtons.B.value
-        gamepadState.ButtonsUp = GameButtons.A.value or GameButtons.B.value
-        connectionViewModel.sendGamepadState(gamepadState)
-        connectionViewModel.disconnect()
-    } catch (e: Exception) {
-        Log.e("SocketHi", e.toString())
     }
 }
 

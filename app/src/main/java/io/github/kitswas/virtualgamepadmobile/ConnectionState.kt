@@ -18,7 +18,7 @@ data class ConnectionState(
 
 class ConnectionViewModel : ViewModel() {
 
-    private final val TAG = "ConnectionViewModel"
+    private val tag = "ConnectionViewModel"
 
     // Expose screen UI state
     private val _uiState = MutableStateFlow(ConnectionState())
@@ -27,8 +27,12 @@ class ConnectionViewModel : ViewModel() {
     // Handle business logic
     fun connect(ipAddress: String, port: Int) {
         try {
-            val socket = Socket(ipAddress, port)
-            Log.d(TAG, socket.toString())
+            val socket = Socket()
+            // This is a generous timeout to establish a connection
+            // Typically the ping should be less than 50ms for gaming purposes
+            val timeout = 500 // in milliseconds, 0 means infinite
+            socket.connect(java.net.InetSocketAddress(ipAddress, port), timeout)
+            Log.d(tag, socket.toString())
 
             _uiState.update { currentState ->
                 currentState.copy(
@@ -39,7 +43,7 @@ class ConnectionViewModel : ViewModel() {
                 )
             }
         } catch (e: Exception) {
-            Log.e(TAG, e.toString())
+            Log.e(tag, e.toString())
         }
     }
 
@@ -49,7 +53,7 @@ class ConnectionViewModel : ViewModel() {
                 _uiState.value.socket!!.outputStream.write(string.toByteArray())
             }
         } catch (e: Exception) {
-            Log.e(TAG, e.toString())
+            Log.e(tag, e.toString())
         }
     }
 
@@ -59,7 +63,7 @@ class ConnectionViewModel : ViewModel() {
                 gamepadState.marshal(_uiState.value.socket!!.outputStream, null)
             }
         } catch (e: Exception) {
-            Log.e(TAG, e.toString())
+            Log.e(tag, e.toString())
         }
     }
 
@@ -75,7 +79,7 @@ class ConnectionViewModel : ViewModel() {
                 )
             }
         } catch (e: Exception) {
-            Log.e(TAG, e.toString())
+            Log.e(tag, e.toString())
         }
     }
 }
