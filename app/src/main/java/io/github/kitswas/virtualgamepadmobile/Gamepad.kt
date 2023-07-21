@@ -56,10 +56,14 @@ fun GamePad(connectionViewModel: ConnectionViewModel?) {
             }
         }
     }
+
+    val activity = LocalContext.current.findActivity()
     // disconnect on back press
     androidx.compose.ui.platform.LocalLifecycleOwner.current.lifecycle
         .addObserver(androidx.lifecycle.LifecycleEventObserver { _, event ->
-            if (event == androidx.lifecycle.Lifecycle.Event.ON_STOP) {
+            if (event == androidx.lifecycle.Lifecycle.Event.ON_DESTROY
+                && activity?.isChangingConfigurations != true // ignore screen rotation
+            ) {
                 if (connectionViewModel != null) {
                     CoroutineScope(Dispatchers.IO).launch {
                         // unset all keys before disconnecting
