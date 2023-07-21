@@ -5,15 +5,19 @@ import android.content.Context
 import android.content.ContextWrapper
 import android.content.pm.ActivityInfo
 import android.content.res.Configuration
+import android.util.Log
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import io.github.kitswas.VGP_Data_Exchange.GamepadReading
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 
 /**
  * Locks the screen orientation to the given orientation.
@@ -40,7 +44,8 @@ fun Context.findActivity(): Activity? = when (this) {
 }
 
 @Composable
-fun GamePad(widthDp: Float, heightDp: Float) {
+fun GamePad(widthDp: Float, heightDp: Float, connectionViewModel: ConnectionViewModel?) {
+    val gamepadState by remember { mutableStateOf(GamepadReading()) }
     LockScreenOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE)
 
 //    // Scale the gamepad to fit the screen
@@ -69,6 +74,23 @@ fun GamePad(widthDp: Float, heightDp: Float) {
             innerCircleRadius = (baseDp / 8).dp,
         )
     }
+
+    // disconnect on back press
+    androidx.compose.ui.platform.LocalLifecycleOwner.current.lifecycle
+        .addObserver(androidx.lifecycle.LifecycleEventObserver { _, event ->
+            if (event == androidx.lifecycle.Lifecycle.Event.ON_DESTROY) {
+                if (connectionViewModel != null) {
+                    CoroutineScope(Dispatchers.IO).launch {
+                        // unset all keys before disconnecting
+                        gamepadState.ButtonsUp = gamepadState.ButtonsDown
+                        gamepadState.ButtonsDown = 0
+                        connectionViewModel.sendGamepadState(gamepadState)
+                        connectionViewModel.disconnect()
+                        Log.d("GamePad", "Disconnected")
+                    }
+                }
+            }
+        })
 }
 
 const val PreviewWidthDp = 900
@@ -81,7 +103,7 @@ const val PreviewHeightDp = 400
 )
 @Composable
 fun GamePadPreview() {
-    GamePad(PreviewWidthDp.toFloat(), PreviewHeightDp.toFloat())
+    GamePad(PreviewWidthDp.toFloat(), PreviewHeightDp.toFloat(), null)
 }
 
 @Preview(
@@ -92,5 +114,16 @@ fun GamePadPreview() {
 )
 @Composable
 private fun GamePadPreviewNight() {
-    GamePad(PreviewWidthDp.toFloat(), PreviewHeightDp.toFloat())
+    GamePad(PreviewWidthDp.toFloat(), PreviewHeightDp.toFloat(), null)
+}
+
+private fun resetGamepadState(gamepadState: GamepadReading) {
+    gamepadState.ButtonsUp = 0
+    gamepadState.ButtonsDown = 0
+    gamepadState.LeftThumbstickX = 0F
+    gamepadState.LeftThumbstickY = 0F
+    gamepadState.RightThumbstickX = 0F
+    gamepadState.LeftTrigger = 0F
+    gamepadState.RightThumbstickY = 0F
+    gamepadState.RightTrigger = 0F
 }

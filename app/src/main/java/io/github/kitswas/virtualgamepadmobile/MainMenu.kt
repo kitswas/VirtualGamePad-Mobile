@@ -26,7 +26,7 @@ fun MainMenu(
     ) {
         Button(onClick = {
             navController.navigate(
-                "gamepad"
+                "connect_screen"
             )
         }, shape = CircleShape) {
             Text(text = "Start")

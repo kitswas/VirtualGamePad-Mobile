@@ -21,12 +21,10 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import com.google.mlkit.vision.codescanner.GmsBarcodeScanner
-import io.github.kitswas.VGP_Data_Exchange.Message
 import io.github.kitswas.virtualgamepadmobile.ui.theme.VirtualGamePadMobileTheme
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import java.net.Socket
 
 private fun getIP(qrCode: String): String {
     val splitTill = qrCode.lastIndexOf(":")
@@ -56,7 +54,8 @@ fun validatePort(port: String): Boolean {
 @Composable
 fun ConnectMenu(
     navController: NavHostController = rememberNavController(),
-    scanner: GmsBarcodeScanner?
+    scanner: GmsBarcodeScanner?,
+    connectionViewModel: ConnectionViewModel?
 ) {
     Column(
         modifier = Modifier.fillMaxSize(),
@@ -109,8 +108,17 @@ fun ConnectMenu(
         Button(
             onClick =
             {
-                CoroutineScope(Dispatchers.IO).launch {
-                    connectAndSayHi(ipAddress, port.toInt())
+                if (connectionViewModel != null) {
+                    CoroutineScope(Dispatchers.IO).launch {
+                        connectionViewModel.connect(ipAddress, port.toInt())
+                    }.invokeOnCompletion {
+                        CoroutineScope(Dispatchers.Main).launch {
+                            // Update UI elements
+                            if (connectionViewModel.uiState.value.connected) {
+                                navController.navigate("gamepad")
+                            }
+                        }
+                    }
                 }
             },
             shape = CircleShape,
@@ -121,23 +129,10 @@ fun ConnectMenu(
     }
 }
 
-private fun connectAndSayHi(ipAddress: String, port: Int) {
-    try {
-        val socket = Socket(ipAddress, port)
-        Log.d("SocketHi", socket.toString())
-        val message = Message()
-        message.setContents("Hello from the client!\n")
-        message.marshal(socket.outputStream, null)
-        socket.close()
-    } catch (e: Exception) {
-        Log.e("SocketHi", e.toString())
-    }
-}
-
 @Preview(showBackground = true)
 @Composable
 fun ConnectMenuPreview() {
     VirtualGamePadMobileTheme {
-        ConnectMenu(scanner = null)
+        ConnectMenu(scanner = null, connectionViewModel = null)
     }
 }
