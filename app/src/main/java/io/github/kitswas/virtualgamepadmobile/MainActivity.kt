@@ -82,7 +82,7 @@ class MainActivity : ComponentActivity() {
         connectionViewModel: ConnectionViewModel,
     ) {
         val navController = rememberNavController()
-        NavHost(navController = navController, startDestination = "main_menu") {
+        NavHost(navController = navController, startDestination = "gamepad") {
             composable("main_menu") {
                 MainMenu(navController)
             }
