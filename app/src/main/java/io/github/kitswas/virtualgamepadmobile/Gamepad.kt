@@ -8,13 +8,14 @@ import android.content.res.Configuration
 import android.util.Log
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import io.github.kitswas.VGP_Data_Exchange.GameButtons
@@ -167,7 +168,7 @@ private fun DrawGamepad(
             .fillMaxSize(),
         contentAlignment = Alignment.TopCenter // Origin is top center
     ) {
-        val screenIcon = Icons.Default.Home
+        val screenIcon = ImageVector.vectorResource(R.drawable.screenicon)
         val menuIcon = Icons.Default.Menu
         Button(
             modifier = Modifier
@@ -232,7 +233,7 @@ private fun DrawGamepad(
                 imageVector = screenIcon,//Placeholder
                 contentDescription = "View Button",
                 modifier = Modifier
-                    .size((baseDp / 8).dp),
+                        .size((baseDp / 12).dp),
                 tint = foregroundColour
             )
         }
