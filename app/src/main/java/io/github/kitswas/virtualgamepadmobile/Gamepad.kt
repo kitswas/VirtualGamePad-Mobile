@@ -25,6 +25,7 @@ import io.github.kitswas.virtualgamepadmobile.ui.theme.darken
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import java.util.*
 
 /**
  * Locks the screen orientation to the given orientation.
@@ -66,6 +67,22 @@ fun GamePad(widthDp: Float, heightDp: Float, connectionViewModel: ConnectionView
 //            widthDp
 //        }
 //    }
+
+    val pollingDelay = 2L // in milliseconds
+    Timer().apply {
+        val task = object : TimerTask() {
+            override fun run() {
+                if (connectionViewModel != null) {
+                    CoroutineScope(Dispatchers.IO).launch {
+                        connectionViewModel.sendGamepadState(gamepadState)
+                        gamepadState.ButtonsUp = gamepadState.ButtonsDown
+                        gamepadState.ButtonsDown = 0
+                    }
+                }
+            }
+        }
+        scheduleAtFixedRate(task, 0, pollingDelay)
+    }
 
     DrawGamepad(widthDp, heightDp, gamepadState, connectionViewModel)
 
@@ -126,13 +143,12 @@ private fun DrawGamepad(
         contentAlignment = Alignment.BottomStart // Origin is bottom left
     ) {
         Dpad(
-            size = (2 * baseDp / 5).dp,
             modifier = Modifier.offset(
                 x = (baseDp / 3).dp,
                 y = 0.dp
             ),
+            size = (2 * baseDp / 5).dp,
             gamepadState = gamepadState,
-            connectionViewModel = connectionViewModel,
         )
     }
     Box(
@@ -144,7 +160,6 @@ private fun DrawGamepad(
         FaceButtons(
             size = (2 * baseDp / 5).dp,
             gamepadState = gamepadState,
-            connectionViewModel = connectionViewModel,
         )
     }
     Box(
@@ -233,7 +248,7 @@ private fun DrawGamepad(
                 imageVector = screenIcon,//Placeholder
                 contentDescription = "View Button",
                 modifier = Modifier
-                        .size((baseDp / 12).dp),
+                    .size((baseDp / 12).dp),
                 tint = foregroundColour
             )
         }

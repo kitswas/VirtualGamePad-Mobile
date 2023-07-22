@@ -21,9 +21,6 @@ import androidx.compose.ui.unit.times
 import io.github.kitswas.VGP_Data_Exchange.GameButtons
 import io.github.kitswas.VGP_Data_Exchange.GamepadReading
 import io.github.kitswas.virtualgamepadmobile.ui.theme.darken
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
 
 enum class DpadButtonType {
     UP, DOWN, LEFT, RIGHT
@@ -37,7 +34,6 @@ fun DpadButton(
     backgroundColour: Color = darken(MaterialTheme.colorScheme.primary, 0.8f),
     size: Dp,
     gamepadState: GamepadReading,
-    connectionViewModel: ConnectionViewModel?,
 ) {
     val rotation = when (type) {
         DpadButtonType.UP -> -90f
@@ -54,15 +50,7 @@ fun DpadButton(
     OutlinedIconButton(
         modifier = modifier.size(size).padding(0.dp),
         onClick = {
-            if (connectionViewModel != null) {
-                CoroutineScope(Dispatchers.IO).launch {
-                    gamepadState.ButtonsDown = gamepadState.ButtonsDown or gameButton.value
-                    connectionViewModel.sendGamepadState(gamepadState)
-                    gamepadState.ButtonsUp = gamepadState.ButtonsDown
-                    gamepadState.ButtonsDown = 0
-                    connectionViewModel.sendGamepadState(gamepadState)
-                }
-            }
+            gamepadState.ButtonsDown = gamepadState.ButtonsDown or gameButton.value
         },
         colors = IconButtonDefaults.outlinedIconButtonColors(
             containerColor = backgroundColour,
@@ -84,7 +72,6 @@ fun Dpad(
     modifier: Modifier = Modifier,
     size: Dp = 360.dp,
     gamepadState: GamepadReading,
-    connectionViewModel: ConnectionViewModel?,
 ) {
     Box(
         modifier = modifier.size(size),
@@ -95,28 +82,24 @@ fun Dpad(
             modifier = Modifier.align(Alignment.TopCenter),
             size = 2 * size / 5,
             gamepadState = gamepadState,
-            connectionViewModel = connectionViewModel,
         )
         DpadButton(
             type = DpadButtonType.DOWN,
             modifier = Modifier.align(Alignment.BottomCenter),
             size = 2 * size / 5,
             gamepadState = gamepadState,
-            connectionViewModel = connectionViewModel,
         )
         DpadButton(
             type = DpadButtonType.LEFT,
             modifier = Modifier.align(Alignment.CenterStart),
             size = 2 * size / 5,
             gamepadState = gamepadState,
-            connectionViewModel = connectionViewModel,
         )
         DpadButton(
             type = DpadButtonType.RIGHT,
             modifier = Modifier.align(Alignment.CenterEnd),
             size = 2 * size / 5,
             gamepadState = gamepadState,
-            connectionViewModel = connectionViewModel,
         )
     }
 }
@@ -126,6 +109,5 @@ fun Dpad(
 fun DpadPreview() {
     Dpad(
         gamepadState = GamepadReading(),
-        connectionViewModel = null,
     )
 }
