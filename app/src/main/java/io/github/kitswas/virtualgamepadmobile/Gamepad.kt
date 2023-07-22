@@ -6,18 +6,21 @@ import android.content.ContextWrapper
 import android.content.pm.ActivityInfo
 import android.content.res.Configuration
 import android.util.Log
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.offset
-import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.*
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Home
+import androidx.compose.material.icons.filled.Menu
+import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import io.github.kitswas.VGP_Data_Exchange.GameButtons
 import io.github.kitswas.VGP_Data_Exchange.GamepadReading
 import io.github.kitswas.virtualgamepadmobile.ui.theme.VirtualGamePadMobileTheme
+import io.github.kitswas.virtualgamepadmobile.ui.theme.darken
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -93,6 +96,8 @@ private fun DrawGamepad(
     gamepadState: GamepadReading,
     connectionViewModel: ConnectionViewModel?,
 ) {
+    val foregroundColour = MaterialTheme.colorScheme.primary
+    val backgroundColour = darken(MaterialTheme.colorScheme.primary, 0.8f)
 
     // Assuming Landscape orientation
     val baseDp = heightDp
@@ -105,7 +110,6 @@ private fun DrawGamepad(
     Box(
         modifier = Modifier
             .padding(deadZonePadding.dp)
-//            .background(Color.Magenta)
             .fillMaxSize(),
         contentAlignment = Alignment.TopStart // Origin is top left
     ) {
@@ -117,7 +121,6 @@ private fun DrawGamepad(
     Box(
         modifier = Modifier
             .padding(deadZonePadding.dp)
-//            .background(Color.Magenta)
             .fillMaxSize(),
         contentAlignment = Alignment.BottomStart // Origin is bottom left
     ) {
@@ -134,7 +137,6 @@ private fun DrawGamepad(
     Box(
         modifier = Modifier
             .padding(deadZonePadding.dp)
-//            .background(Color.Magenta)
             .fillMaxSize(),
         contentAlignment = Alignment.TopEnd // Origin is top right
     ) {
@@ -147,7 +149,6 @@ private fun DrawGamepad(
     Box(
         modifier = Modifier
             .padding(deadZonePadding.dp)
-//            .background(Color.Magenta)
             .fillMaxSize(),
         contentAlignment = Alignment.BottomEnd // Origin is bottom right
     ) {
@@ -159,6 +160,109 @@ private fun DrawGamepad(
             outerCircleWidth = (baseDp / 16).dp,
             innerCircleRadius = (baseDp / 8).dp,
         )
+    }
+    Box(
+        modifier = Modifier
+            .padding(deadZonePadding.dp)
+            .fillMaxSize(),
+        contentAlignment = Alignment.TopCenter // Origin is top center
+    ) {
+        val screenIcon = Icons.Default.Home
+        val menuIcon = Icons.Default.Menu
+        Button(
+            modifier = Modifier
+                .offset(
+                    x = -(baseDp / 4).dp,
+                    y = 0.dp
+                ),
+            onClick = {
+                if (connectionViewModel != null) {
+                    CoroutineScope(Dispatchers.IO).launch {
+                        gamepadState.ButtonsDown = gamepadState.ButtonsDown or GameButtons.LeftShoulder.value
+                        connectionViewModel.sendGamepadState(gamepadState)
+                        gamepadState.ButtonsUp = gamepadState.ButtonsDown
+                        gamepadState.ButtonsDown = 0
+                        connectionViewModel.sendGamepadState(gamepadState)
+                    }
+                }
+            },
+        ) {
+            Text("LSHLDR")
+        }
+        Button(
+            modifier = Modifier
+                .offset(
+                    x = (baseDp / 4).dp,
+                    y = 0.dp
+                ),
+            onClick = {
+                if (connectionViewModel != null) {
+                    CoroutineScope(Dispatchers.IO).launch {
+                        gamepadState.ButtonsDown = gamepadState.ButtonsDown or GameButtons.RightShoulder.value
+                        connectionViewModel.sendGamepadState(gamepadState)
+                        gamepadState.ButtonsUp = gamepadState.ButtonsDown
+                        gamepadState.ButtonsDown = 0
+                        connectionViewModel.sendGamepadState(gamepadState)
+                    }
+                }
+            },
+        ) {
+            Text("RSHLDR")
+        }
+        OutlinedIconButton(
+            modifier = Modifier
+                .size((baseDp / 8).dp)
+                .offset(
+                    x = -(baseDp / 4).dp,
+                    y = (baseDp / 4).dp
+                ),
+            onClick = {
+                if (connectionViewModel != null) {
+                    CoroutineScope(Dispatchers.IO).launch {
+                        gamepadState.ButtonsDown = gamepadState.ButtonsDown or GameButtons.View.value
+                        connectionViewModel.sendGamepadState(gamepadState)
+                        gamepadState.ButtonsUp = gamepadState.ButtonsDown
+                        gamepadState.ButtonsDown = 0
+                        connectionViewModel.sendGamepadState(gamepadState)
+                    }
+                }
+            },
+        ) {
+            Icon(
+                imageVector = screenIcon,//Placeholder
+                contentDescription = "View Button",
+                modifier = Modifier
+                    .size((baseDp / 8).dp),
+                tint = foregroundColour
+            )
+        }
+        OutlinedIconButton(
+            modifier = Modifier
+                .size((baseDp / 8).dp)
+                .offset(
+                    x = (baseDp / 4).dp,
+                    y = (baseDp / 4).dp
+                ),
+            onClick = {
+                if (connectionViewModel != null) {
+                    CoroutineScope(Dispatchers.IO).launch {
+                        gamepadState.ButtonsDown = gamepadState.ButtonsDown or GameButtons.Menu.value
+                        connectionViewModel.sendGamepadState(gamepadState)
+                        gamepadState.ButtonsUp = gamepadState.ButtonsDown
+                        gamepadState.ButtonsDown = 0
+                        connectionViewModel.sendGamepadState(gamepadState)
+                    }
+                }
+            },
+        ) {
+            Icon(
+                imageVector = menuIcon,
+                contentDescription = "Menu Button",
+                modifier = Modifier
+                    .size((baseDp / 8).dp),
+                tint = foregroundColour
+            )
+        }
     }
 }
 
