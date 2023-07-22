@@ -62,6 +62,38 @@ fun GamePad(widthDp: Float, heightDp: Float, connectionViewModel: ConnectionView
 //            widthDp
 //        }
 //    }
+
+    DrawGamepad(widthDp, heightDp, gamepadState, connectionViewModel)
+
+    val activity = LocalContext.current.findActivity()
+    // disconnect on back press
+    androidx.compose.ui.platform.LocalLifecycleOwner.current.lifecycle
+        .addObserver(androidx.lifecycle.LifecycleEventObserver { _, event ->
+            if (event == androidx.lifecycle.Lifecycle.Event.ON_DESTROY
+                && activity?.isChangingConfigurations != true // ignore screen rotation
+            ) {
+                if (connectionViewModel != null) {
+                    CoroutineScope(Dispatchers.IO).launch {
+                        // unset all keys before disconnecting
+                        gamepadState.ButtonsUp = gamepadState.ButtonsDown
+                        gamepadState.ButtonsDown = 0
+                        connectionViewModel.sendGamepadState(gamepadState)
+                        connectionViewModel.disconnect()
+                        Log.d("GamePad", "Disconnected")
+                    }
+                }
+            }
+        })
+}
+
+@Composable
+private fun DrawGamepad(
+    widthDp: Float,
+    heightDp: Float,
+    gamepadState: GamepadReading,
+    connectionViewModel: ConnectionViewModel?,
+) {
+
     // Assuming Landscape orientation
     val baseDp = heightDp
     val altDp = widthDp
@@ -128,26 +160,6 @@ fun GamePad(widthDp: Float, heightDp: Float, connectionViewModel: ConnectionView
             innerCircleRadius = (baseDp / 8).dp,
         )
     }
-
-    val activity = LocalContext.current.findActivity()
-    // disconnect on back press
-    androidx.compose.ui.platform.LocalLifecycleOwner.current.lifecycle
-        .addObserver(androidx.lifecycle.LifecycleEventObserver { _, event ->
-            if (event == androidx.lifecycle.Lifecycle.Event.ON_DESTROY
-                && activity?.isChangingConfigurations != true // ignore screen rotation
-            ) {
-                if (connectionViewModel != null) {
-                    CoroutineScope(Dispatchers.IO).launch {
-                        // unset all keys before disconnecting
-                        gamepadState.ButtonsUp = gamepadState.ButtonsDown
-                        gamepadState.ButtonsDown = 0
-                        connectionViewModel.sendGamepadState(gamepadState)
-                        connectionViewModel.disconnect()
-                        Log.d("GamePad", "Disconnected")
-                    }
-                }
-            }
-        })
 }
 
 const val PreviewWidthDp = 900
