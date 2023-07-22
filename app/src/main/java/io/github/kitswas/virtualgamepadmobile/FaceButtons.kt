@@ -1,10 +1,16 @@
 package io.github.kitswas.virtualgamepadmobile
 
+import android.util.Log
+import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.interaction.collectIsPressedAsState
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -46,14 +52,28 @@ fun FaceButton(
         FaceButtonType.X -> GameButtons.X
         FaceButtonType.Y -> GameButtons.Y
     }
+    val interactionSource = remember { MutableInteractionSource() }
+    val isPressed by interactionSource.collectIsPressedAsState()
+    // See https://stackoverflow.com/a/69157877/8659747
+    if (isPressed) {
+        Log.d("FaceButton ${type.name}", "Pressed")
+        gamepadState.ButtonsDown = gamepadState.ButtonsDown or gameButton.value
+        //Use if + DisposableEffect to wait for the press action is completed
+        DisposableEffect(Unit) {
+            onDispose {
+                Log.d("FaceButton ${type.name}", "Released")
+                gamepadState.ButtonsDown = gamepadState.ButtonsDown and gameButton.value.inv()
+                gamepadState.ButtonsUp = gamepadState.ButtonsUp or gameButton.value
+            }
+        }
+    }
     OutlinedButton(
         modifier = modifier.size(size).padding(0.dp),
-        onClick = {
-            gamepadState.ButtonsDown = gamepadState.ButtonsDown or gameButton.value
-        },
+        onClick = {},
         colors = ButtonDefaults.outlinedButtonColors(
             containerColor = backgroundColour,
         ),
+        interactionSource = interactionSource,
     ) {
         Text(
             text = type.name,

@@ -6,6 +6,8 @@ import android.content.ContextWrapper
 import android.content.pm.ActivityInfo
 import android.content.res.Configuration
 import android.util.Log
+import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.interaction.collectIsPressedAsState
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Menu
@@ -24,8 +26,8 @@ import io.github.kitswas.virtualgamepadmobile.ui.theme.VirtualGamePadMobileTheme
 import io.github.kitswas.virtualgamepadmobile.ui.theme.darken
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
-import java.util.*
 
 /**
  * Locks the screen orientation to the given orientation.
@@ -68,20 +70,20 @@ fun GamePad(widthDp: Float, heightDp: Float, connectionViewModel: ConnectionView
 //        }
 //    }
 
-    val pollingDelay = 2L // in milliseconds
-    Timer().apply {
-        val task = object : TimerTask() {
-            override fun run() {
-                if (connectionViewModel != null) {
-                    CoroutineScope(Dispatchers.IO).launch {
-                        connectionViewModel.sendGamepadState(gamepadState)
-                        gamepadState.ButtonsUp = gamepadState.ButtonsDown
-                        gamepadState.ButtonsDown = 0
-                    }
+    val pollingDelay = 10L // in milliseconds
+    val startAfter = 100L // in milliseconds
+    // Send gamepad state every pollingDelay milliseconds
+    LaunchedEffect(gamepadState) {
+        delay(startAfter)
+        while (true) {
+            if (connectionViewModel != null) {
+                CoroutineScope(Dispatchers.IO).launch {
+                    connectionViewModel.sendGamepadState(gamepadState)
+                    gamepadState.ButtonsUp = 0
                 }
             }
+            delay(pollingDelay)
         }
-        scheduleAtFixedRate(task, 0, pollingDelay)
     }
 
     DrawGamepad(widthDp, heightDp, gamepadState, connectionViewModel)
@@ -183,102 +185,133 @@ private fun DrawGamepad(
             .fillMaxSize(),
         contentAlignment = Alignment.TopCenter // Origin is top center
     ) {
+        for ((gameButton, text, offsetX) in listOf(
+            Triple(GameButtons.LeftShoulder, "LSHLDR", -(baseDp / 4).dp),
+            Triple(GameButtons.RightShoulder, "RSHLDR", (baseDp / 4).dp),
+        )) {
+            val interactionSource = remember { MutableInteractionSource() }
+            val isPressed by interactionSource.collectIsPressedAsState()
+            // See https://stackoverflow.com/a/69157877/8659747
+            if (isPressed) {
+                Log.d(gameButton.name, "Pressed")
+                gamepadState.ButtonsDown = gamepadState.ButtonsDown or gameButton.value
+                //Use if + DisposableEffect to wait for the press action is completed
+                DisposableEffect(Unit) {
+                    onDispose {
+                        Log.d(gameButton.name, "Released")
+                        gamepadState.ButtonsDown = gamepadState.ButtonsDown and gameButton.value.inv()
+                        gamepadState.ButtonsUp = gamepadState.ButtonsUp or gameButton.value
+                    }
+                }
+            }
+            Button(
+                modifier = Modifier
+                    .offset(
+                        x = offsetX,
+                        y = 0.dp
+                    ),
+                onClick = { },
+                interactionSource = interactionSource,
+            ) {
+                Text(text)
+            }
+        }
+
         val screenIcon = ImageVector.vectorResource(R.drawable.screenicon)
         val menuIcon = Icons.Default.Menu
-        Button(
-            modifier = Modifier
-                .offset(
-                    x = -(baseDp / 4).dp,
-                    y = 0.dp
-                ),
-            onClick = {
-                if (connectionViewModel != null) {
-                    CoroutineScope(Dispatchers.IO).launch {
-                        gamepadState.ButtonsDown = gamepadState.ButtonsDown or GameButtons.LeftShoulder.value
-                        connectionViewModel.sendGamepadState(gamepadState)
-                        gamepadState.ButtonsUp = gamepadState.ButtonsDown
-                        gamepadState.ButtonsDown = 0
-                        connectionViewModel.sendGamepadState(gamepadState)
+        for ((gameButton, icon, offsetX) in listOf(
+            Triple(GameButtons.View, screenIcon, -(baseDp / 4).dp),
+            Triple(GameButtons.Menu, menuIcon, (baseDp / 4).dp),
+        )) {
+            val interactionSource = remember { MutableInteractionSource() }
+            val isPressed by interactionSource.collectIsPressedAsState()
+            // See https://stackoverflow.com/a/69157877/8659747
+            if (isPressed) {
+                Log.d(gameButton.name, "Pressed")
+                gamepadState.ButtonsDown = gamepadState.ButtonsDown or gameButton.value
+                //Use if + DisposableEffect to wait for the press action is completed
+                DisposableEffect(Unit) {
+                    onDispose {
+                        Log.d(gameButton.name, "Released")
+                        gamepadState.ButtonsDown = gamepadState.ButtonsDown and gameButton.value.inv()
+                        gamepadState.ButtonsUp = gamepadState.ButtonsUp or gameButton.value
                     }
                 }
-            },
-        ) {
-            Text("LSHLDR")
-        }
-        Button(
-            modifier = Modifier
-                .offset(
-                    x = (baseDp / 4).dp,
-                    y = 0.dp
-                ),
-            onClick = {
-                if (connectionViewModel != null) {
-                    CoroutineScope(Dispatchers.IO).launch {
-                        gamepadState.ButtonsDown = gamepadState.ButtonsDown or GameButtons.RightShoulder.value
-                        connectionViewModel.sendGamepadState(gamepadState)
-                        gamepadState.ButtonsUp = gamepadState.ButtonsDown
-                        gamepadState.ButtonsDown = 0
-                        connectionViewModel.sendGamepadState(gamepadState)
-                    }
-                }
-            },
-        ) {
-            Text("RSHLDR")
-        }
-        OutlinedIconButton(
-            modifier = Modifier
-                .size((baseDp / 8).dp)
-                .offset(
-                    x = -(baseDp / 4).dp,
-                    y = (baseDp / 4).dp
-                ),
-            onClick = {
-                if (connectionViewModel != null) {
-                    CoroutineScope(Dispatchers.IO).launch {
-                        gamepadState.ButtonsDown = gamepadState.ButtonsDown or GameButtons.View.value
-                        connectionViewModel.sendGamepadState(gamepadState)
-                        gamepadState.ButtonsUp = gamepadState.ButtonsDown
-                        gamepadState.ButtonsDown = 0
-                        connectionViewModel.sendGamepadState(gamepadState)
-                    }
-                }
-            },
-        ) {
-            Icon(
-                imageVector = screenIcon,//Placeholder
-                contentDescription = "View Button",
+            }
+            OutlinedIconButton(
                 modifier = Modifier
-                    .size((baseDp / 12).dp),
-                tint = foregroundColour
-            )
+                    .size((baseDp / 8).dp)
+                    .offset(
+                        x = offsetX,
+                        y = (baseDp / 4).dp
+                    ),
+                onClick = { },
+                interactionSource = interactionSource,
+            ) {
+                Icon(
+                    imageVector = icon,
+                    contentDescription = "${gameButton.name} Button",
+                    modifier = Modifier
+                        .size((baseDp / 12).dp),
+                    tint = foregroundColour
+                )
+            }
         }
-        OutlinedIconButton(
-            modifier = Modifier
-                .size((baseDp / 8).dp)
-                .offset(
-                    x = (baseDp / 4).dp,
-                    y = (baseDp / 4).dp
-                ),
-            onClick = {
-                if (connectionViewModel != null) {
-                    CoroutineScope(Dispatchers.IO).launch {
-                        gamepadState.ButtonsDown = gamepadState.ButtonsDown or GameButtons.Menu.value
-                        connectionViewModel.sendGamepadState(gamepadState)
-                        gamepadState.ButtonsUp = gamepadState.ButtonsDown
-                        gamepadState.ButtonsDown = 0
-                        connectionViewModel.sendGamepadState(gamepadState)
-                    }
-                }
-            },
-        ) {
-            Icon(
-                imageVector = menuIcon,
-                contentDescription = "Menu Button",
-                modifier = Modifier
-                    .size((baseDp / 8).dp),
-                tint = foregroundColour
-            )
-        }
+//
+//        OutlinedIconButton(
+//            modifier = Modifier
+//                .size((baseDp / 8).dp)
+//                .offset(
+//                    x = -(baseDp / 4).dp,
+//                    y = (baseDp / 4).dp
+//                ),
+//            onClick = {
+//                if (connectionViewModel != null) {
+//                    CoroutineScope(Dispatchers.IO).launch {
+//                        gamepadState.ButtonsDown = gamepadState.ButtonsDown or GameButtons.View.value
+//                        connectionViewModel.sendGamepadState(gamepadState)
+//                        gamepadState.ButtonsUp = gamepadState.ButtonsDown
+//                        gamepadState.ButtonsDown = 0
+//                        connectionViewModel.sendGamepadState(gamepadState)
+//                    }
+//                }
+//            },
+//        ) {
+//            Icon(
+//                imageVector = screenIcon,//Placeholder
+//                contentDescription = "View Button",
+//                modifier = Modifier
+//                    .size((baseDp / 12).dp),
+//                tint = foregroundColour
+//            )
+//        }
+//        OutlinedIconButton(
+//            modifier = Modifier
+//                .size((baseDp / 8).dp)
+//                .offset(
+//                    x = (baseDp / 4).dp,
+//                    y = (baseDp / 4).dp
+//                ),
+//            onClick = {
+//                if (connectionViewModel != null) {
+//                    CoroutineScope(Dispatchers.IO).launch {
+//                        gamepadState.ButtonsDown = gamepadState.ButtonsDown or GameButtons.Menu.value
+//                        connectionViewModel.sendGamepadState(gamepadState)
+//                        gamepadState.ButtonsUp = gamepadState.ButtonsDown
+//                        gamepadState.ButtonsDown = 0
+//                        connectionViewModel.sendGamepadState(gamepadState)
+//                    }
+//                }
+//            },
+//        ) {
+//            Icon(
+//                imageVector = menuIcon,
+//                contentDescription = "Menu Button",
+//                modifier = Modifier
+//                    .size((baseDp / 8).dp),
+//                tint = foregroundColour
+//            )
+//        }
     }
 }
 
