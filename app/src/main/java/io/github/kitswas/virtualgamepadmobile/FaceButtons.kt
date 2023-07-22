@@ -12,6 +12,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.times
 import io.github.kitswas.VGP_Data_Exchange.GameButtons
 import io.github.kitswas.VGP_Data_Exchange.GamepadReading
 import io.github.kitswas.virtualgamepadmobile.ui.theme.VirtualGamePadMobileTheme
@@ -88,28 +89,28 @@ fun FaceButtons(
         FaceButton(
             type = FaceButtonType.A,
             modifier = Modifier.align(Alignment.BottomCenter),
-            size = size / 3,
+            size = 2 * size / 5,
             gamepadState = gamepadState,
             connectionViewModel = connectionViewModel,
         )
         FaceButton(
             type = FaceButtonType.B,
             modifier = Modifier.align(Alignment.CenterEnd),
-            size = size / 3,
+            size = 2 * size / 5,
             gamepadState = gamepadState,
             connectionViewModel = connectionViewModel,
         )
         FaceButton(
             type = FaceButtonType.X,
             modifier = Modifier.align(Alignment.CenterStart),
-            size = size / 3,
+            size = 2 * size / 5,
             gamepadState = gamepadState,
             connectionViewModel = connectionViewModel,
         )
         FaceButton(
             type = FaceButtonType.Y,
             modifier = Modifier.align(Alignment.TopCenter),
-            size = size / 3,
+            size = 2 * size / 5,
             gamepadState = gamepadState,
             connectionViewModel = connectionViewModel,
         )
