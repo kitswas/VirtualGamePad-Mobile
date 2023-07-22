@@ -1,6 +1,7 @@
 package io.github.kitswas.virtualgamepadmobile
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.size
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
@@ -15,6 +16,7 @@ import io.github.kitswas.virtualgamepadmobile.ui.theme.lighten
 
 @Composable
 fun AnalogStick(
+    modifier: Modifier = Modifier,
     ringColor: Color = MaterialTheme.colorScheme.outline,
     ringWidth: Dp = 2.dp,
     outerCircleColor: Color = lighten(MaterialTheme.colorScheme.primary, 0.2f),
@@ -22,27 +24,32 @@ fun AnalogStick(
     innerCircleColor: Color = darken(MaterialTheme.colorScheme.primary, 0.2f),
     innerCircleRadius: Dp = 32.dp,
 ) {
-    // First draw the glow ring
-    Circle(
-        modifier = Modifier
-            .background(ringColor)
-            .size((innerCircleRadius + outerCircleWidth + ringWidth) * 2),
-        contentAlignment = Alignment.Center
-    ) {
-        // Then draw the outer circle
+    Box(
+        modifier = modifier,
+    )
+    {
+        // First draw the glow ring
         Circle(
             modifier = Modifier
-                .background(outerCircleColor)
-                .size((innerCircleRadius + outerCircleWidth) * 2),
+                .background(ringColor)
+                .size((innerCircleRadius + outerCircleWidth + ringWidth) * 2),
             contentAlignment = Alignment.Center
         ) {
-            // Then draw the inner circle
+            // Then draw the outer circle
             Circle(
                 modifier = Modifier
-                    .background(innerCircleColor)
-                    .size(innerCircleRadius * 2)
+                    .background(outerCircleColor)
+                    .size((innerCircleRadius + outerCircleWidth) * 2),
+                contentAlignment = Alignment.Center
             ) {
+                // Then draw the inner circle
+                Circle(
+                    modifier = Modifier
+                        .background(innerCircleColor)
+                        .size(innerCircleRadius * 2)
+                ) {
 
+                }
             }
         }
     }

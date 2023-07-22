@@ -8,13 +8,16 @@ import android.content.res.Configuration
 import android.util.Log
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import io.github.kitswas.VGP_Data_Exchange.GamepadReading
+import io.github.kitswas.virtualgamepadmobile.ui.theme.VirtualGamePadMobileTheme
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -59,17 +62,68 @@ fun GamePad(widthDp: Float, heightDp: Float, connectionViewModel: ConnectionView
 //            widthDp
 //        }
 //    }
-    val baseDp = heightDp // Assuming Landscape orientation
+    // Assuming Landscape orientation
+    val baseDp = heightDp
+    val altDp = widthDp
+
+    val deadZonePadding = baseDp / 18
 
     // First we make a box that will contain the gamepad
     // And put padding around it so that it doesn't touch the edges of the screen
     Box(
         modifier = Modifier
-            .padding((baseDp / 18).dp)
+            .padding(deadZonePadding.dp)
 //            .background(Color.Magenta)
-            .fillMaxSize()
+            .fillMaxSize(),
+        contentAlignment = Alignment.TopStart // Origin is top left
     ) {
         AnalogStick(
+            outerCircleWidth = (baseDp / 16).dp,
+            innerCircleRadius = (baseDp / 8).dp,
+        )
+    }
+    Box(
+        modifier = Modifier
+            .padding(deadZonePadding.dp)
+//            .background(Color.Magenta)
+            .fillMaxSize(),
+        contentAlignment = Alignment.BottomStart // Origin is bottom left
+    ) {
+        Dpad(
+            size = (2 * baseDp / 5).dp,
+            modifier = Modifier.offset(
+                x = (baseDp / 3).dp,
+                y = 0.dp
+            ),
+            gamepadState = gamepadState,
+            connectionViewModel = connectionViewModel,
+        )
+    }
+    Box(
+        modifier = Modifier
+            .padding(deadZonePadding.dp)
+//            .background(Color.Magenta)
+            .fillMaxSize(),
+        contentAlignment = Alignment.TopEnd // Origin is top right
+    ) {
+        FaceButtons(
+            size = (2 * baseDp / 5).dp,
+            gamepadState = gamepadState,
+            connectionViewModel = connectionViewModel,
+        )
+    }
+    Box(
+        modifier = Modifier
+            .padding(deadZonePadding.dp)
+//            .background(Color.Magenta)
+            .fillMaxSize(),
+        contentAlignment = Alignment.BottomEnd // Origin is bottom right
+    ) {
+        AnalogStick(
+            modifier = Modifier.offset(
+                x = -(baseDp / 3).dp,
+                y = 0.dp
+            ),
             outerCircleWidth = (baseDp / 16).dp,
             innerCircleRadius = (baseDp / 8).dp,
         )
@@ -106,18 +160,22 @@ const val PreviewHeightDp = 400
 )
 @Composable
 fun GamePadPreview() {
-    GamePad(PreviewWidthDp.toFloat(), PreviewHeightDp.toFloat(), null)
+    VirtualGamePadMobileTheme {
+        GamePad(PreviewWidthDp.toFloat(), PreviewHeightDp.toFloat(), null)
+    }
 }
 
 @Preview(
-    showBackground = true,
+    showBackground = false,
     widthDp = PreviewWidthDp,
     heightDp = PreviewHeightDp,
     uiMode = Configuration.UI_MODE_NIGHT_YES
 )
 @Composable
 private fun GamePadPreviewNight() {
-    GamePad(PreviewWidthDp.toFloat(), PreviewHeightDp.toFloat(), null)
+    VirtualGamePadMobileTheme {
+        GamePad(PreviewWidthDp.toFloat(), PreviewHeightDp.toFloat(), null)
+    }
 }
 
 private fun resetGamepadState(gamepadState: GamepadReading) {
