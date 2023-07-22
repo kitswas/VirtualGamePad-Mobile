@@ -12,10 +12,14 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import io.github.kitswas.VGP_Data_Exchange.GameButtons
 import io.github.kitswas.VGP_Data_Exchange.GamepadReading
 import io.github.kitswas.virtualgamepadmobile.ui.theme.VirtualGamePadMobileTheme
 import io.github.kitswas.virtualgamepadmobile.ui.theme.darken
 import io.github.kitswas.virtualgamepadmobile.ui.theme.lighten
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 
 
 enum class FaceButtonType {
@@ -39,9 +43,25 @@ fun FaceButton(
     gamepadState: GamepadReading,
     connectionViewModel: ConnectionViewModel?,
 ) {
+    val gameButton = when (type) {
+        FaceButtonType.A -> GameButtons.A
+        FaceButtonType.B -> GameButtons.B
+        FaceButtonType.X -> GameButtons.X
+        FaceButtonType.Y -> GameButtons.Y
+    }
     OutlinedButton(
         modifier = modifier.size(size).padding(0.dp),
-        onClick = { },
+        onClick = {
+            if (connectionViewModel != null) {
+                CoroutineScope(Dispatchers.IO).launch {
+                    gamepadState.ButtonsDown = gamepadState.ButtonsDown or gameButton.value
+                    connectionViewModel.sendGamepadState(gamepadState)
+                    gamepadState.ButtonsUp = gamepadState.ButtonsDown
+                    gamepadState.ButtonsDown = 0
+                    connectionViewModel.sendGamepadState(gamepadState)
+                }
+            }
+        },
         colors = ButtonDefaults.outlinedButtonColors(
             containerColor = backgroundColour,
         ),
