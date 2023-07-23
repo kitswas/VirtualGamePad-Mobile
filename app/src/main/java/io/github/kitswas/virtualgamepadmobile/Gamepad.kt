@@ -128,8 +128,8 @@ private fun DrawGamepad(
         contentAlignment = Alignment.TopStart // Origin is top left
     ) {
         AnalogStick(
-            outerCircleWidth = (baseDp / 16).dp,
-            innerCircleRadius = (baseDp / 8).dp,
+            outerCircleWidth = (baseDp / 8).dp,
+            innerCircleRadius = (baseDp / 12).dp,
             gamepadState = gamepadState,
             type = AnalogStickType.LEFT,
         )
@@ -171,8 +171,8 @@ private fun DrawGamepad(
                 x = -(baseDp / 4).dp,
                 y = 0.dp
             ),
-            outerCircleWidth = (baseDp / 16).dp,
-            innerCircleRadius = (baseDp / 8).dp,
+            outerCircleWidth = (baseDp / 8).dp,
+            innerCircleRadius = (baseDp / 12).dp,
             gamepadState = gamepadState,
             type = AnalogStickType.RIGHT,
         )
