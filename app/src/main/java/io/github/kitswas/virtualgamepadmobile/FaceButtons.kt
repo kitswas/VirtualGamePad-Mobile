@@ -34,7 +34,7 @@ enum class FaceButtonType {
 private val faceButtonColourMap = mapOf(
     FaceButtonType.A to Color(0xFF00FF00),
     FaceButtonType.B to Color(0xFFFF0000),
-    FaceButtonType.X to Color(0xFF0000FF),
+    FaceButtonType.X to Color(0xFF0055FF),
     FaceButtonType.Y to Color(0xFFFFFF00),
 )
 
