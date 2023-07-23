@@ -59,18 +59,6 @@ fun GamePad(widthDp: Float, heightDp: Float, connectionViewModel: ConnectionView
     val gamepadState by remember { mutableStateOf(GamepadReading()) }
     LockScreenOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE)
 
-//    // Scale the gamepad to fit the screen
-//    val configuration = LocalConfiguration.current
-//    val baseDp = when (configuration.orientation) {
-//        Configuration.ORIENTATION_LANDSCAPE -> {
-//            heightDp
-//        }
-//
-//        else -> {
-//            widthDp
-//        }
-//    }
-
     val pollingDelay = 10L // in milliseconds
     val startAfter = 100L // in milliseconds
     // Send gamepad state every pollingDelay milliseconds
