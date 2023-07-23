@@ -59,7 +59,7 @@ fun GamePad(widthDp: Float, heightDp: Float, connectionViewModel: ConnectionView
     val gamepadState by remember { mutableStateOf(GamepadReading()) }
     LockScreenOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE)
 
-    val pollingDelay = 10L // in milliseconds
+    val pollingDelay = 100L // in milliseconds
     val startAfter = 100L // in milliseconds
     // Send gamepad state every pollingDelay milliseconds
     LaunchedEffect(gamepadState) {
