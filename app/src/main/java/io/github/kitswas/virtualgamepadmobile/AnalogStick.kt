@@ -27,7 +27,7 @@ enum class AnalogStickType {
 fun AnalogStick(
     modifier: Modifier = Modifier,
     ringColor: Color = MaterialTheme.colorScheme.outline,
-    ringWidth: Dp = 2.dp,
+    ringWidth: Dp = 4.dp,
     outerCircleColor: Color = lighten(MaterialTheme.colorScheme.primary, 0.2f),
     outerCircleWidth: Dp = 4.dp,
     innerCircleColor: Color = darken(MaterialTheme.colorScheme.primary, 0.2f),

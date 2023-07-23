@@ -1,6 +1,7 @@
 package io.github.kitswas.virtualgamepadmobile
 
 import android.util.Log
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.collectIsPressedAsState
 import androidx.compose.foundation.layout.Box
@@ -74,6 +75,7 @@ fun DpadButton(
         colors = IconButtonDefaults.outlinedIconButtonColors(
             containerColor = backgroundColour,
         ),
+        border = BorderStroke(2.dp, MaterialTheme.colorScheme.outline),
         interactionSource = interactionSource,
     ) {
         Icon(

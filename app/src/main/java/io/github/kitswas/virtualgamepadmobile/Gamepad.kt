@@ -6,6 +6,7 @@ import android.content.ContextWrapper
 import android.content.pm.ActivityInfo
 import android.content.res.Configuration
 import android.util.Log
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.collectIsPressedAsState
 import androidx.compose.foundation.layout.*
@@ -214,6 +215,7 @@ private fun DrawGamepad(
                         x = offsetX,
                         y = 0.dp
                     ),
+                border = BorderStroke(2.dp, MaterialTheme.colorScheme.outline),
                 onClick = { },
                 interactionSource = interactionSource,
             ) {
@@ -249,6 +251,7 @@ private fun DrawGamepad(
                         x = offsetX,
                         y = (baseDp / 4).dp
                     ),
+                border = BorderStroke(2.dp, MaterialTheme.colorScheme.outline),
                 onClick = { },
                 interactionSource = interactionSource,
             ) {
