@@ -16,18 +16,17 @@ import androidx.compose.ui.unit.dp
 @Composable
 fun Circle(
     modifier: Modifier = Modifier,
-    contentAlignment: Alignment = Alignment.TopStart,
-    propagateMinConstraints: Boolean = false,
-    content: @Composable BoxScope.() -> Unit
+    contentAlignment: Alignment = Alignment.Center,
+    colour: Color = Color.White,
+    content: @Composable() (BoxScope.() -> Unit)
 ) {
     Box(
-        modifier = Modifier.clip(shape = CircleShape).background(Color.Transparent),
-        contentAlignment = Alignment.Center
+        modifier = modifier.clip(shape = CircleShape).background(Color.Transparent),
+        contentAlignment = contentAlignment
     ) {
         Box(
-            modifier,
-            contentAlignment,
-            propagateMinConstraints,
+            Modifier.background(colour).matchParentSize(),
+            contentAlignment = contentAlignment
         ) {
             content()
         }
@@ -39,7 +38,6 @@ fun Circle(
 fun CirclePreview() {
     Circle(
         modifier = Modifier
-            .background(Color.Red)
             .size(16.dp),
         contentAlignment = Alignment.Center
     ) {}

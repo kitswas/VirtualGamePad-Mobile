@@ -136,6 +136,8 @@ private fun DrawGamepad(
         AnalogStick(
             outerCircleWidth = (baseDp / 16).dp,
             innerCircleRadius = (baseDp / 8).dp,
+            gamepadState = gamepadState,
+            type = AnalogStickType.LEFT,
         )
     }
     Box(
@@ -177,6 +179,8 @@ private fun DrawGamepad(
             ),
             outerCircleWidth = (baseDp / 16).dp,
             innerCircleRadius = (baseDp / 8).dp,
+            gamepadState = gamepadState,
+            type = AnalogStickType.RIGHT,
         )
     }
     Box(
