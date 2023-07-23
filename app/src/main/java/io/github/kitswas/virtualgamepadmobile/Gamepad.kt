@@ -257,61 +257,6 @@ private fun DrawGamepad(
                 )
             }
         }
-//
-//        OutlinedIconButton(
-//            modifier = Modifier
-//                .size((baseDp / 8).dp)
-//                .offset(
-//                    x = -(baseDp / 4).dp,
-//                    y = (baseDp / 4).dp
-//                ),
-//            onClick = {
-//                if (connectionViewModel != null) {
-//                    CoroutineScope(Dispatchers.IO).launch {
-//                        gamepadState.ButtonsDown = gamepadState.ButtonsDown or GameButtons.View.value
-//                        connectionViewModel.sendGamepadState(gamepadState)
-//                        gamepadState.ButtonsUp = gamepadState.ButtonsDown
-//                        gamepadState.ButtonsDown = 0
-//                        connectionViewModel.sendGamepadState(gamepadState)
-//                    }
-//                }
-//            },
-//        ) {
-//            Icon(
-//                imageVector = screenIcon,//Placeholder
-//                contentDescription = "View Button",
-//                modifier = Modifier
-//                    .size((baseDp / 12).dp),
-//                tint = foregroundColour
-//            )
-//        }
-//        OutlinedIconButton(
-//            modifier = Modifier
-//                .size((baseDp / 8).dp)
-//                .offset(
-//                    x = (baseDp / 4).dp,
-//                    y = (baseDp / 4).dp
-//                ),
-//            onClick = {
-//                if (connectionViewModel != null) {
-//                    CoroutineScope(Dispatchers.IO).launch {
-//                        gamepadState.ButtonsDown = gamepadState.ButtonsDown or GameButtons.Menu.value
-//                        connectionViewModel.sendGamepadState(gamepadState)
-//                        gamepadState.ButtonsUp = gamepadState.ButtonsDown
-//                        gamepadState.ButtonsDown = 0
-//                        connectionViewModel.sendGamepadState(gamepadState)
-//                    }
-//                }
-//            },
-//        ) {
-//            Icon(
-//                imageVector = menuIcon,
-//                contentDescription = "Menu Button",
-//                modifier = Modifier
-//                    .size((baseDp / 8).dp),
-//                tint = foregroundColour
-//            )
-//        }
     }
 }
 
