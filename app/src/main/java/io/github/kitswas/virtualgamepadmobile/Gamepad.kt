@@ -75,7 +75,7 @@ fun GamePad(widthDp: Float, heightDp: Float, connectionViewModel: ConnectionView
         }
     }
 
-    DrawGamepad(widthDp, heightDp, gamepadState, connectionViewModel)
+    DrawGamepad(widthDp, heightDp, gamepadState)
 
     val activity = LocalContext.current.findActivity()
     // disconnect on back press
@@ -103,7 +103,6 @@ private fun DrawGamepad(
     widthDp: Float,
     heightDp: Float,
     gamepadState: GamepadReading,
-    connectionViewModel: ConnectionViewModel?,
 ) {
     val foregroundColour = MaterialTheme.colorScheme.primary
     val backgroundColour = darken(MaterialTheme.colorScheme.primary, 0.8f)
