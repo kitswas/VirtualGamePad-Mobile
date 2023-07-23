@@ -168,7 +168,7 @@ private fun DrawGamepad(
     ) {
         AnalogStick(
             modifier = Modifier.offset(
-                x = -(baseDp / 3).dp,
+                x = -(baseDp / 4).dp,
                 y = 0.dp
             ),
             outerCircleWidth = (baseDp / 16).dp,
