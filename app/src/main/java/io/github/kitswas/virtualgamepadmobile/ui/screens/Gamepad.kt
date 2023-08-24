@@ -23,8 +23,12 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import io.github.kitswas.VGP_Data_Exchange.GameButtons
 import io.github.kitswas.VGP_Data_Exchange.GamepadReading
-import io.github.kitswas.virtualgamepadmobile.*
+import io.github.kitswas.virtualgamepadmobile.ConnectionViewModel
 import io.github.kitswas.virtualgamepadmobile.R
+import io.github.kitswas.virtualgamepadmobile.ui.composables.AnalogStick
+import io.github.kitswas.virtualgamepadmobile.ui.composables.AnalogStickType
+import io.github.kitswas.virtualgamepadmobile.ui.composables.Dpad
+import io.github.kitswas.virtualgamepadmobile.ui.composables.FaceButtons
 import io.github.kitswas.virtualgamepadmobile.ui.theme.VirtualGamePadMobileTheme
 import io.github.kitswas.virtualgamepadmobile.ui.theme.darken
 import kotlinx.coroutines.CoroutineScope

@@ -1,4 +1,4 @@
-package io.github.kitswas.virtualgamepadmobile
+package io.github.kitswas.virtualgamepadmobile.ui.composables
 
 import android.util.Log
 import androidx.compose.foundation.BorderStroke
