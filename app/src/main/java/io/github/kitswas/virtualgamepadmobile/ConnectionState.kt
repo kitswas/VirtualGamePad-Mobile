@@ -25,6 +25,10 @@ class ConnectionViewModel : ViewModel() {
     val uiState: StateFlow<ConnectionState> = _uiState.asStateFlow()
 
     // Handle business logic
+    /**
+     * Connect to a server at the given IP address and port.
+     * This is a blocking call.
+     */
     fun connect(ipAddress: String, port: Int) {
         try {
             val socket = Socket()
@@ -47,6 +51,10 @@ class ConnectionViewModel : ViewModel() {
         }
     }
 
+    /**
+     * This is primarily for testing purposes.
+     */
+    @Suppress("unused")
     fun sendString(string: String) {
         try {
             if (_uiState.value.connected && _uiState.value.socket != null) {
