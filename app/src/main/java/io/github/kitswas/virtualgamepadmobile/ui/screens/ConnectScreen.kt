@@ -1,4 +1,4 @@
-package io.github.kitswas.virtualgamepadmobile
+package io.github.kitswas.virtualgamepadmobile.ui.screens
 
 import android.net.InetAddresses
 import android.os.Build
@@ -21,6 +21,7 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import com.google.mlkit.vision.codescanner.GmsBarcodeScanner
+import io.github.kitswas.virtualgamepadmobile.ConnectionViewModel
 import io.github.kitswas.virtualgamepadmobile.ui.theme.VirtualGamePadMobileTheme
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers

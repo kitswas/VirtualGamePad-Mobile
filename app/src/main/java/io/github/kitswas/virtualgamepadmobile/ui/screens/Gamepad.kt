@@ -1,4 +1,4 @@
-package io.github.kitswas.virtualgamepadmobile
+package io.github.kitswas.virtualgamepadmobile.ui.screens
 
 import android.app.Activity
 import android.content.Context
@@ -23,6 +23,8 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import io.github.kitswas.VGP_Data_Exchange.GameButtons
 import io.github.kitswas.VGP_Data_Exchange.GamepadReading
+import io.github.kitswas.virtualgamepadmobile.*
+import io.github.kitswas.virtualgamepadmobile.R
 import io.github.kitswas.virtualgamepadmobile.ui.theme.VirtualGamePadMobileTheme
 import io.github.kitswas.virtualgamepadmobile.ui.theme.darken
 import kotlinx.coroutines.CoroutineScope
