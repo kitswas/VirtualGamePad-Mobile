@@ -5,7 +5,11 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.size
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.runtime.*
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -94,8 +98,10 @@ fun AnalogStick(
                                     offsetX += dragAmount.x
                                     offsetY += dragAmount.y
                                     // scale and clamp between -1 and 1
-                                    scaledOffsetX = (offsetX / outerCircleWidth.toPx()).coerceIn(-1f, 1f)
-                                    scaledOffsetY = (offsetY / outerCircleWidth.toPx()).coerceIn(-1f, 1f)
+                                    scaledOffsetX =
+                                        (offsetX / outerCircleWidth.toPx()).coerceIn(-1f, 1f)
+                                    scaledOffsetY =
+                                        (offsetY / outerCircleWidth.toPx()).coerceIn(-1f, 1f)
                                     when (type) {
                                         AnalogStickType.LEFT -> {
                                             gamepadState.LeftThumbstickX = scaledOffsetX
