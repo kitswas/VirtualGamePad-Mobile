@@ -9,13 +9,23 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.text.KeyboardActions
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.Button
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
-import androidx.compose.runtime.*
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusDirection
 import androidx.compose.ui.graphics.RectangleShape
+import androidx.compose.ui.platform.LocalFocusManager
+import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
@@ -52,6 +62,26 @@ fun validatePort(port: String): Boolean {
     return port.toIntOrNull().let { it != null && it in 1..65535 }
 }
 
+private fun attemptToConnect(
+    navController: NavHostController,
+    connectionViewModel: ConnectionViewModel?,
+    ipAddress: String,
+    port: String
+) {
+    if (connectionViewModel != null) {
+        CoroutineScope(Dispatchers.IO).launch {
+            connectionViewModel.connect(ipAddress, port.toInt())
+        }.invokeOnCompletion {
+            CoroutineScope(Dispatchers.Main).launch {
+                // Update UI elements
+                if (connectionViewModel.uiState.value.connected) {
+                    navController.navigate("gamepad")
+                }
+            }
+        }
+    }
+}
+
 @Composable
 fun ConnectMenu(
     navController: NavHostController = rememberNavController(),
@@ -63,10 +93,11 @@ fun ConnectMenu(
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center
     ) {
-        var ipAddress by remember { mutableStateOf("") }
-        var port by remember { mutableStateOf("") }
+        var ipAddress by rememberSaveable { mutableStateOf("") }
+        var port by rememberSaveable { mutableStateOf("") }
         var isIPValid by remember { mutableStateOf(false) }
         var isPortValid by remember { mutableStateOf(false) }
+        val focusManager = LocalFocusManager.current
 
         Button(onClick = {
             scanner?.startScan()?.addOnSuccessListener {
@@ -89,6 +120,16 @@ fun ConnectMenu(
                 ipAddress = it
                 isIPValid = validateIP(ipAddress)
             },
+            keyboardOptions = KeyboardOptions(
+                imeAction = ImeAction.Next
+            ),
+            keyboardActions = KeyboardActions(
+                onNext = {
+                    // Pressing Ime button would move the text indicator's focus to the bottom
+                    // field, if it exists!
+                    focusManager.moveFocus(FocusDirection.Down)
+                }
+            ),
             shape = RectangleShape,
             modifier = Modifier.padding(0.dp, 5.dp),
             isError = !isIPValid
@@ -101,6 +142,16 @@ fun ConnectMenu(
                 port = it
                 isPortValid = validatePort(port)
             },
+            keyboardOptions = KeyboardOptions(
+                imeAction = ImeAction.Done
+            ),
+            keyboardActions = KeyboardActions(
+                onDone = {
+                    attemptToConnect(
+                        navController, connectionViewModel, ipAddress, port
+                    )
+                }
+            ),
             shape = RectangleShape,
             modifier = Modifier.padding(0.dp, 5.dp),
             isError = !isPortValid
@@ -109,18 +160,9 @@ fun ConnectMenu(
         Button(
             onClick =
             {
-                if (connectionViewModel != null) {
-                    CoroutineScope(Dispatchers.IO).launch {
-                        connectionViewModel.connect(ipAddress, port.toInt())
-                    }.invokeOnCompletion {
-                        CoroutineScope(Dispatchers.Main).launch {
-                            // Update UI elements
-                            if (connectionViewModel.uiState.value.connected) {
-                                navController.navigate("gamepad")
-                            }
-                        }
-                    }
-                }
+                attemptToConnect(
+                    navController, connectionViewModel, ipAddress, port
+                )
             },
             shape = CircleShape,
             enabled = isIPValid && isPortValid,
