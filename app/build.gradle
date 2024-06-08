@@ -86,8 +86,9 @@ dependencies {
     implementation 'com.google.android.gms:play-services-tflite-java:16.1.0'
 
     // Material3
-    implementation 'androidx.compose.material3:material3:1.2.1'
-    implementation 'androidx.compose.material3:material3-window-size-class:1.2.1'
+    def material3_version = '1.2.1'
+    implementation "androidx.compose.material3:material3:$material3_version"
+    implementation "androidx.compose.material3:material3-window-size-class:$material3_version"
 }
 
 task update_VGPDataExchangePackage(type: ProcessResources) {
