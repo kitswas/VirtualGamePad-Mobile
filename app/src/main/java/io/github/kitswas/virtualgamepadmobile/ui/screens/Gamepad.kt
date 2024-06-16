@@ -12,6 +12,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import io.github.kitswas.VGP_Data_Exchange.GamepadReading
@@ -48,7 +49,7 @@ fun Context.findActivity(): Activity? = when (this) {
 }
 
 @Composable
-fun GamePad(widthDp: Float, heightDp: Float, connectionViewModel: ConnectionViewModel?) {
+fun GamePad(connectionViewModel: ConnectionViewModel?) {
     val gamepadState by remember { mutableStateOf(GamepadReading()) }
     LockScreenOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE)
 
@@ -68,7 +69,12 @@ fun GamePad(widthDp: Float, heightDp: Float, connectionViewModel: ConnectionView
         }
     }
 
-    DrawGamepad(widthDp, heightDp, gamepadState)
+    val configuration = LocalConfiguration.current
+
+    val screenHeight = configuration.screenHeightDp
+    val screenWidth = configuration.screenWidthDp
+
+    DrawGamepad(screenWidth, screenHeight, gamepadState)
 
     val activity = LocalContext.current.findActivity()
     // disconnect on back press
@@ -108,7 +114,7 @@ const val PreviewHeightDp = 400
 @Composable
 fun GamePadPreview() {
     VirtualGamePadMobileTheme {
-        GamePad(PreviewWidthDp.toFloat(), PreviewHeightDp.toFloat(), null)
+        GamePad(null)
     }
 }
 
@@ -121,7 +127,7 @@ fun GamePadPreview() {
 @Composable
 private fun GamePadPreviewNight() {
     VirtualGamePadMobileTheme {
-        GamePad(PreviewWidthDp.toFloat(), PreviewHeightDp.toFloat(), null)
+        GamePad(null)
     }
 }
 

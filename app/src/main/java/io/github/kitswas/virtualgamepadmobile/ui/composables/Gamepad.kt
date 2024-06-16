@@ -24,8 +24,8 @@ import io.github.kitswas.virtualgamepadmobile.ui.theme.darken
 
 @Composable
 fun DrawGamepad(
-    widthDp: Float,
-    heightDp: Float,
+    widthDp: Int,
+    heightDp: Int,
     gamepadState: GamepadReading,
 ) {
     val foregroundColour = MaterialTheme.colorScheme.primary
