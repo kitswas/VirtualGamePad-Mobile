@@ -115,7 +115,8 @@ fun DrawGamepad(
                 DisposableEffect(Unit) {
                     onDispose {
                         Log.d(gameButton.name, "Released")
-                        gamepadState.ButtonsDown = gamepadState.ButtonsDown and gameButton.value.inv()
+                        gamepadState.ButtonsDown =
+                            gamepadState.ButtonsDown and gameButton.value.inv()
                         gamepadState.ButtonsUp = gamepadState.ButtonsUp or gameButton.value
                     }
                 }
@@ -150,7 +151,8 @@ fun DrawGamepad(
                 DisposableEffect(Unit) {
                     onDispose {
                         Log.d(gameButton.name, "Released")
-                        gamepadState.ButtonsDown = gamepadState.ButtonsDown and gameButton.value.inv()
+                        gamepadState.ButtonsDown =
+                            gamepadState.ButtonsDown and gameButton.value.inv()
                         gamepadState.ButtonsUp = gamepadState.ButtonsUp or gameButton.value
                     }
                 }

@@ -21,7 +21,10 @@ private val LightColorPalette = lightColorScheme(
 )
 
 @Composable
-fun VirtualGamePadMobileTheme(darkTheme: Boolean = isSystemInDarkTheme(), content: @Composable () -> Unit) {
+fun VirtualGamePadMobileTheme(
+    darkTheme: Boolean = isSystemInDarkTheme(),
+    content: @Composable () -> Unit
+) {
     val colorScheme = if (darkTheme) {
         DarkColorPalette
     } else {

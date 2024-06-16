@@ -70,7 +70,9 @@ fun DpadButton(
         }
     }
     OutlinedIconButton(
-        modifier = modifier.size(size).padding(0.dp),
+        modifier = modifier
+            .size(size)
+            .padding(0.dp),
         onClick = {},
         colors = IconButtonDefaults.outlinedIconButtonColors(
             containerColor = backgroundColour,

@@ -69,7 +69,9 @@ fun FaceButton(
         }
     }
     OutlinedButton(
-        modifier = modifier.size(size).padding(0.dp),
+        modifier = modifier
+            .size(size)
+            .padding(0.dp),
         onClick = {},
         colors = ButtonDefaults.outlinedButtonColors(
             containerColor = backgroundColour,

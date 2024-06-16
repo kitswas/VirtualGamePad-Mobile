@@ -21,11 +21,15 @@ fun Circle(
     content: @Composable() (BoxScope.() -> Unit)
 ) {
     Box(
-        modifier = modifier.clip(shape = CircleShape).background(Color.Transparent),
+        modifier = modifier
+            .clip(shape = CircleShape)
+            .background(Color.Transparent),
         contentAlignment = contentAlignment
     ) {
         Box(
-            Modifier.background(colour).matchParentSize(),
+            Modifier
+                .background(colour)
+                .matchParentSize(),
             contentAlignment = contentAlignment
         ) {
             content()

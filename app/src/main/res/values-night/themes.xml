@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+
     <style name="Theme.VirtualGamePadMobile" parent="android:Theme.Material.Light.NoActionBar">
         <item name="android:statusBarColor">@color/pure_black</item>
     </style>
