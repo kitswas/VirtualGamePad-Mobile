@@ -1,13 +1,9 @@
 package io.github.kitswas.virtualgamepadmobile.ui.screens
 
-import android.app.Activity
-import android.content.Context
-import android.content.ContextWrapper
 import android.content.pm.ActivityInfo
 import android.content.res.Configuration
 import android.util.Log
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -19,34 +15,12 @@ import io.github.kitswas.VGP_Data_Exchange.GamepadReading
 import io.github.kitswas.virtualgamepadmobile.ConnectionViewModel
 import io.github.kitswas.virtualgamepadmobile.ui.composables.DrawGamepad
 import io.github.kitswas.virtualgamepadmobile.ui.theme.VirtualGamePadMobileTheme
+import io.github.kitswas.virtualgamepadmobile.ui.utils.LockScreenOrientation
+import io.github.kitswas.virtualgamepadmobile.ui.utils.findActivity
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
-
-/**
- * Locks the screen orientation to the given orientation.
- * @see <a href="https://stackoverflow.com/a/69231996/8659747"> StackOverflow Answer <a/>
- */
-@Composable
-fun LockScreenOrientation(orientation: Int) {
-    val context = LocalContext.current
-    DisposableEffect(orientation) {
-        val activity = context.findActivity() ?: return@DisposableEffect onDispose {}
-        val originalOrientation = activity.requestedOrientation
-        activity.requestedOrientation = orientation
-        onDispose {
-            // restore original orientation when view disappears
-            activity.requestedOrientation = originalOrientation
-        }
-    }
-}
-
-fun Context.findActivity(): Activity? = when (this) {
-    is Activity -> this
-    is ContextWrapper -> baseContext.findActivity()
-    else -> null
-}
 
 @Composable
 fun GamePad(connectionViewModel: ConnectionViewModel?) {
