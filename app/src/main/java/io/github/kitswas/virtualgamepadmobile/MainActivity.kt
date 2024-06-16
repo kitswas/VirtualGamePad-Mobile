@@ -1,5 +1,6 @@
 package io.github.kitswas.virtualgamepadmobile
 
+import android.content.pm.ActivityInfo
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -32,6 +33,7 @@ class MainActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE
         prepareQRScanner()
 
         // Create a ViewModel the first time the system calls an activity's onCreate() method.

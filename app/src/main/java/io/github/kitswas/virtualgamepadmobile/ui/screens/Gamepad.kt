@@ -1,6 +1,5 @@
 package io.github.kitswas.virtualgamepadmobile.ui.screens
 
-import android.content.pm.ActivityInfo
 import android.content.res.Configuration
 import android.util.Log
 import androidx.compose.runtime.Composable
@@ -15,7 +14,6 @@ import io.github.kitswas.VGP_Data_Exchange.GamepadReading
 import io.github.kitswas.virtualgamepadmobile.ConnectionViewModel
 import io.github.kitswas.virtualgamepadmobile.ui.composables.DrawGamepad
 import io.github.kitswas.virtualgamepadmobile.ui.theme.VirtualGamePadMobileTheme
-import io.github.kitswas.virtualgamepadmobile.ui.utils.LockScreenOrientation
 import io.github.kitswas.virtualgamepadmobile.ui.utils.findActivity
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -25,7 +23,6 @@ import kotlinx.coroutines.launch
 @Composable
 fun GamePad(connectionViewModel: ConnectionViewModel?) {
     val gamepadState by remember { mutableStateOf(GamepadReading()) }
-    LockScreenOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE)
 
     val pollingDelay = 100L // in milliseconds
     val startAfter = 100L // in milliseconds
