@@ -34,7 +34,7 @@ class ConnectionViewModel : ViewModel() {
             val socket = Socket()
             // This is a generous timeout to establish a connection
             // Typically the ping should be less than 50ms for gaming purposes
-            val timeout = 500 // in milliseconds, 0 means infinite
+            val timeout = 0 // in milliseconds, 0 means infinite
             socket.connect(java.net.InetSocketAddress(ipAddress, port), timeout)
             Log.d(tag, socket.toString())
 
