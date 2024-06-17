@@ -1,4 +1,4 @@
-package io.github.kitswas.virtualgamepadmobile
+package io.github.kitswas.virtualgamepadmobile.network
 
 import android.util.Log
 import androidx.lifecycle.ViewModel
