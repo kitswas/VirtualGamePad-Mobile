@@ -59,7 +59,9 @@ fun validateIP(ipAddress: String): Boolean {
 }
 
 fun validatePort(port: String): Boolean {
-    return port.toIntOrNull().let { it != null && it in 1..65535 }
+    val minPort = 1
+    val maxPort = 65535
+    return port.toIntOrNull().let { it != null && it in minPort..maxPort }
 }
 
 private fun attemptToConnect(
