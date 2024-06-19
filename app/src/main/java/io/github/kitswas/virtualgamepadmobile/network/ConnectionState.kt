@@ -32,6 +32,10 @@ class ConnectionViewModel : ViewModel() {
     fun connect(ipAddress: String, port: Int) {
         try {
             val socket = Socket()
+            // Disable Nagle's algorithm
+            socket.tcpNoDelay = true
+            // low latency > short connection time > high bandwidth
+            socket.setPerformancePreferences(1, 2, 0)
             // This is a generous timeout to establish a connection
             // Typically the ping should be less than 50ms for gaming purposes
             val timeout = 0 // in milliseconds, 0 means infinite
