@@ -31,7 +31,11 @@ fun MainMenu(
         }, shape = CircleShape) {
             Text(text = "Start")
         }
-        Button(onClick = { }, shape = CircleShape) {
+        Button(onClick = {
+            navController.navigate(
+                "settings_screen"
+            )
+        }, shape = CircleShape) {
             Text(text = "Settings")
         }
         Button(onClick = { exitProcess(0) }, shape = CircleShape) {

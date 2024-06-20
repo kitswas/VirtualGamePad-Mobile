@@ -1,6 +1,5 @@
 package io.github.kitswas.virtualgamepadmobile
 
-import android.content.pm.ActivityInfo
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -25,6 +24,7 @@ import io.github.kitswas.virtualgamepadmobile.network.ConnectionViewModel
 import io.github.kitswas.virtualgamepadmobile.ui.screens.ConnectMenu
 import io.github.kitswas.virtualgamepadmobile.ui.screens.GamePad
 import io.github.kitswas.virtualgamepadmobile.ui.screens.MainMenu
+import io.github.kitswas.virtualgamepadmobile.ui.screens.SettingsScreen
 import io.github.kitswas.virtualgamepadmobile.ui.theme.VirtualGamePadMobileTheme
 import kotlinx.coroutines.launch
 
@@ -89,6 +89,9 @@ class MainActivity : ComponentActivity() {
             }
             composable("gamepad") {
                 GamePad(connectionViewModel)
+            }
+            composable("settings_screen") {
+                SettingsScreen(navController)
             }
         }
     }
