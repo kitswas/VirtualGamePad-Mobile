@@ -20,6 +20,21 @@ private val LightColorPalette = lightColorScheme(
     outline = Gold,
 )
 
+enum class ColorScheme {
+    LIGHT, DARK, SYSTEM;
+
+    companion object {
+        fun fromInt(i: Int): ColorScheme {
+            return when (i) {
+                0 -> LIGHT
+                1 -> DARK
+                2 -> SYSTEM
+                else -> throw IllegalArgumentException("Invalid ColorScheme value")
+            }
+        }
+    }
+}
+
 @Composable
 fun VirtualGamePadMobileTheme(
     darkTheme: Boolean = isSystemInDarkTheme(),
