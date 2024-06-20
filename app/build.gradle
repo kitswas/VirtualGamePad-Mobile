@@ -10,7 +10,9 @@ android {
 
     defaultConfig {
         applicationId "io.github.kitswas.virtualgamepadmobile"
+        // Defines the minimum API level required to run the app.
         minSdk 26
+        // Specifies the API level used to test the app.
         targetSdk 34
         versionCode 1
         versionName "0.1.0"
