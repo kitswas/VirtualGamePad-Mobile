@@ -2,7 +2,9 @@ package io.github.kitswas.virtualgamepadmobile.ui.composables
 
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.width
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material3.DropdownMenu
@@ -26,6 +28,11 @@ fun <T> ListItemPicker(
     list: Iterable<T>,
     default: T,
     label: String,
+    formattedDisplay: @Composable (T) -> Unit = { item ->
+        Text(
+            item.toString(), modifier = Modifier.width(IntrinsicSize.Max)
+        )
+    },
     onItemSelected: (T) -> Unit = { _ -> }
 ) {
 
@@ -37,7 +44,7 @@ fun <T> ListItemPicker(
             Text(text = label, style = MaterialTheme.typography.labelMedium)
             OutlinedButton(onClick = { expanded = true }) {
                 Row {
-                    Text(selectedItem.toString())
+                    formattedDisplay(selectedItem)
                     Icon(Icons.Filled.ArrowDropDown, contentDescription = "Expand")
                 }
                 DropdownMenu(
@@ -45,7 +52,7 @@ fun <T> ListItemPicker(
                     onDismissRequest = { expanded = false },
                 ) {
                     list.forEach { item ->
-                        DropdownMenuItem(text = { Text(item.toString()) }, onClick = {
+                        DropdownMenuItem(text = { formattedDisplay(item) }, onClick = {
                             selectedItem = item
                             expanded = false
                             onItemSelected(item)
@@ -67,6 +74,7 @@ fun <T> ListItemPicker(
     list: Iterable<T>,
     default: Int = 0,
     label: String,
+    formattedDisplay: @Composable (T) -> Unit = { item -> Text(item.toString()) },
     onItemSelected: (T) -> Unit = { _ -> }
 ) {
     ListItemPicker(
@@ -74,6 +82,7 @@ fun <T> ListItemPicker(
         list = list,
         default = list.elementAt(default),
         label = label,
+        formattedDisplay = formattedDisplay,
         onItemSelected = onItemSelected
     )
 }
