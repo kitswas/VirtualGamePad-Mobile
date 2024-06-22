@@ -42,139 +42,130 @@ fun DrawGamepad(
     Box(
         modifier = Modifier
             .padding(deadZonePadding.dp)
-            .fillMaxSize(),
-        contentAlignment = Alignment.TopStart // Origin is top left
+            .fillMaxSize()
     ) {
-        AnalogStick(
-            outerCircleWidth = (baseDp / 8).dp,
-            innerCircleRadius = (baseDp / 12).dp,
-            gamepadState = gamepadState,
-            type = AnalogStickType.LEFT,
-        )
-    }
-    Box(
-        modifier = Modifier
-            .padding(deadZonePadding.dp)
-            .fillMaxSize(),
-        contentAlignment = Alignment.BottomStart // Origin is bottom left
-    ) {
-        Dpad(
-            modifier = Modifier.offset(
-                x = (baseDp / 3).dp,
-                y = 0.dp
-            ),
-            size = (2 * baseDp / 5).dp,
-            gamepadState = gamepadState,
-        )
-    }
-    Box(
-        modifier = Modifier
-            .padding(deadZonePadding.dp)
-            .fillMaxSize(),
-        contentAlignment = Alignment.TopEnd // Origin is top right
-    ) {
-        FaceButtons(
-            size = (2 * baseDp / 5).dp,
-            gamepadState = gamepadState,
-        )
-    }
-    Box(
-        modifier = Modifier
-            .padding(deadZonePadding.dp)
-            .fillMaxSize(),
-        contentAlignment = Alignment.BottomEnd // Origin is bottom right
-    ) {
-        AnalogStick(
-            modifier = Modifier.offset(
-                x = -(baseDp / 4).dp,
-                y = 0.dp
-            ),
-            outerCircleWidth = (baseDp / 8).dp,
-            innerCircleRadius = (baseDp / 12).dp,
-            gamepadState = gamepadState,
-            type = AnalogStickType.RIGHT,
-        )
-    }
-    Box(
-        modifier = Modifier
-            .padding(deadZonePadding.dp)
-            .fillMaxSize(),
-        contentAlignment = Alignment.TopCenter // Origin is top center
-    ) {
-        for ((gameButton, text, offsetX) in listOf(
-            Triple(GameButtons.LeftShoulder, "LSHLDR", -(baseDp / 4).dp),
-            Triple(GameButtons.RightShoulder, "RSHLDR", (baseDp / 4).dp),
-        )) {
-            val interactionSource = remember { MutableInteractionSource() }
-            val isPressed by interactionSource.collectIsPressedAsState()
-            // See https://stackoverflow.com/a/69157877/8659747
-            if (isPressed) {
-                Log.d(gameButton.name, "Pressed")
-                gamepadState.ButtonsDown = gamepadState.ButtonsDown or gameButton.value
-                //Use if + DisposableEffect to wait for the press action is completed
-                DisposableEffect(Unit) {
-                    onDispose {
-                        Log.d(gameButton.name, "Released")
-                        gamepadState.ButtonsDown =
-                            gamepadState.ButtonsDown and gameButton.value.inv()
-                        gamepadState.ButtonsUp = gamepadState.ButtonsUp or gameButton.value
-                    }
-                }
-            }
-            Button(
-                modifier = Modifier
-                    .offset(
-                        x = offsetX,
-                        y = 0.dp
-                    ),
-                border = BorderStroke(2.dp, MaterialTheme.colorScheme.outline),
-                onClick = { },
-                interactionSource = interactionSource,
-            ) {
-                Text(text)
-            }
-        }
 
-        val screenIcon = ImageVector.vectorResource(R.drawable.screenicon)
-        val menuIcon = Icons.Default.Menu
-        for ((gameButton, icon, offsetX) in listOf(
-            Triple(GameButtons.View, screenIcon, -(baseDp / 4).dp),
-            Triple(GameButtons.Menu, menuIcon, (baseDp / 4).dp),
-        )) {
-            val interactionSource = remember { MutableInteractionSource() }
-            val isPressed by interactionSource.collectIsPressedAsState()
-            // See https://stackoverflow.com/a/69157877/8659747
-            if (isPressed) {
-                Log.d(gameButton.name, "Pressed")
-                gamepadState.ButtonsDown = gamepadState.ButtonsDown or gameButton.value
-                //Use if + DisposableEffect to wait for the press action is completed
-                DisposableEffect(Unit) {
-                    onDispose {
-                        Log.d(gameButton.name, "Released")
-                        gamepadState.ButtonsDown =
-                            gamepadState.ButtonsDown and gameButton.value.inv()
-                        gamepadState.ButtonsUp = gamepadState.ButtonsUp or gameButton.value
+        Box(
+            modifier = Modifier.fillMaxSize(),
+            contentAlignment = Alignment.TopStart // Origin is top left
+        ) {
+            AnalogStick(
+                outerCircleWidth = (baseDp / 8).dp,
+                innerCircleRadius = (baseDp / 12).dp,
+                gamepadState = gamepadState,
+                type = AnalogStickType.LEFT,
+            )
+        }
+        Box(
+            modifier = Modifier.fillMaxSize(),
+            contentAlignment = Alignment.BottomStart // Origin is bottom left
+        ) {
+            Dpad(
+                modifier = Modifier.offset(
+                    x = (baseDp / 3).dp, y = 0.dp
+                ),
+                size = (2 * baseDp / 5).dp,
+                gamepadState = gamepadState,
+            )
+        }
+        Box(
+            modifier = Modifier.fillMaxSize(),
+            contentAlignment = Alignment.TopEnd // Origin is top right
+        ) {
+            FaceButtons(
+                size = (2 * baseDp / 5).dp,
+                gamepadState = gamepadState,
+            )
+        }
+        Box(
+            modifier = Modifier.fillMaxSize(),
+            contentAlignment = Alignment.BottomEnd // Origin is bottom right
+        ) {
+            AnalogStick(
+                modifier = Modifier.offset(
+                    x = -(baseDp / 4).dp, y = 0.dp
+                ),
+                outerCircleWidth = (baseDp / 8).dp,
+                innerCircleRadius = (baseDp / 12).dp,
+                gamepadState = gamepadState,
+                type = AnalogStickType.RIGHT,
+            )
+        }
+        Box(
+            modifier = Modifier.fillMaxSize(),
+            contentAlignment = Alignment.TopCenter // Origin is top center
+        ) {
+            for ((gameButton, text, offsetX) in listOf(
+                Triple(GameButtons.LeftShoulder, "LSHLDR", -(baseDp / 4).dp),
+                Triple(GameButtons.RightShoulder, "RSHLDR", (baseDp / 4).dp),
+            )) {
+                val interactionSource = remember { MutableInteractionSource() }
+                val isPressed by interactionSource.collectIsPressedAsState()
+                // See https://stackoverflow.com/a/69157877/8659747
+                if (isPressed) {
+                    Log.d(gameButton.name, "Pressed")
+                    gamepadState.ButtonsDown = gamepadState.ButtonsDown or gameButton.value
+                    //Use if + DisposableEffect to wait for the press action is completed
+                    DisposableEffect(Unit) {
+                        onDispose {
+                            Log.d(gameButton.name, "Released")
+                            gamepadState.ButtonsDown =
+                                gamepadState.ButtonsDown and gameButton.value.inv()
+                            gamepadState.ButtonsUp = gamepadState.ButtonsUp or gameButton.value
+                        }
                     }
                 }
-            }
-            OutlinedIconButton(
-                modifier = Modifier
-                    .size((baseDp / 8).dp)
-                    .offset(
-                        x = offsetX,
-                        y = (baseDp / 4).dp
+                Button(
+                    modifier = Modifier.offset(
+                        x = offsetX, y = 0.dp
                     ),
-                border = BorderStroke(2.dp, MaterialTheme.colorScheme.outline),
-                onClick = { },
-                interactionSource = interactionSource,
-            ) {
-                Icon(
-                    imageVector = icon,
-                    contentDescription = "${gameButton.name} Button",
+                    border = BorderStroke(2.dp, MaterialTheme.colorScheme.outline),
+                    onClick = { },
+                    interactionSource = interactionSource,
+                ) {
+                    Text(text)
+                }
+            }
+
+            val screenIcon = ImageVector.vectorResource(R.drawable.screenicon)
+            val menuIcon = Icons.Default.Menu
+            for ((gameButton, icon, offsetX) in listOf(
+                Triple(GameButtons.View, screenIcon, -(baseDp / 4).dp),
+                Triple(GameButtons.Menu, menuIcon, (baseDp / 4).dp),
+            )) {
+                val interactionSource = remember { MutableInteractionSource() }
+                val isPressed by interactionSource.collectIsPressedAsState()
+                // See https://stackoverflow.com/a/69157877/8659747
+                if (isPressed) {
+                    Log.d(gameButton.name, "Pressed")
+                    gamepadState.ButtonsDown = gamepadState.ButtonsDown or gameButton.value
+                    //Use if + DisposableEffect to wait for the press action is completed
+                    DisposableEffect(Unit) {
+                        onDispose {
+                            Log.d(gameButton.name, "Released")
+                            gamepadState.ButtonsDown =
+                                gamepadState.ButtonsDown and gameButton.value.inv()
+                            gamepadState.ButtonsUp = gamepadState.ButtonsUp or gameButton.value
+                        }
+                    }
+                }
+                OutlinedIconButton(
                     modifier = Modifier
-                        .size((baseDp / 12).dp),
-                    tint = foregroundColour
-                )
+                        .size((baseDp / 8).dp)
+                        .offset(
+                            x = offsetX, y = (baseDp / 4).dp
+                        ),
+                    border = BorderStroke(2.dp, MaterialTheme.colorScheme.outline),
+                    onClick = { },
+                    interactionSource = interactionSource,
+                ) {
+                    Icon(
+                        imageVector = icon,
+                        contentDescription = "${gameButton.name} Button",
+                        modifier = Modifier.size((baseDp / 12).dp),
+                        tint = foregroundColour
+                    )
+                }
             }
         }
     }
