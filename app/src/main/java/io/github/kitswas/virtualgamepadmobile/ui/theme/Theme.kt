@@ -6,11 +6,14 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.darkColorScheme
 import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.preference.PreferenceManager
+import io.github.kitswas.virtualgamepadmobile.data.ColorScheme
+import io.github.kitswas.virtualgamepadmobile.data.SettingsRepository
+import io.github.kitswas.virtualgamepadmobile.data.settingsDataStore
 import io.github.kitswas.virtualgamepadmobile.ui.composables.ListItemPicker
 
 private val DarkColorPalette = darkColorScheme(
@@ -27,37 +30,16 @@ private val LightColorPalette = lightColorScheme(
     outline = Gold,
 )
 
-enum class ColorScheme {
-    LIGHT, DARK, SYSTEM;
-
-    companion object {
-        fun fromInt(i: Int): ColorScheme {
-            return when (i) {
-                0 -> LIGHT
-                1 -> DARK
-                2 -> SYSTEM
-                else -> throw IllegalArgumentException("Invalid ColorScheme value")
-            }
-        }
-    }
-}
-
 @Composable
 fun ColorSchemePicker(
+    default: ColorScheme,
     modifier: Modifier = Modifier, onColorSchemeSelected: (ColorScheme) -> Unit = { _ -> }
 ) {
 
-    val sharedPreferences = PreferenceManager.getDefaultSharedPreferences(LocalContext.current)
-
     ListItemPicker(
         modifier = modifier,
-        list = ColorScheme.values().asIterable(),
-        default = ColorScheme.fromInt(
-            sharedPreferences.getInt(
-                "color_scheme",
-                ColorScheme.SYSTEM.ordinal
-            )
-        ),
+        list = ColorScheme.entries.asIterable(),
+        default = default,
         label = "Color Scheme",
         onItemSelected = onColorSchemeSelected
     )
@@ -67,18 +49,16 @@ fun ColorSchemePicker(
 @Composable
 fun ColorSchemePickerPreview() {
     VirtualGamePadMobileTheme {
-        ColorSchemePicker(Modifier.padding(16.dp))
+        ColorSchemePicker(ColorScheme.SYSTEM, Modifier.padding(16.dp))
     }
 }
 
 @Composable
 fun VirtualGamePadMobileTheme(
+    darkMode: ColorScheme = ColorScheme.SYSTEM,
     content: @Composable () -> Unit
 ) {
-    val sharedPreferences = PreferenceManager.getDefaultSharedPreferences(LocalContext.current)
 
-    val darkMode: ColorScheme =
-        ColorScheme.fromInt(sharedPreferences.getInt("color_scheme", ColorScheme.SYSTEM.ordinal))
     val darkTheme: Boolean = when (darkMode) {
         ColorScheme.LIGHT -> false
         ColorScheme.DARK -> true

@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.lifecycle.Lifecycle
@@ -20,6 +21,8 @@ import com.google.mlkit.vision.barcode.common.Barcode
 import com.google.mlkit.vision.codescanner.GmsBarcodeScanner
 import com.google.mlkit.vision.codescanner.GmsBarcodeScannerOptions
 import com.google.mlkit.vision.codescanner.GmsBarcodeScanning
+import io.github.kitswas.virtualgamepadmobile.data.ColorScheme
+import io.github.kitswas.virtualgamepadmobile.data.SettingsRepository
 import io.github.kitswas.virtualgamepadmobile.network.ConnectionViewModel
 import io.github.kitswas.virtualgamepadmobile.ui.screens.ConnectMenu
 import io.github.kitswas.virtualgamepadmobile.ui.screens.GamePad
@@ -35,6 +38,7 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         prepareQRScanner()
+        val settingsRepository = SettingsRepository(this)
 
         // Create a ViewModel the first time the system calls an activity's onCreate() method.
         // Re-created activities receive the same ConnectionViewModel instance created by the first activity.
@@ -48,13 +52,17 @@ class MainActivity : ComponentActivity() {
                     // Update UI elements
                     setContent {
 
-                        VirtualGamePadMobileTheme {
+                        VirtualGamePadMobileTheme(
+                            settingsRepository.colorScheme.collectAsState(
+                                initial = ColorScheme.SYSTEM
+                            ).value
+                        ) {
                             // A surface container using the 'background' color from the theme
                             Surface(
                                 modifier = Modifier.fillMaxSize(),
                                 color = MaterialTheme.colorScheme.background
                             ) {
-                                Holder(connectionViewModel)
+                                NavTree(connectionViewModel, settingsRepository)
                             }
                         }
                     }
@@ -76,8 +84,9 @@ class MainActivity : ComponentActivity() {
     }
 
     @Composable
-    fun Holder(
+    fun NavTree(
         connectionViewModel: ConnectionViewModel,
+        settingsRepository: SettingsRepository,
     ) {
         val navController = rememberNavController()
         NavHost(navController = navController, startDestination = "main_menu") {
@@ -91,7 +100,7 @@ class MainActivity : ComponentActivity() {
                 GamePad(connectionViewModel)
             }
             composable("settings_screen") {
-                SettingsScreen(navController)
+                SettingsScreen(navController, settingsRepository)
             }
         }
     }
@@ -101,7 +110,7 @@ class MainActivity : ComponentActivity() {
     fun DefaultPreview() {
         VirtualGamePadMobileTheme {
             val connectionViewModel: ConnectionViewModel by viewModels()
-            Holder(connectionViewModel)
+            NavTree(connectionViewModel, SettingsRepository(this))
         }
     }
 }
