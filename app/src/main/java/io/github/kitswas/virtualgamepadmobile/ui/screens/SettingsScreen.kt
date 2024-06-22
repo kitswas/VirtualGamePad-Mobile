@@ -30,7 +30,7 @@ fun SettingsScreen(
         val saveJobsQueue = remember { mutableListOf<suspend CoroutineScope.() -> Unit>() }
         val colorScheme = settingsRepository.colorScheme.collectAsState(ColorScheme.SYSTEM).value
 
-        Text("Settings Screen", style = MaterialTheme.typography.titleLarge)
+        Text("Settings", style = MaterialTheme.typography.titleLarge)
 
         LazyVerticalGrid(
             columns = GridCells.Adaptive(minSize = 160.dp), contentPadding = PaddingValues(16.dp)
