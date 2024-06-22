@@ -32,20 +32,12 @@ fun SettingsScreen(
 
         Text("Settings", style = MaterialTheme.typography.titleLarge)
 
-        LazyVerticalGrid(
-            columns = GridCells.Adaptive(minSize = 160.dp), contentPadding = PaddingValues(16.dp)
-        ) {
-            // Add dropdown for color scheme
-            item {
-                ColorSchemePicker(default = colorScheme) {
-                    saveJobsQueue.add {
-                        launch(Dispatchers.IO) {
-                            settingsRepository.setColorScheme(it)
-                        }
-                    }
+        ColorSchemePicker(default = colorScheme) {
+            saveJobsQueue.add {
+                launch(Dispatchers.IO) {
+                    settingsRepository.setColorScheme(it)
                 }
             }
-
         }
 
         Row(
