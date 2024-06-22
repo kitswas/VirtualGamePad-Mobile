@@ -8,8 +8,9 @@ import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -33,10 +34,8 @@ fun <T> ListItemPicker(
     Box(modifier) {
         var selectedItem = default
         Column {
-            Text(text = label)
-            TextButton(
-                onClick = { expanded = true }
-            ) {
+            Text(text = label, style = MaterialTheme.typography.labelMedium)
+            OutlinedButton(onClick = { expanded = true }) {
                 Row {
                     Text(selectedItem.toString())
                     Icon(Icons.Filled.ArrowDropDown, contentDescription = "Expand")
