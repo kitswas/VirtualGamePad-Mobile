@@ -97,32 +97,30 @@ fun Dpad(
     size: Dp = 360.dp,
     gamepadState: GamepadReading,
 ) {
-    Box(
-        modifier = modifier.size(size),
-        contentAlignment = Alignment.Center
-    ) {
+    val buttonSize = 2 * size / 5
+    Box(modifier = modifier.size(size), contentAlignment = Alignment.Center) {
         DpadButton(
             type = DpadButtonType.UP,
             modifier = Modifier.align(Alignment.TopCenter),
-            size = 2 * size / 5,
+            size = buttonSize,
             gamepadState = gamepadState,
         )
         DpadButton(
             type = DpadButtonType.DOWN,
             modifier = Modifier.align(Alignment.BottomCenter),
-            size = 2 * size / 5,
+            size = buttonSize,
             gamepadState = gamepadState,
         )
         DpadButton(
             type = DpadButtonType.LEFT,
             modifier = Modifier.align(Alignment.CenterStart),
-            size = 2 * size / 5,
+            size = buttonSize,
             gamepadState = gamepadState,
         )
         DpadButton(
             type = DpadButtonType.RIGHT,
             modifier = Modifier.align(Alignment.CenterEnd),
-            size = 2 * size / 5,
+            size = buttonSize,
             gamepadState = gamepadState,
         )
     }
