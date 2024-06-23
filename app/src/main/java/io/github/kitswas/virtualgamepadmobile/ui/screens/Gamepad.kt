@@ -11,9 +11,11 @@ import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import io.github.kitswas.VGP_Data_Exchange.GamepadReading
+import io.github.kitswas.virtualgamepadmobile.data.PreviewBase
+import io.github.kitswas.virtualgamepadmobile.data.PreviewHeightDp
+import io.github.kitswas.virtualgamepadmobile.data.PreviewWidthDp
 import io.github.kitswas.virtualgamepadmobile.network.ConnectionViewModel
 import io.github.kitswas.virtualgamepadmobile.ui.composables.DrawGamepad
-import io.github.kitswas.virtualgamepadmobile.ui.theme.VirtualGamePadMobileTheme
 import io.github.kitswas.virtualgamepadmobile.ui.utils.findActivity
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -74,30 +76,25 @@ fun GamePad(connectionViewModel: ConnectionViewModel?) {
         })
 }
 
-const val PreviewWidthDp = 900
-const val PreviewHeightDp = 400
-
 @Preview(
-    showBackground = true,
     widthDp = PreviewWidthDp,
     heightDp = PreviewHeightDp,
 )
 @Composable
 fun GamePadPreview() {
-    VirtualGamePadMobileTheme {
+    PreviewBase {
         GamePad(null)
     }
 }
 
 @Preview(
-    showBackground = false,
     widthDp = PreviewWidthDp,
     heightDp = PreviewHeightDp,
     uiMode = Configuration.UI_MODE_NIGHT_YES
 )
 @Composable
 private fun GamePadPreviewNight() {
-    VirtualGamePadMobileTheme {
+    PreviewBase {
         GamePad(null)
     }
 }

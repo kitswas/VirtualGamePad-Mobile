@@ -12,7 +12,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
-import io.github.kitswas.virtualgamepadmobile.ui.theme.VirtualGamePadMobileTheme
+import io.github.kitswas.virtualgamepadmobile.data.PreviewBase
+import io.github.kitswas.virtualgamepadmobile.data.PreviewHeightDp
+import io.github.kitswas.virtualgamepadmobile.data.PreviewWidthDp
 import kotlin.system.exitProcess
 
 @Composable
@@ -44,10 +46,11 @@ fun MainMenu(
     }
 }
 
-@Preview(showBackground = true)
+@Preview(
+    widthDp = PreviewWidthDp,
+    heightDp = PreviewHeightDp,
+)
 @Composable
 fun MainMenuPreview() {
-    VirtualGamePadMobileTheme {
-        MainMenu()
-    }
+    PreviewBase { MainMenu() }
 }

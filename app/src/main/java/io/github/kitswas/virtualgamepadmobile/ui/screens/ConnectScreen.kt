@@ -31,8 +31,10 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import com.google.mlkit.vision.codescanner.GmsBarcodeScanner
+import io.github.kitswas.virtualgamepadmobile.data.PreviewBase
+import io.github.kitswas.virtualgamepadmobile.data.PreviewHeightDp
+import io.github.kitswas.virtualgamepadmobile.data.PreviewWidthDp
 import io.github.kitswas.virtualgamepadmobile.network.ConnectionViewModel
-import io.github.kitswas.virtualgamepadmobile.ui.theme.VirtualGamePadMobileTheme
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -174,10 +176,13 @@ fun ConnectMenu(
     }
 }
 
-@Preview(showBackground = true)
+@Preview(
+    widthDp = PreviewWidthDp,
+    heightDp = PreviewHeightDp,
+)
 @Composable
 fun ConnectMenuPreview() {
-    VirtualGamePadMobileTheme {
+    PreviewBase {
         ConnectMenu(scanner = null, connectionViewModel = null)
     }
 }

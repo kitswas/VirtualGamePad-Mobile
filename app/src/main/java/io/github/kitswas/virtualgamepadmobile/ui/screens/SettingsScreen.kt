@@ -2,19 +2,19 @@ package io.github.kitswas.virtualgamepadmobile.ui.screens
 
 import android.util.Log
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.lazy.grid.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.*
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import io.github.kitswas.virtualgamepadmobile.data.ColorScheme
+import io.github.kitswas.virtualgamepadmobile.data.PreviewBase
+import io.github.kitswas.virtualgamepadmobile.data.PreviewHeightDp
+import io.github.kitswas.virtualgamepadmobile.data.PreviewWidthDp
 import io.github.kitswas.virtualgamepadmobile.data.SettingsRepository
 import io.github.kitswas.virtualgamepadmobile.ui.theme.ColorSchemePicker
-import io.github.kitswas.virtualgamepadmobile.ui.theme.VirtualGamePadMobileTheme
 import kotlinx.coroutines.*
 
 @Composable
@@ -69,10 +69,13 @@ fun SettingsScreen(
 }
 
 
-@Preview(showBackground = true)
+@Preview(
+    widthDp = PreviewWidthDp,
+    heightDp = PreviewHeightDp,
+)
 @Composable
 fun SettingsScreenPreview() {
-    VirtualGamePadMobileTheme {
+    PreviewBase {
         SettingsScreen(settingsRepository = SettingsRepository(LocalContext.current))
     }
 }
