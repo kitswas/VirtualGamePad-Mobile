@@ -6,6 +6,7 @@ import androidx.compose.material3.darkColorScheme
 import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
 import io.github.kitswas.virtualgamepadmobile.data.ColorScheme
+import io.github.kitswas.virtualgamepadmobile.data.defaultColorScheme
 
 private val DarkColorPalette = darkColorScheme(
     primary = NeonBlue,
@@ -23,7 +24,7 @@ private val LightColorPalette = lightColorScheme(
 
 @Composable
 fun VirtualGamePadMobileTheme(
-    darkMode: ColorScheme = ColorScheme.SYSTEM,
+    darkMode: ColorScheme = defaultColorScheme,
     content: @Composable () -> Unit
 ) {
 
