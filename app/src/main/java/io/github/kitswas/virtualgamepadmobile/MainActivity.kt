@@ -104,13 +104,4 @@ class MainActivity : ComponentActivity() {
             }
         }
     }
-
-    @Composable
-    @Preview(showBackground = true)
-    fun DefaultPreview() {
-        VirtualGamePadMobileTheme {
-            val connectionViewModel: ConnectionViewModel by viewModels()
-            NavTree(connectionViewModel, SettingsRepository(this))
-        }
-    }
 }
