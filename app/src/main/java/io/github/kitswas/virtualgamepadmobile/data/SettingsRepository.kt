@@ -25,6 +25,12 @@ class SettingsRepository(private val context: Context) {
         }
     }
 
+    suspend fun resetAllSettings() {
+        dataStore.edit { preferences ->
+            preferences.clear()
+        }
+    }
+
     companion object {
         private val COLOR_SCHEME = intPreferencesKey("color_scheme")
     }

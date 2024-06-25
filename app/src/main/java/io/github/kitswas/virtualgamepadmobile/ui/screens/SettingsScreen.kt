@@ -43,7 +43,10 @@ fun SettingsScreen(
         Row(
             modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceEvenly
         ) {
-            Button(onClick = { TODO() }) {
+            Button(onClick = {
+                saveJobsQueue.clear()
+                runBlocking { settingsRepository.resetAllSettings() }
+            }) {
                 Text("Reset")
             }
 
