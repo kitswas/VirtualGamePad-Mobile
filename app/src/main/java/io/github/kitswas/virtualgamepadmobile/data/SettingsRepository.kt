@@ -16,7 +16,7 @@ class SettingsRepository(private val context: Context) {
     private val dataStore = context.settingsDataStore
 
     val colorScheme: Flow<ColorScheme> = dataStore.data.map { preferences ->
-        ColorScheme.fromInt(preferences[COLOR_SCHEME] ?: ColorScheme.SYSTEM.ordinal)
+        ColorScheme.fromInt(preferences[COLOR_SCHEME] ?: defaultColorScheme.ordinal)
     }
 
     suspend fun setColorScheme(colorScheme: ColorScheme) {

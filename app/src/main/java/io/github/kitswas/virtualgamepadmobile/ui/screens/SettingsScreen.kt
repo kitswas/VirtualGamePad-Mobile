@@ -9,11 +9,11 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
-import io.github.kitswas.virtualgamepadmobile.data.ColorScheme
 import io.github.kitswas.virtualgamepadmobile.data.PreviewBase
 import io.github.kitswas.virtualgamepadmobile.data.PreviewHeightDp
 import io.github.kitswas.virtualgamepadmobile.data.PreviewWidthDp
 import io.github.kitswas.virtualgamepadmobile.data.SettingsRepository
+import io.github.kitswas.virtualgamepadmobile.data.defaultColorScheme
 import io.github.kitswas.virtualgamepadmobile.ui.theme.ColorSchemePicker
 import kotlinx.coroutines.*
 
@@ -28,7 +28,7 @@ fun SettingsScreen(
     ) {
         // Store pending settings modifications in a queue
         val saveJobsQueue = remember { mutableListOf<suspend CoroutineScope.() -> Unit>() }
-        val colorScheme = settingsRepository.colorScheme.collectAsState(ColorScheme.SYSTEM).value
+        val colorScheme = settingsRepository.colorScheme.collectAsState(defaultColorScheme).value
 
         Text("Settings", style = MaterialTheme.typography.titleLarge)
 
