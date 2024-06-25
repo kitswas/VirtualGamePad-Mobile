@@ -14,7 +14,7 @@ import io.github.kitswas.virtualgamepadmobile.data.PreviewHeightDp
 import io.github.kitswas.virtualgamepadmobile.data.PreviewWidthDp
 import io.github.kitswas.virtualgamepadmobile.data.SettingsRepository
 import io.github.kitswas.virtualgamepadmobile.data.defaultColorScheme
-import io.github.kitswas.virtualgamepadmobile.ui.theme.ColorSchemePicker
+import io.github.kitswas.virtualgamepadmobile.ui.composables.ColorSchemePicker
 import kotlinx.coroutines.*
 
 @Composable
