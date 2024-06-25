@@ -22,6 +22,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.times
 import io.github.kitswas.VGP_Data_Exchange.GameButtons
 import io.github.kitswas.VGP_Data_Exchange.GamepadReading
+import io.github.kitswas.virtualgamepadmobile.data.PreviewBase
 import io.github.kitswas.virtualgamepadmobile.ui.theme.VirtualGamePadMobileTheme
 import io.github.kitswas.virtualgamepadmobile.ui.theme.darken
 import io.github.kitswas.virtualgamepadmobile.ui.theme.lighten
@@ -127,11 +128,9 @@ fun FaceButtons(
 @Preview(showBackground = false)
 @Composable
 fun FaceButtonsPreview() {
-    VirtualGamePadMobileTheme {
-        Surface(color = MaterialTheme.colorScheme.background) {
-            FaceButtons(
-                gamepadState = GamepadReading(),
-            )
-        }
+    PreviewBase {
+        FaceButtons(
+            gamepadState = GamepadReading(),
+        )
     }
 }
