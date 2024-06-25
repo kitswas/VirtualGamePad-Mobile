@@ -15,8 +15,18 @@ val Context.settingsDataStore: DataStore<Preferences> by preferencesDataStore(na
 class SettingsRepository(private val context: Context) {
     private val dataStore = context.settingsDataStore
 
+    val baseColor: Flow<BaseColor> = dataStore.data.map { preferences ->
+        BaseColor.fromInt(preferences[BASE_COLOR] ?: defaultBaseColor.ordinal)
+    }
+
     val colorScheme: Flow<ColorScheme> = dataStore.data.map { preferences ->
         ColorScheme.fromInt(preferences[COLOR_SCHEME] ?: defaultColorScheme.ordinal)
+    }
+
+    suspend fun setBaseColor(baseColor: BaseColor) {
+        dataStore.edit { preferences ->
+            preferences[BASE_COLOR] = baseColor.ordinal
+        }
     }
 
     suspend fun setColorScheme(colorScheme: ColorScheme) {
@@ -33,5 +43,6 @@ class SettingsRepository(private val context: Context) {
 
     companion object {
         private val COLOR_SCHEME = intPreferencesKey("color_scheme")
+        private val BASE_COLOR = intPreferencesKey("base_color")
     }
 }

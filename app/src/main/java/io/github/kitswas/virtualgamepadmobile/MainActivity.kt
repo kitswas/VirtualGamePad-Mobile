@@ -22,6 +22,7 @@ import com.google.mlkit.vision.codescanner.GmsBarcodeScanner
 import com.google.mlkit.vision.codescanner.GmsBarcodeScannerOptions
 import com.google.mlkit.vision.codescanner.GmsBarcodeScanning
 import io.github.kitswas.virtualgamepadmobile.data.SettingsRepository
+import io.github.kitswas.virtualgamepadmobile.data.defaultBaseColor
 import io.github.kitswas.virtualgamepadmobile.data.defaultColorScheme
 import io.github.kitswas.virtualgamepadmobile.network.ConnectionViewModel
 import io.github.kitswas.virtualgamepadmobile.ui.screens.ConnectMenu
@@ -55,6 +56,9 @@ class MainActivity : ComponentActivity() {
                         VirtualGamePadMobileTheme(
                             settingsRepository.colorScheme.collectAsState(
                                 initial = defaultColorScheme
+                            ).value,
+                            settingsRepository.baseColor.collectAsState(
+                                initial = defaultBaseColor
                             ).value
                         ) {
                             // A surface container using the 'background' color from the theme

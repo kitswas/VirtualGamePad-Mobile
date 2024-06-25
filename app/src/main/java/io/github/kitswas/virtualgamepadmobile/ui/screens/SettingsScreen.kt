@@ -9,12 +9,15 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
+import io.github.kitswas.virtualgamepadmobile.data.BaseColor
 import io.github.kitswas.virtualgamepadmobile.data.PreviewBase
 import io.github.kitswas.virtualgamepadmobile.data.PreviewHeightDp
 import io.github.kitswas.virtualgamepadmobile.data.PreviewWidthDp
 import io.github.kitswas.virtualgamepadmobile.data.SettingsRepository
+import io.github.kitswas.virtualgamepadmobile.data.defaultBaseColor
 import io.github.kitswas.virtualgamepadmobile.data.defaultColorScheme
 import io.github.kitswas.virtualgamepadmobile.ui.composables.ColorSchemePicker
+import io.github.kitswas.virtualgamepadmobile.ui.composables.ListItemPicker
 import kotlinx.coroutines.*
 
 @Composable
@@ -29,6 +32,7 @@ fun SettingsScreen(
         // Store pending settings modifications in a queue
         val saveJobsQueue = remember { mutableListOf<suspend CoroutineScope.() -> Unit>() }
         val colorScheme = settingsRepository.colorScheme.collectAsState(defaultColorScheme).value
+        val baseColor = settingsRepository.baseColor.collectAsState(defaultBaseColor).value
 
         Text("Settings", style = MaterialTheme.typography.titleLarge)
 
@@ -39,6 +43,17 @@ fun SettingsScreen(
                 }
             }
         }
+
+        ListItemPicker(list = BaseColor.entries.asIterable(),
+            default = baseColor,
+            label = "Theme Color",
+            onItemSelected = {
+                saveJobsQueue.add {
+                    launch(Dispatchers.IO) {
+                        settingsRepository.setBaseColor(it)
+                    }
+                }
+            })
 
         Row(
             modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceEvenly

@@ -5,26 +5,14 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.darkColorScheme
 import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
+import io.github.kitswas.virtualgamepadmobile.data.BaseColor
 import io.github.kitswas.virtualgamepadmobile.data.ColorScheme
-import io.github.kitswas.virtualgamepadmobile.data.defaultColorScheme
-
-private val DarkColorPalette = darkColorScheme(
-    primary = NeonBlue,
-    secondary = NeonGreen,
-    tertiary = NeonRed,
-    outline = Silver,
-)
-
-private val LightColorPalette = lightColorScheme(
-    primary = GlossyBlue,
-    secondary = GlossyGreen,
-    tertiary = GlossyRed,
-    outline = Gold,
-)
+import io.github.kitswas.virtualgamepadmobile.data.getColorFromBaseColor
 
 @Composable
 fun VirtualGamePadMobileTheme(
-    darkMode: ColorScheme = defaultColorScheme,
+    darkMode: ColorScheme,
+    baseColor: BaseColor,
     content: @Composable () -> Unit
 ) {
 
@@ -34,10 +22,20 @@ fun VirtualGamePadMobileTheme(
         ColorScheme.SYSTEM -> isSystemInDarkTheme()
     }
 
+    val darkColorPalette = darkColorScheme(
+        primary = getColorFromBaseColor(baseColor, true),
+        outline = Silver,
+    )
+
+    val lightColorPalette = lightColorScheme(
+        primary = getColorFromBaseColor(baseColor, false),
+        outline = Gold,
+    )
+
     val colorScheme = if (darkTheme) {
-        DarkColorPalette
+        darkColorPalette
     } else {
-        LightColorPalette
+        lightColorPalette
     }
 
     MaterialTheme(
