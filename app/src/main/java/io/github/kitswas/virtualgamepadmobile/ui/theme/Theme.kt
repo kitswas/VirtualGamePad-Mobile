@@ -22,13 +22,18 @@ fun VirtualGamePadMobileTheme(
         ColorScheme.SYSTEM -> isSystemInDarkTheme()
     }
 
+    val darkColorPrimary = getColorFromBaseColor(baseColor, true)
+    val lightColorPrimary = getColorFromBaseColor(baseColor, false)
+
     val darkColorPalette = darkColorScheme(
-        primary = getColorFromBaseColor(baseColor, true),
+        primary = darkColorPrimary,
+        onPrimary = contrasting(darkColorPrimary),
         outline = Silver,
     )
 
     val lightColorPalette = lightColorScheme(
-        primary = getColorFromBaseColor(baseColor, false),
+        primary = lightColorPrimary,
+        onPrimary = contrasting(lightColorPrimary),
         outline = Gold,
     )
 

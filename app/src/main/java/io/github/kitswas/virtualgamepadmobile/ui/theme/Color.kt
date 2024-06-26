@@ -1,6 +1,7 @@
 package io.github.kitswas.virtualgamepadmobile.ui.theme
 
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.luminance
 
 // Should be the same as the values defined in values/colors.xml
 
@@ -44,4 +45,11 @@ fun lighten(color: Color, fraction: Float): Color {
         blue = color.blue + (1 - color.blue) * fraction,
         alpha = color.alpha
     )
+}
+
+/**
+ * Returns a color for the given [color] with sufficient contrast.
+ */
+fun contrasting(color: Color): Color {
+    return if (color.luminance() > 0.5f) PureBlack else PristineWhite
 }
