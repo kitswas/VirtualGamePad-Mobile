@@ -91,6 +91,9 @@ fun DpadButton(
     }
 }
 
+/**
+ * A directional pad with up, down, left, and right buttons.
+ */
 @Composable
 fun Dpad(
     modifier: Modifier = Modifier,

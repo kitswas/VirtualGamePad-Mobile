@@ -88,6 +88,9 @@ fun FaceButton(
     }
 }
 
+/**
+ * The A, B, X, Y buttons on a gamepad, also known as the face buttons.
+ */
 @Composable
 fun FaceButtons(
     modifier: Modifier = Modifier,

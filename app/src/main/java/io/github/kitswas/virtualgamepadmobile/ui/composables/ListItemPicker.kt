@@ -20,7 +20,14 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 
-
+/**
+ * A dropdown list picker for selecting an item from a list.
+ * @param modifier The modifier to be applied to the layout.
+ * @param list List of items to choose from.
+ * @param default Default item to display.
+ * @param label Label to display above the picker.
+ * @param formattedDisplay A composable function to format and display the item.
+ */
 @Composable
 @Suppress("unused")
 fun <T> ListItemPicker(
@@ -65,7 +72,8 @@ fun <T> ListItemPicker(
 }
 
 /**
- * Overloaded function to accept default index instead of default item
+ * Overloaded function to accept default index instead of default item.
+ * @see ListItemPicker
  */
 @Composable
 @Suppress("unused")
