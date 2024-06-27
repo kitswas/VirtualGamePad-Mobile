@@ -64,7 +64,7 @@ fun DrawGamepad(
                 modifier = Modifier.offset(
                     x = (baseDp / 3).dp, y = 0.dp
                 ),
-                size = (2 * baseDp / 5).dp,
+                size = (0.45 * baseDp).dp,
                 gamepadState = gamepadState,
             )
         }
@@ -73,7 +73,7 @@ fun DrawGamepad(
             contentAlignment = Alignment.TopEnd // Origin is top right
         ) {
             FaceButtons(
-                size = (2 * baseDp / 5).dp,
+                size = (0.45 * baseDp).dp,
                 gamepadState = gamepadState,
             )
         }
