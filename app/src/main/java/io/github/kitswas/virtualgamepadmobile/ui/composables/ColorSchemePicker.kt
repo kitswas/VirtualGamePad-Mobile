@@ -7,7 +7,6 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import io.github.kitswas.virtualgamepadmobile.data.ColorScheme
 import io.github.kitswas.virtualgamepadmobile.data.PreviewBase
-import io.github.kitswas.virtualgamepadmobile.ui.theme.VirtualGamePadMobileTheme
 
 
 @Composable

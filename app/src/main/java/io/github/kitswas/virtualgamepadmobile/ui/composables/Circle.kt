@@ -18,7 +18,7 @@ fun Circle(
     modifier: Modifier = Modifier,
     contentAlignment: Alignment = Alignment.Center,
     colour: Color = Color.White,
-    content: @Composable() (BoxScope.() -> Unit)
+    content: @Composable (BoxScope.() -> Unit)
 ) {
     Box(
         modifier = modifier

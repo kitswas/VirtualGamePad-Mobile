@@ -12,7 +12,7 @@ import kotlinx.coroutines.flow.map
 // At the top level of your kotlin file:
 val Context.settingsDataStore: DataStore<Preferences> by preferencesDataStore(name = "settings")
 
-class SettingsRepository(private val context: Context) {
+class SettingsRepository(context: Context) {
     private val dataStore = context.settingsDataStore
 
     val baseColor: Flow<BaseColor> = dataStore.data.map { preferences ->

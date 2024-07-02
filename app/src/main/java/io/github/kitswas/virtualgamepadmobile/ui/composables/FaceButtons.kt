@@ -7,7 +7,10 @@ import androidx.compose.foundation.interaction.collectIsPressedAsState
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.material3.*
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.getValue
@@ -23,7 +26,6 @@ import androidx.compose.ui.unit.times
 import io.github.kitswas.VGP_Data_Exchange.GameButtons
 import io.github.kitswas.VGP_Data_Exchange.GamepadReading
 import io.github.kitswas.virtualgamepadmobile.data.PreviewBase
-import io.github.kitswas.virtualgamepadmobile.ui.theme.VirtualGamePadMobileTheme
 import io.github.kitswas.virtualgamepadmobile.ui.theme.darken
 import io.github.kitswas.virtualgamepadmobile.ui.theme.lighten
 

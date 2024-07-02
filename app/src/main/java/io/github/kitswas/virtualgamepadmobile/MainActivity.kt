@@ -10,7 +10,6 @@ import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
@@ -78,7 +77,7 @@ class MainActivity : ComponentActivity() {
     /**
      * https://developers.google.com/ml-kit/vision/barcode-scanning/code-scanner
      */
-    fun prepareQRScanner() {
+    private fun prepareQRScanner() {
         val options = GmsBarcodeScannerOptions.Builder()
             .setBarcodeFormats(
                 Barcode.FORMAT_QR_CODE,
