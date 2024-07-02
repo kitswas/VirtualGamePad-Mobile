@@ -7,7 +7,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -58,10 +58,10 @@ fun AnalogStick(
                 contentAlignment = Alignment.Center,
                 colour = outerCircleColor,
             ) {
-                var offsetX by remember { mutableStateOf(0f) }
-                var offsetY by remember { mutableStateOf(0f) }
-                var scaledOffsetX by remember { mutableStateOf(0f) }
-                var scaledOffsetY by remember { mutableStateOf(0f) }
+                var offsetX by remember { mutableFloatStateOf(0f) }
+                var offsetY by remember { mutableFloatStateOf(0f) }
+                var scaledOffsetX by remember { mutableFloatStateOf(0f) }
+                var scaledOffsetY by remember { mutableFloatStateOf(0f) }
 
                 // Then draw the inner circle
                 Circle(
