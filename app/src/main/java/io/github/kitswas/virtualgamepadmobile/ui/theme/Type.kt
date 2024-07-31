@@ -10,17 +10,17 @@ import io.github.kitswas.virtualgamepadmobile.R
 // Set of Material typography styles to start with
 val Typography = Typography(
     bodyLarge = TextStyle(
-        fontFamily = FontFamily(androidx.compose.ui.text.font.Font(R.font.gamefly)),
+        fontFamily = FontFamily(androidx.compose.ui.text.font.Font(R.font.oxanium)),
         fontWeight = FontWeight.Normal,
         fontSize = 20.sp
     ),
     bodyMedium = TextStyle(
-        fontFamily = FontFamily(androidx.compose.ui.text.font.Font(R.font.gamefly)),
+        fontFamily = FontFamily(androidx.compose.ui.text.font.Font(R.font.oxanium)),
         fontWeight = FontWeight.Normal,
         fontSize = 16.sp
     ),
     bodySmall = TextStyle(
-        fontFamily = FontFamily(androidx.compose.ui.text.font.Font(R.font.gamefly)),
+        fontFamily = FontFamily(androidx.compose.ui.text.font.Font(R.font.oxanium)),
         fontWeight = FontWeight.Normal,
         fontSize = 12.sp
     ),
