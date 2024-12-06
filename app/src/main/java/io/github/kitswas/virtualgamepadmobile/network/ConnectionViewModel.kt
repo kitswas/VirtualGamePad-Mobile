@@ -29,6 +29,9 @@ class ConnectionViewModel : ViewModel() {
             socket.tcpNoDelay = true
             // low latency > short connection time > high bandwidth
             socket.setPerformancePreferences(1, 2, 0)
+            // Mark traffic class for low latency
+            // https://docs.oracle.com/javase/8/docs/api/java/net/Socket.html#setTrafficClass-int-
+            socket.setTrafficClass(0x10) // IPTOS_LOWDELAY
             // This is a generous timeout to establish a connection
             // Typically the ping should be less than 50ms for gaming purposes
             val timeout = 0 // in milliseconds, 0 means infinite
