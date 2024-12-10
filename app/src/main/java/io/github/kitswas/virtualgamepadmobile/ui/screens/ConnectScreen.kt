@@ -103,6 +103,18 @@ fun ConnectMenu(
 ) {
     val snackbarHostState = remember { SnackbarHostState() }
     val scope = rememberCoroutineScope()
+
+    fun logScannerUnavailable() {
+        val message = "Google Code Scanner unavailable"
+        Log.d("ConnectMenu", message)
+        CoroutineScope(Dispatchers.Main).launch {
+            snackbarHostState.showSnackbar(
+                duration = SnackbarDuration.Short,
+                message = message,
+            )
+        }
+    }
+
     Scaffold(
         snackbarHost = {
             SnackbarHost(hostState = snackbarHostState)
@@ -122,7 +134,11 @@ fun ConnectMenu(
             val focusManager = LocalFocusManager.current
 
             Button(onClick = {
-                scanner?.startScan()?.addOnSuccessListener {
+                val task = scanner?.startScan()
+                if (scanner == null || task == null) {
+                    logScannerUnavailable()
+                }
+                task!!.addOnSuccessListener {
                     val qrCode = it.rawValue ?: ""
                     Log.d("Scanned QR Code", qrCode)
                     ipAddress = getIP(qrCode)
@@ -130,7 +146,7 @@ fun ConnectMenu(
                     // recalculate validity
                     isIPValid = validateIP(ipAddress)
                     isPortValid = validatePort(port)
-                }
+                }.addOnFailureListener { logScannerUnavailable() }
             }, shape = CircleShape) {
                 Text(text = "Scan QR Code")
             }
