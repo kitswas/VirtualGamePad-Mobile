@@ -117,8 +117,8 @@ fun ConnectMenu(
         ) {
             var ipAddress by rememberSaveable { mutableStateOf("") }
             var port by rememberSaveable { mutableStateOf("") }
-            var isIPValid by remember { mutableStateOf(false) }
-            var isPortValid by remember { mutableStateOf(false) }
+            var isIPValid by rememberSaveable { mutableStateOf(false) }
+            var isPortValid by rememberSaveable { mutableStateOf(false) }
             val focusManager = LocalFocusManager.current
 
             Button(onClick = {
