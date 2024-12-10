@@ -100,7 +100,7 @@ class MainActivity : ComponentActivity() {
                 ConnectMenu(navController, scanner, connectionViewModel)
             }
             composable("gamepad") {
-                GamePad(connectionViewModel)
+                GamePad(connectionViewModel, navController)
             }
             composable("settings_screen") {
                 SettingsScreen(navController, settingsRepository)

@@ -2,6 +2,7 @@ package io.github.kitswas.virtualgamepadmobile.ui.screens
 
 import android.content.res.Configuration
 import android.util.Log
+import android.widget.Toast
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -10,6 +11,8 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.navigation.NavHostController
+import androidx.navigation.compose.rememberNavController
 import io.github.kitswas.VGP_Data_Exchange.GamepadReading
 import io.github.kitswas.virtualgamepadmobile.data.PreviewBase
 import io.github.kitswas.virtualgamepadmobile.data.PreviewHeightDp
@@ -17,30 +20,18 @@ import io.github.kitswas.virtualgamepadmobile.data.PreviewWidthDp
 import io.github.kitswas.virtualgamepadmobile.network.ConnectionViewModel
 import io.github.kitswas.virtualgamepadmobile.ui.composables.DrawGamepad
 import io.github.kitswas.virtualgamepadmobile.ui.utils.findActivity
+import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 @Composable
-fun GamePad(connectionViewModel: ConnectionViewModel?) {
+fun GamePad(
+    connectionViewModel: ConnectionViewModel?,
+    navController: NavHostController = rememberNavController(),
+) {
     val gamepadState by remember { mutableStateOf(GamepadReading()) }
-
-    val pollingDelay = 100L // in milliseconds
-    val startAfter = 100L // in milliseconds
-    // Send gamepad state every pollingDelay milliseconds
-    LaunchedEffect(gamepadState) {
-        delay(startAfter)
-        while (true) {
-            if (connectionViewModel != null) {
-                CoroutineScope(Dispatchers.IO).launch {
-                    connectionViewModel.sendGamepadState(gamepadState)
-                    gamepadState.ButtonsUp = 0
-                }
-            }
-            delay(pollingDelay)
-        }
-    }
 
     val configuration = LocalConfiguration.current
 
@@ -74,6 +65,43 @@ fun GamePad(connectionViewModel: ConnectionViewModel?) {
                 }
             }
         })
+
+    val pollingDelay = 100L // in milliseconds
+    val startAfter = 100L // in milliseconds
+    val lastError = remember { mutableStateOf<Throwable?>(null) }
+    // Send gamepad state every pollingDelay milliseconds
+    LaunchedEffect(gamepadState) {
+        delay(startAfter)
+        val exceptionHandler = CoroutineExceptionHandler { _, throwable ->
+            Log.e("GamePad", throwable.message ?: "Unknown connection error")
+            lastError.value = throwable
+        }
+        while (true) {
+            if (connectionViewModel != null) {
+                CoroutineScope(Dispatchers.IO + exceptionHandler).launch {
+                    connectionViewModel.sendGamepadState(gamepadState)
+                    gamepadState.ButtonsUp = 0
+                }
+            }
+            CoroutineScope(Dispatchers.Main).launch {
+                lastError.value.let { throwable ->
+                    if (throwable is java.net.SocketException) {
+                        Toast.makeText(
+                            activity,
+                            "Disconnected: ${throwable.message}",
+                            Toast.LENGTH_SHORT
+                        ).show()
+                        connectionViewModel?.disconnect()
+                        navController.popBackStack()
+                    }
+                    lastError.value = null
+                }
+            }
+            delay(pollingDelay)
+        }
+    }
+
+
 }
 
 @Preview(
@@ -97,15 +125,4 @@ private fun GamePadPreviewNight() {
     PreviewBase {
         GamePad(null)
     }
-}
-
-private fun resetGamepadState(gamepadState: GamepadReading) {
-    gamepadState.ButtonsUp = 0
-    gamepadState.ButtonsDown = 0
-    gamepadState.LeftThumbstickX = 0F
-    gamepadState.LeftThumbstickY = 0F
-    gamepadState.RightThumbstickX = 0F
-    gamepadState.LeftTrigger = 0F
-    gamepadState.RightThumbstickY = 0F
-    gamepadState.RightTrigger = 0F
 }
