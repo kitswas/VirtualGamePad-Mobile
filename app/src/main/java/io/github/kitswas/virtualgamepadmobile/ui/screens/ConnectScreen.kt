@@ -12,12 +12,17 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.Button
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarDuration
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -35,6 +40,7 @@ import io.github.kitswas.virtualgamepadmobile.data.PreviewBase
 import io.github.kitswas.virtualgamepadmobile.data.PreviewHeightDp
 import io.github.kitswas.virtualgamepadmobile.data.PreviewWidthDp
 import io.github.kitswas.virtualgamepadmobile.network.ConnectionViewModel
+import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -70,11 +76,14 @@ private fun attemptToConnect(
     navController: NavHostController,
     connectionViewModel: ConnectionViewModel?,
     ipAddress: String,
-    port: String
+    port: String,
+    exceptionHandler: CoroutineExceptionHandler
 ) {
     if (connectionViewModel != null) {
-        CoroutineScope(Dispatchers.IO).launch {
+        CoroutineScope(Dispatchers.IO + exceptionHandler).launch {
             connectionViewModel.connect(ipAddress, port.toInt())
+            // The above can throw IOException, handle it
+
         }.invokeOnCompletion {
             CoroutineScope(Dispatchers.Main).launch {
                 // Update UI elements
@@ -92,86 +101,116 @@ fun ConnectMenu(
     scanner: GmsBarcodeScanner?,
     connectionViewModel: ConnectionViewModel?
 ) {
-    Column(
-        modifier = Modifier.fillMaxSize(),
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Center
-    ) {
-        var ipAddress by rememberSaveable { mutableStateOf("") }
-        var port by rememberSaveable { mutableStateOf("") }
-        var isIPValid by remember { mutableStateOf(false) }
-        var isPortValid by remember { mutableStateOf(false) }
-        val focusManager = LocalFocusManager.current
-
-        Button(onClick = {
-            scanner?.startScan()?.addOnSuccessListener {
-                val qrCode = it.rawValue ?: ""
-                Log.d("Scanned QR Code", qrCode)
-                ipAddress = getIP(qrCode)
-                port = getPort(qrCode)
-                // recalculate validity
-                isIPValid = validateIP(ipAddress)
-                isPortValid = validatePort(port)
-            }
-        }, shape = CircleShape) {
-            Text(text = "Scan QR Code")
+    val snackbarHostState = remember { SnackbarHostState() }
+    val scope = rememberCoroutineScope()
+    Scaffold(
+        snackbarHost = {
+            SnackbarHost(hostState = snackbarHostState)
         }
+    ) { contentPadding ->
+        // Ignore contentPadding as we want to fill the screen
 
-        TextField(
-            label = { Text(text = "IP Address") },
-            value = ipAddress,
-            onValueChange = {
-                ipAddress = it
-                isIPValid = validateIP(ipAddress)
-            },
-            keyboardOptions = KeyboardOptions(
-                imeAction = ImeAction.Next
-            ),
-            keyboardActions = KeyboardActions(
-                onNext = {
-                    // Pressing Ime button would move the text indicator's focus to the bottom
-                    // field, if it exists!
-                    focusManager.moveFocus(FocusDirection.Down)
-                }
-            ),
-            shape = RectangleShape,
-            modifier = Modifier.padding(0.dp, 5.dp),
-            isError = !isIPValid
-        )
-
-        TextField(
-            label = { Text(text = "Port") },
-            value = port,
-            onValueChange = {
-                port = it
-                isPortValid = validatePort(port)
-            },
-            keyboardOptions = KeyboardOptions(
-                imeAction = ImeAction.Done
-            ),
-            keyboardActions = KeyboardActions(
-                onDone = {
-                    attemptToConnect(
-                        navController, connectionViewModel, ipAddress, port
-                    )
-                }
-            ),
-            shape = RectangleShape,
-            modifier = Modifier.padding(0.dp, 5.dp),
-            isError = !isPortValid
-        )
-
-        Button(
-            onClick =
-            {
-                attemptToConnect(
-                    navController, connectionViewModel, ipAddress, port
-                )
-            },
-            shape = CircleShape,
-            enabled = isIPValid && isPortValid,
+        Column(
+            modifier = Modifier.fillMaxSize(),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Center
         ) {
-            Text(text = "Connect")
+            var ipAddress by rememberSaveable { mutableStateOf("") }
+            var port by rememberSaveable { mutableStateOf("") }
+            var isIPValid by remember { mutableStateOf(false) }
+            var isPortValid by remember { mutableStateOf(false) }
+            val focusManager = LocalFocusManager.current
+
+            Button(onClick = {
+                scanner?.startScan()?.addOnSuccessListener {
+                    val qrCode = it.rawValue ?: ""
+                    Log.d("Scanned QR Code", qrCode)
+                    ipAddress = getIP(qrCode)
+                    port = getPort(qrCode)
+                    // recalculate validity
+                    isIPValid = validateIP(ipAddress)
+                    isPortValid = validatePort(port)
+                }
+            }, shape = CircleShape) {
+                Text(text = "Scan QR Code")
+            }
+
+            TextField(
+                label = { Text(text = "IP Address") },
+                value = ipAddress,
+                onValueChange = {
+                    ipAddress = it
+                    isIPValid = validateIP(ipAddress)
+                },
+                keyboardOptions = KeyboardOptions(
+                    imeAction = ImeAction.Next
+                ),
+                keyboardActions = KeyboardActions(
+                    onNext = {
+                        // Pressing Ime button would move the text indicator's focus to the bottom
+                        // field, if it exists!
+                        focusManager.moveFocus(FocusDirection.Down)
+                    }
+                ),
+                shape = RectangleShape,
+                modifier = Modifier.padding(0.dp, 5.dp),
+                isError = !isIPValid
+            )
+
+            TextField(
+                label = { Text(text = "Port") },
+                value = port,
+                onValueChange = {
+                    port = it
+                    isPortValid = validatePort(port)
+                },
+                keyboardOptions = KeyboardOptions(
+                    imeAction = ImeAction.Done
+                ),
+                keyboardActions = KeyboardActions(
+                    onDone = {
+                        focusManager.clearFocus()
+                        attemptToConnect(
+                            navController, connectionViewModel, ipAddress, port,
+                            CoroutineExceptionHandler { _, e ->
+                                scope.launch {
+                                    snackbarHostState.showSnackbar(
+                                        duration = SnackbarDuration.Short,
+                                        message = e.message
+                                            ?: "Failed to connect to server: ${e.cause}",
+                                    )
+                                }
+                            }
+                        )
+                    }
+                ),
+                shape = RectangleShape,
+                modifier = Modifier.padding(0.dp, 5.dp),
+                isError = !isPortValid
+            )
+
+            Button(
+                onClick =
+                {
+                    attemptToConnect(
+                        navController, connectionViewModel, ipAddress, port,
+                        CoroutineExceptionHandler { _, e ->
+                            scope.launch {
+                                snackbarHostState.showSnackbar(
+                                    duration = SnackbarDuration.Short,
+                                    message = e.message
+                                        ?: "Failed to connect to server: ${e.cause}",
+                                )
+                            }
+                        }
+                    )
+                },
+                shape = CircleShape,
+                enabled = isIPValid && isPortValid,
+            ) {
+                Text(text = "Connect")
+            }
+
         }
     }
 }
