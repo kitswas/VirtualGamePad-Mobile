@@ -23,31 +23,27 @@ class ConnectionViewModel : ViewModel() {
      * This is a blocking call.
      */
     fun connect(ipAddress: String, port: Int) {
-        try {
-            val socket = Socket()
-            // Disable Nagle's algorithm
-            socket.tcpNoDelay = true
-            // low latency > short connection time > high bandwidth
-            socket.setPerformancePreferences(1, 2, 0)
-            // Mark traffic class for low latency
-            // https://docs.oracle.com/javase/8/docs/api/java/net/Socket.html#setTrafficClass-int-
-            socket.setTrafficClass(0x10) // IPTOS_LOWDELAY
-            // This is a generous timeout to establish a connection
-            // Typically the ping should be less than 50ms for gaming purposes
-            val timeout = 0 // in milliseconds, 0 means infinite
-            socket.connect(java.net.InetSocketAddress(ipAddress, port), timeout)
-            Log.d(tag, socket.toString())
+        val socket = Socket()
+        // Disable Nagle's algorithm
+        socket.tcpNoDelay = true
+        // low latency > short connection time > high bandwidth
+        socket.setPerformancePreferences(1, 2, 0)
+        // Mark traffic class for low latency
+        // https://docs.oracle.com/javase/8/docs/api/java/net/Socket.html#setTrafficClass-int-
+        socket.setTrafficClass(0x10) // IPTOS_LOWDELAY
+        // This is a generous timeout to establish a connection
+        // Typically the ping should be less than 50ms for gaming purposes
+        val timeout = 0 // in milliseconds, 0 means infinite
+        socket.connect(java.net.InetSocketAddress(ipAddress, port), timeout)
+        Log.d(tag, socket.toString())
 
-            _uiState.update { currentState ->
-                currentState.copy(
-                    connected = true,
-                    ipAddress = ipAddress,
-                    port = port,
-                    socket = socket
-                )
-            }
-        } catch (e: Exception) {
-            Log.e(tag, e.toString())
+        _uiState.update { currentState ->
+            currentState.copy(
+                connected = true,
+                ipAddress = ipAddress,
+                port = port,
+                socket = socket
+            )
         }
     }
 
@@ -56,38 +52,26 @@ class ConnectionViewModel : ViewModel() {
      */
     @Suppress("unused")
     fun sendString(string: String) {
-        try {
-            if (_uiState.value.connected && _uiState.value.socket != null) {
-                _uiState.value.socket!!.outputStream.write(string.toByteArray())
-            }
-        } catch (e: Exception) {
-            Log.e(tag, e.toString())
+        if (_uiState.value.connected && _uiState.value.socket != null) {
+            _uiState.value.socket!!.outputStream.write(string.toByteArray())
         }
     }
 
     fun sendGamepadState(gamepadState: GamepadReading) {
-        try {
-            if (_uiState.value.connected && _uiState.value.socket != null) {
-                gamepadState.marshal(_uiState.value.socket!!.outputStream, null)
-            }
-        } catch (e: Exception) {
-            Log.e(tag, e.toString())
+        if (_uiState.value.connected && _uiState.value.socket != null) {
+            gamepadState.marshal(_uiState.value.socket!!.outputStream, null)
         }
     }
 
     fun disconnect() {
-        try {
-            _uiState.value.socket?.close()
-            _uiState.update { currentState ->
-                currentState.copy(
-                    connected = false,
-                    ipAddress = "",
-                    port = -1,
-                    socket = null
-                )
-            }
-        } catch (e: Exception) {
-            Log.e(tag, e.toString())
+        _uiState.value.socket?.close()
+        _uiState.update { currentState ->
+            currentState.copy(
+                connected = false,
+                ipAddress = "",
+                port = -1,
+                socket = null
+            )
         }
     }
 }
