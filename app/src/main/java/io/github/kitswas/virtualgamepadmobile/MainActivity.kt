@@ -121,7 +121,7 @@ class MainActivity : ComponentActivity() {
                                 Toast.makeText(
                                     this@MainActivity,
                                     "$message Please restart the app.",
-                                    Toast.LENGTH_SHORT
+                                    Toast.LENGTH_LONG
                                 ).show()
                             }
                             Log.i("ModuleInstaller", "$message State: $state")
