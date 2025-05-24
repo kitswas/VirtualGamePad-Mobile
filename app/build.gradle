@@ -7,7 +7,7 @@ plugins {
 
 android {
     namespace 'io.github.kitswas.virtualgamepadmobile'
-    compileSdk 34
+    compileSdk 35
 
     defaultConfig {
         applicationId "io.github.kitswas.virtualgamepadmobile"
