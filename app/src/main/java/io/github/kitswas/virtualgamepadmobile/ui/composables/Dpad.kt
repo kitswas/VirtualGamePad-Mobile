@@ -28,6 +28,9 @@ import androidx.compose.ui.unit.times
 import io.github.kitswas.VGP_Data_Exchange.GameButtons
 import io.github.kitswas.VGP_Data_Exchange.GamepadReading
 import io.github.kitswas.virtualgamepadmobile.ui.theme.darken
+import kotlin.experimental.and
+import kotlin.experimental.inv
+import kotlin.experimental.or
 
 enum class DpadButtonType {
     UP, DOWN, LEFT, RIGHT

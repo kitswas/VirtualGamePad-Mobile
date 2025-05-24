@@ -4,10 +4,18 @@ import android.util.Log
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.collectIsPressedAsState
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.offset
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Menu
-import androidx.compose.material3.*
+import androidx.compose.material3.Button
+import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedIconButton
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.getValue
@@ -21,6 +29,9 @@ import io.github.kitswas.VGP_Data_Exchange.GameButtons
 import io.github.kitswas.VGP_Data_Exchange.GamepadReading
 import io.github.kitswas.virtualgamepadmobile.R
 import io.github.kitswas.virtualgamepadmobile.ui.theme.darken
+import kotlin.experimental.and
+import kotlin.experimental.inv
+import kotlin.experimental.or
 
 @Composable
 fun DrawGamepad(
@@ -111,7 +122,8 @@ fun DrawGamepad(
                             Log.d(gameButton.name, "Released")
                             gamepadState.ButtonsDown =
                                 gamepadState.ButtonsDown and gameButton.value.inv()
-                            gamepadState.ButtonsUp = gamepadState.ButtonsUp or gameButton.value
+                            gamepadState.ButtonsUp =
+                                gamepadState.ButtonsUp or gameButton.value
                         }
                     }
                 }

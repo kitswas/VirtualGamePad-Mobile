@@ -28,6 +28,9 @@ import io.github.kitswas.VGP_Data_Exchange.GamepadReading
 import io.github.kitswas.virtualgamepadmobile.data.PreviewBase
 import io.github.kitswas.virtualgamepadmobile.ui.theme.darken
 import io.github.kitswas.virtualgamepadmobile.ui.theme.lighten
+import kotlin.experimental.and
+import kotlin.experimental.inv
+import kotlin.experimental.or
 
 
 enum class FaceButtonType {

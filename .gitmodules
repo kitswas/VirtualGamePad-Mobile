@@ -1,3 +1,4 @@
 [submodule "VGP_Data_Exchange"]
 	path = VGP_Data_Exchange
-	url = git@github.com:kitswas/VGP_Data_Exchange.git
+	url = https://github.com/kitswas/VGP_Data_Exchange.git
+	branch = v0.3

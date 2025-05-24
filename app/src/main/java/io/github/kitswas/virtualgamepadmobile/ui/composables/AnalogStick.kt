@@ -8,6 +8,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -40,28 +41,26 @@ fun AnalogStick(
     type: AnalogStickType,
 ) {
     Box(
-        modifier = modifier,
-        contentAlignment = Alignment.Center
-    )
-    {
+        modifier = modifier, contentAlignment = Alignment.Center
+    ) {
         // First draw the glow ring
         Circle(
             colour = ringColor,
-            modifier = Modifier
-                .size((innerCircleRadius + outerCircleWidth + ringWidth) * 2),
+            modifier = Modifier.size((innerCircleRadius + outerCircleWidth + ringWidth) * 2),
             contentAlignment = Alignment.Center
         ) {
             // Then draw the outer circle
             Circle(
-                modifier = Modifier
-                    .size((innerCircleRadius + outerCircleWidth) * 2),
+                modifier = Modifier.size((innerCircleRadius + outerCircleWidth) * 2),
                 contentAlignment = Alignment.Center,
                 colour = outerCircleColor,
             ) {
                 var offsetX by remember { mutableFloatStateOf(0f) }
                 var offsetY by remember { mutableFloatStateOf(0f) }
-                var scaledOffsetX by remember { mutableFloatStateOf(0f) }
-                var scaledOffsetY by remember { mutableFloatStateOf(0f) }
+                var visualOffsetX by remember { mutableFloatStateOf(0f) }
+                var visualOffsetY by remember { mutableFloatStateOf(0f) }
+                var scaledOffsetX: Byte by remember { mutableStateOf(0) }
+                var scaledOffsetY: Byte by remember { mutableStateOf(0) }
 
                 // Then draw the inner circle
                 Circle(
@@ -70,51 +69,52 @@ fun AnalogStick(
                         .size(innerCircleRadius * 2)
                         .offset {
                             IntOffset(
-                                (scaledOffsetX * outerCircleWidth.toPx()).roundToInt(),
-                                (scaledOffsetY * outerCircleWidth.toPx()).roundToInt(),
+                                (visualOffsetX * outerCircleWidth.toPx()).roundToInt(),
+                                (visualOffsetY * outerCircleWidth.toPx()).roundToInt(),
                             )
                         }
                         .pointerInput(Unit) {
-                            detectDragGestures(
-                                onDragEnd = {
-                                    offsetX = 0f
-                                    offsetY = 0f
-                                    scaledOffsetX = 0f
-                                    scaledOffsetY = 0f
-                                    when (type) {
-                                        AnalogStickType.LEFT -> {
-                                            gamepadState.LeftThumbstickX = scaledOffsetX
-                                            gamepadState.LeftThumbstickY = scaledOffsetY
-                                        }
-
-                                        AnalogStickType.RIGHT -> {
-                                            gamepadState.RightThumbstickX = scaledOffsetX
-                                            gamepadState.RightThumbstickY = scaledOffsetY
-                                        }
+                            detectDragGestures(onDragEnd = {
+                                offsetX = 0f
+                                offsetY = 0f
+                                visualOffsetX = 0f
+                                visualOffsetY = 0f
+                                scaledOffsetX = 0
+                                scaledOffsetY = 0
+                                when (type) {
+                                    AnalogStickType.LEFT -> {
+                                        gamepadState.LeftThumbstickX = scaledOffsetX
+                                        gamepadState.LeftThumbstickY = scaledOffsetY
                                     }
-                                },
-                                onDrag = { change, dragAmount ->
-                                    change.consume()
-                                    offsetX += dragAmount.x
-                                    offsetY += dragAmount.y
-                                    // scale and clamp between -1 and 1
-                                    scaledOffsetX =
-                                        (offsetX / outerCircleWidth.toPx()).coerceIn(-1f, 1f)
-                                    scaledOffsetY =
-                                        (offsetY / outerCircleWidth.toPx()).coerceIn(-1f, 1f)
-                                    when (type) {
-                                        AnalogStickType.LEFT -> {
-                                            gamepadState.LeftThumbstickX = scaledOffsetX
-                                            gamepadState.LeftThumbstickY = scaledOffsetY
-                                        }
 
-                                        AnalogStickType.RIGHT -> {
-                                            gamepadState.RightThumbstickX = scaledOffsetX
-                                            gamepadState.RightThumbstickY = scaledOffsetY
-                                        }
+                                    AnalogStickType.RIGHT -> {
+                                        gamepadState.RightThumbstickX = scaledOffsetX
+                                        gamepadState.RightThumbstickY = scaledOffsetY
                                     }
                                 }
-                            )
+                            }, onDrag = { change, dragAmount ->
+                                change.consume()
+                                offsetX += dragAmount.x
+                                offsetY += dragAmount.y
+                                // Calculate visual offset for display (between -1 and 1)
+                                visualOffsetX = (offsetX / outerCircleWidth.toPx()).coerceIn(-1f, 1f)
+                                visualOffsetY = (offsetY / outerCircleWidth.toPx()).coerceIn(-1f, 1f)
+
+                                // scale and clamp between -1 and 1, and shift to [0, 200]
+                                scaledOffsetX = ((visualOffsetX * 100).toInt() + 100).toByte()
+                                scaledOffsetY = ((visualOffsetY * 100).toInt() + 100).toByte()
+                                when (type) {
+                                    AnalogStickType.LEFT -> {
+                                        gamepadState.LeftThumbstickX = scaledOffsetX
+                                        gamepadState.LeftThumbstickY = scaledOffsetY
+                                    }
+
+                                    AnalogStickType.RIGHT -> {
+                                        gamepadState.RightThumbstickX = scaledOffsetX
+                                        gamepadState.RightThumbstickY = scaledOffsetY
+                                    }
+                                }
+                            })
                         },
 //                    onClick = {},
                 ) {

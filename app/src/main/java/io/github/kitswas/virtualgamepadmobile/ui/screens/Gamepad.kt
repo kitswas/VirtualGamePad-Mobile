@@ -52,12 +52,12 @@ fun GamePad(
                         // unset all keys before disconnecting
                         gamepadState.ButtonsUp = gamepadState.ButtonsDown
                         gamepadState.ButtonsDown = 0
-                        gamepadState.LeftThumbstickX = 0F
-                        gamepadState.LeftThumbstickY = 0F
-                        gamepadState.RightThumbstickX = 0F
-                        gamepadState.RightThumbstickY = 0F
-                        gamepadState.LeftTrigger = 0F
-                        gamepadState.RightTrigger = 0F
+                        gamepadState.LeftThumbstickX = 0
+                        gamepadState.LeftThumbstickY = 0
+                        gamepadState.RightThumbstickX = 0
+                        gamepadState.RightThumbstickY = 0
+                        gamepadState.LeftTrigger = 0
+                        gamepadState.RightTrigger = 0
                         connectionViewModel.sendGamepadState(gamepadState)
                         connectionViewModel.disconnect()
                         Log.d("GamePad", "Disconnected")
