@@ -207,20 +207,20 @@ fun ConnectMenu(
 
             Button(
                 onClick =
-                {
-                    attemptToConnect(
-                        navController, connectionViewModel, ipAddress, port,
-                        CoroutineExceptionHandler { _, e ->
-                            scope.launch {
-                                snackbarHostState.showSnackbar(
-                                    duration = SnackbarDuration.Short,
-                                    message = e.message
-                                        ?: "Failed to connect to server: ${e.cause}",
-                                )
+                    {
+                        attemptToConnect(
+                            navController, connectionViewModel, ipAddress, port,
+                            CoroutineExceptionHandler { _, e ->
+                                scope.launch {
+                                    snackbarHostState.showSnackbar(
+                                        duration = SnackbarDuration.Short,
+                                        message = e.message
+                                            ?: "Failed to connect to server: ${e.cause}",
+                                    )
+                                }
                             }
-                        }
-                    )
-                },
+                        )
+                    },
                 shape = CircleShape,
                 enabled = isIPValid && isPortValid,
             ) {
