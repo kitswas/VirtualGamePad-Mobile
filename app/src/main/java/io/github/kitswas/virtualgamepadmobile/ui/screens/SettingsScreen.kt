@@ -29,7 +29,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
@@ -42,9 +41,9 @@ import io.github.kitswas.virtualgamepadmobile.data.SettingsRepository
 import io.github.kitswas.virtualgamepadmobile.data.defaultBaseColor
 import io.github.kitswas.virtualgamepadmobile.data.defaultColorScheme
 import io.github.kitswas.virtualgamepadmobile.data.defaultPollingDelay
-import io.github.kitswas.virtualgamepadmobile.ui.composables.BoundedNumericInput
 import io.github.kitswas.virtualgamepadmobile.ui.composables.ColorSchemePicker
 import io.github.kitswas.virtualgamepadmobile.ui.composables.ListItemPicker
+import io.github.kitswas.virtualgamepadmobile.ui.composables.SpinBox
 import io.github.kitswas.virtualgamepadmobile.ui.theme.Typography
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -102,8 +101,8 @@ fun SettingsScreen(
             ) {
                 var pollingDelay by remember { mutableIntStateOf(currentPollingDelay) }
 
-                // Using the BoundedNumericInput with Int type
-                BoundedNumericInput(
+                // Using SpinBox instead of BoundedNumericInput
+                SpinBox(
                     value = pollingDelay,
                     onValueChange = {
                         pollingDelay = it
@@ -116,11 +115,10 @@ fun SettingsScreen(
                     label = "Polling Interval (ms)",
                     minValue = 20,
                     maxValue = 200,
-                    parseValue = { it.toIntOrNull() },
-                    keyboardType = KeyboardType.Number
+                    step = 5
                 )
 
-                var toolTipState = rememberTooltipState() // Set initialIsVisible=true for testing
+                var toolTipState = rememberTooltipState()
                 var scope = rememberCoroutineScope()
                 TooltipBox(
                     positionProvider = TooltipDefaults.rememberPlainTooltipPositionProvider(),
@@ -176,7 +174,6 @@ fun SettingsScreen(
         }
     }
 }
-
 
 @Preview(
     widthDp = PreviewWidthDp,
