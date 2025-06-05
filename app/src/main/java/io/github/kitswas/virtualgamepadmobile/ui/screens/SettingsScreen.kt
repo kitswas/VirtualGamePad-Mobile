@@ -21,11 +21,15 @@ import androidx.compose.material3.TooltipDefaults
 import androidx.compose.material3.rememberTooltipState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
@@ -38,6 +42,7 @@ import io.github.kitswas.virtualgamepadmobile.data.SettingsRepository
 import io.github.kitswas.virtualgamepadmobile.data.defaultBaseColor
 import io.github.kitswas.virtualgamepadmobile.data.defaultColorScheme
 import io.github.kitswas.virtualgamepadmobile.data.defaultPollingDelay
+import io.github.kitswas.virtualgamepadmobile.ui.composables.BoundedNumericInput
 import io.github.kitswas.virtualgamepadmobile.ui.composables.ColorSchemePicker
 import io.github.kitswas.virtualgamepadmobile.ui.composables.ListItemPicker
 import io.github.kitswas.virtualgamepadmobile.ui.theme.Typography
@@ -95,18 +100,24 @@ fun SettingsScreen(
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.Center
             ) {
+                var pollingDelay by remember { mutableIntStateOf(currentPollingDelay) }
 
-                ListItemPicker(
-                    list = 20..200 step 10,
-                    default = currentPollingDelay,
-                    label = "Polling Interval (ms)",
-                    onItemSelected = {
+                // Using the BoundedNumericInput with Int type
+                BoundedNumericInput(
+                    value = pollingDelay,
+                    onValueChange = {
+                        pollingDelay = it
                         saveJobsQueue.add {
                             launch(Dispatchers.IO) {
                                 settingsRepository.setPollingDelay(it)
                             }
                         }
-                    }
+                    },
+                    label = "Polling Interval (ms)",
+                    minValue = 20,
+                    maxValue = 200,
+                    parseValue = { it.toIntOrNull() },
+                    keyboardType = KeyboardType.Number
                 )
 
                 var toolTipState = rememberTooltipState() // Set initialIsVisible=true for testing
