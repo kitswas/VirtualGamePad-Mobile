@@ -1,6 +1,5 @@
 package io.github.kitswas.virtualgamepadmobile.ui.composables
 
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.Row
@@ -18,6 +17,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 
 /**
@@ -45,26 +45,24 @@ fun <T> ListItemPicker(
 
     var expanded by remember { mutableStateOf(false) }
 
-    Box(modifier) {
-        var selectedItem = default
-        Column {
-            Text(text = label, style = MaterialTheme.typography.labelMedium)
-            OutlinedButton(onClick = { expanded = true }) {
-                Row {
-                    formattedDisplay(selectedItem)
-                    Icon(Icons.Filled.ArrowDropDown, contentDescription = "Expand")
-                }
-                DropdownMenu(
-                    expanded = expanded,
-                    onDismissRequest = { expanded = false },
-                ) {
-                    list.forEach { item ->
-                        DropdownMenuItem(text = { formattedDisplay(item) }, onClick = {
-                            selectedItem = item
-                            expanded = false
-                            onItemSelected(item)
-                        })
-                    }
+    var selectedItem = default
+    Column(modifier, horizontalAlignment = Alignment.CenterHorizontally) {
+        Text(text = label, style = MaterialTheme.typography.labelMedium)
+        OutlinedButton(onClick = { expanded = true }) {
+            Row {
+                formattedDisplay(selectedItem)
+                Icon(Icons.Filled.ArrowDropDown, contentDescription = "Expand")
+            }
+            DropdownMenu(
+                expanded = expanded,
+                onDismissRequest = { expanded = false },
+            ) {
+                list.forEach { item ->
+                    DropdownMenuItem(text = { formattedDisplay(item) }, onClick = {
+                        selectedItem = item
+                        expanded = false
+                        onItemSelected(item)
+                    })
                 }
             }
         }
@@ -80,7 +78,7 @@ fun <T> ListItemPicker(
 fun <T> ListItemPicker(
     modifier: Modifier = Modifier,
     list: Iterable<T>,
-    default: Int = 0,
+    defaultIndex: Int = 0,
     label: String,
     formattedDisplay: @Composable (T) -> Unit = { item -> Text(item.toString()) },
     onItemSelected: (T) -> Unit = { _ -> }
@@ -88,7 +86,7 @@ fun <T> ListItemPicker(
     ListItemPicker(
         modifier = modifier,
         list = list,
-        default = list.elementAt(default),
+        default = list.elementAt(defaultIndex),
         label = label,
         formattedDisplay = formattedDisplay,
         onItemSelected = onItemSelected

@@ -23,6 +23,10 @@ class SettingsRepository(context: Context) {
         ColorScheme.fromInt(preferences[COLOR_SCHEME] ?: defaultColorScheme.ordinal)
     }
 
+    val pollingDelay: Flow<Int> = dataStore.data.map { preferences ->
+        preferences[POLLING_DELAY] ?: defaultPollingDelay
+    }
+
     suspend fun setBaseColor(baseColor: BaseColor) {
         dataStore.edit { preferences ->
             preferences[BASE_COLOR] = baseColor.ordinal
@@ -35,6 +39,12 @@ class SettingsRepository(context: Context) {
         }
     }
 
+    suspend fun setPollingDelay(delay: Int) {
+        dataStore.edit { preferences ->
+            preferences[POLLING_DELAY] = delay
+        }
+    }
+
     suspend fun resetAllSettings() {
         dataStore.edit { preferences ->
             preferences.clear()
@@ -44,5 +54,6 @@ class SettingsRepository(context: Context) {
     companion object {
         private val COLOR_SCHEME = intPreferencesKey("color_scheme")
         private val BASE_COLOR = intPreferencesKey("base_color")
+        private val POLLING_DELAY = intPreferencesKey("polling_delay")
     }
 }

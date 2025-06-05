@@ -5,6 +5,7 @@ import android.util.Log
 import android.widget.Toast
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -17,6 +18,8 @@ import io.github.kitswas.VGP_Data_Exchange.GamepadReading
 import io.github.kitswas.virtualgamepadmobile.data.PreviewBase
 import io.github.kitswas.virtualgamepadmobile.data.PreviewHeightDp
 import io.github.kitswas.virtualgamepadmobile.data.PreviewWidthDp
+import io.github.kitswas.virtualgamepadmobile.data.SettingsRepository
+import io.github.kitswas.virtualgamepadmobile.data.defaultPollingDelay
 import io.github.kitswas.virtualgamepadmobile.network.ConnectionViewModel
 import io.github.kitswas.virtualgamepadmobile.ui.composables.DrawGamepad
 import io.github.kitswas.virtualgamepadmobile.ui.utils.findActivity
@@ -32,6 +35,10 @@ fun GamePad(
     navController: NavHostController = rememberNavController(),
 ) {
     val gamepadState by remember { mutableStateOf(GamepadReading()) }
+    val context = LocalContext.current
+    val settingsRepository = remember { SettingsRepository(context) }
+    val pollingDelay =
+        settingsRepository.pollingDelay.collectAsState(defaultPollingDelay).value.toLong()
 
     val configuration = LocalConfiguration.current
 
@@ -66,11 +73,10 @@ fun GamePad(
             }
         })
 
-    val pollingDelay = 100L // in milliseconds
     val startAfter = 100L // in milliseconds
     val lastError = remember { mutableStateOf<Throwable?>(null) }
     // Send gamepad state every pollingDelay milliseconds
-    LaunchedEffect(gamepadState) {
+    LaunchedEffect(gamepadState, pollingDelay) {
         delay(startAfter)
         val exceptionHandler = CoroutineExceptionHandler { _, throwable ->
             Log.e("GamePad", throwable.message ?: "Unknown connection error")
