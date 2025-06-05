@@ -29,6 +29,8 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
+private const val tag = "GamePadScreen"
+
 @SuppressLint("ConfigurationScreenWidthHeight")
 @Composable
 fun GamePad(
@@ -46,8 +48,7 @@ fun GamePad(
     val screenHeight = configuration.screenHeightDp
     val screenWidth = configuration.screenWidthDp
 
-    // Add a state to track if we're cleaning up to avoid concurrent access
-    val isCleaningUp = remember { mutableStateOf(false) }
+    var isStopping = remember { mutableStateOf(false) }
 
     DrawGamepad(screenWidth, screenHeight, gamepadState)
 
@@ -59,10 +60,9 @@ fun GamePad(
                 && activity?.isChangingConfigurations != true // ignore screen rotation
             ) {
                 if (connectionViewModel != null) {
-                    // Set the cleaning up flag to prevent the LaunchedEffect from sending more updates
-                    isCleaningUp.value = true
                     CoroutineScope(Dispatchers.IO).launch {
                         try {
+                            isStopping.value = true
                             // unset all keys before disconnecting
                             gamepadState.ButtonsUp = gamepadState.ButtonsDown
                             gamepadState.ButtonsDown = 0
@@ -72,52 +72,58 @@ fun GamePad(
                             gamepadState.RightThumbstickY = 0F
                             gamepadState.LeftTrigger = 0F
                             gamepadState.RightTrigger = 0F
-                            connectionViewModel.sendGamepadState(gamepadState)
+                            connectionViewModel.enqueueGamepadState(gamepadState)
                             connectionViewModel.disconnect()
-                            Log.d("GamePad", "Disconnected")
+                            Log.d(tag, "Disconnected")
                         } catch (e: Exception) {
-                            Log.d("GamePad", "Error during disconnect: ${e.message}")
+                            Log.d(tag, "Error during disconnect: ${e.message}")
                         }
                     }
                 }
             }
         })
 
-    val startAfter = 100L // in milliseconds
-    val lastError = remember { mutableStateOf<Throwable?>(null) }
-    // Send gamepad state every pollingDelay milliseconds
-    LaunchedEffect(gamepadState, pollingDelay) {
-        delay(startAfter)
-        while (connectionViewModel != null && !isCleaningUp.value) {
-            // Don't try to send updates if we're in the process of cleaning up
-            CoroutineScope(Dispatchers.IO).launch {
-                try {
-                    connectionViewModel.sendGamepadState(gamepadState)
-                    gamepadState.ButtonsUp = 0
-                } catch (e: Exception) {
-                    Log.e(this::class.qualifiedName, e.message ?: "Unknown connection error")
-                    lastError.value = e
+    // Monitor connection state and handle errors
+    val connectionState by connectionViewModel?.uiState?.collectAsState()
+        ?: remember { mutableStateOf(null) }
+
+    // Use a more focused effect that reacts to the specific connection state properties
+    LaunchedEffect(connectionState?.connected, connectionState?.error) {
+        connectionState?.let { state ->
+            if (!state.connected) {
+                // Show toast with error if available, otherwise generic message
+                val message = if (state.error != null) {
+                    "Connection lost: ${state.error}"
+                } else {
+                    "Connection lost"
                 }
+
+                Log.d(tag, message)
+                Toast.makeText(context, message, Toast.LENGTH_LONG).show()
+
+                navController.popBackStack()
             }
-            CoroutineScope(Dispatchers.Main).launch {
-                lastError.value.let { throwable ->
-                    if (throwable is java.net.SocketException) {
-                        Toast.makeText(
-                            activity,
-                            "Disconnected: ${throwable.message}",
-                            Toast.LENGTH_SHORT
-                        ).show()
-                        connectionViewModel.disconnect()
-                        navController.popBackStack()
-                    }
-                    lastError.value = null
-                }
-            }
-            delay(pollingDelay)
         }
     }
 
+    val startAfter = 100L // in milliseconds
 
+    // Send gamepad state updates periodically
+    LaunchedEffect(gamepadState, pollingDelay) {
+        delay(startAfter)
+
+        // Start sending updates
+        while (connectionViewModel != null && !isStopping.value) {
+            // Queue the update in the ViewModel
+            connectionViewModel.enqueueGamepadState(gamepadState)
+
+            // Reset ButtonsUp after each update
+            gamepadState.ButtonsUp = 0
+
+            // Wait before next update
+            delay(pollingDelay)
+        }
+    }
 }
 
 @Preview(
