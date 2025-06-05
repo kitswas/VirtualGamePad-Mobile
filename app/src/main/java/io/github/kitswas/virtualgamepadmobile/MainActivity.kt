@@ -15,9 +15,11 @@ import androidx.compose.ui.Modifier
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
+import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import androidx.navigation.navArgument
 import com.google.android.gms.common.moduleinstall.InstallStatusListener
 import com.google.android.gms.common.moduleinstall.ModuleInstall
 import com.google.android.gms.common.moduleinstall.ModuleInstallRequest
@@ -32,6 +34,7 @@ import io.github.kitswas.virtualgamepadmobile.data.defaultBaseColor
 import io.github.kitswas.virtualgamepadmobile.data.defaultColorScheme
 import io.github.kitswas.virtualgamepadmobile.network.ConnectionViewModel
 import io.github.kitswas.virtualgamepadmobile.ui.screens.ConnectMenu
+import io.github.kitswas.virtualgamepadmobile.ui.screens.ConnectingScreen
 import io.github.kitswas.virtualgamepadmobile.ui.screens.GamePad
 import io.github.kitswas.virtualgamepadmobile.ui.screens.MainMenu
 import io.github.kitswas.virtualgamepadmobile.ui.screens.SettingsScreen
@@ -174,6 +177,22 @@ class MainActivity : ComponentActivity() {
             }
             composable("connect_screen") {
                 ConnectMenu(navController, scanner, connectionViewModel)
+            }
+            composable(
+                "connecting_screen/{ipAddress}/{port}",
+                arguments = listOf(
+                    navArgument("ipAddress") { type = NavType.StringType },
+                    navArgument("port") { type = NavType.StringType }
+                )
+            ) { backStackEntry ->
+                val ipAddress = backStackEntry.arguments?.getString("ipAddress") ?: ""
+                val port = backStackEntry.arguments?.getString("port") ?: ""
+                ConnectingScreen(
+                    navController = navController,
+                    connectionViewModel = connectionViewModel,
+                    ipAddress = ipAddress,
+                    port = port
+                )
             }
             composable("gamepad") {
                 GamePad(connectionViewModel, navController)

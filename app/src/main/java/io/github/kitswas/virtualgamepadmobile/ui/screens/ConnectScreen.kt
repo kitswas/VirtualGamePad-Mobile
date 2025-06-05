@@ -222,21 +222,24 @@ fun ConnectMenu(
             )
 
             Button(
-                onClick =
-                    {
-                        attemptToConnect(
-                            navController, connectionViewModel, ipAddress, port,
-                            CoroutineExceptionHandler { _, e ->
-                                scope.launch {
-                                    snackbarHostState.showSnackbar(
-                                        duration = SnackbarDuration.Short,
-                                        message = e.message
-                                            ?: "Failed to connect to server: ${e.cause}",
-                                    )
-                                }
+                onClick = {
+                    if (isIPValid && isPortValid) {
+                        // Navigate to the connecting screen instead of attempting connection directly
+                        navController.navigate("connecting_screen/$ipAddress/$port")
+                    } else {
+                        scope.launch {
+                            val errorMessage = when {
+                                !isIPValid -> "Invalid IP address format"
+                                !isPortValid -> "Invalid port number (must be between 1-65535)"
+                                else -> "Invalid connection parameters"
                             }
-                        )
-                    },
+                            snackbarHostState.showSnackbar(
+                                message = errorMessage,
+                                duration = SnackbarDuration.Short
+                            )
+                        }
+                    }
+                },
                 shape = CircleShape,
                 enabled = isIPValid && isPortValid,
             ) {
