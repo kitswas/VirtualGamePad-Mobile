@@ -21,11 +21,8 @@ import androidx.compose.material3.TooltipDefaults
 import androidx.compose.material3.rememberTooltipState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
@@ -64,8 +61,7 @@ fun SettingsScreen(
         val saveJobsQueue = remember { mutableListOf<suspend CoroutineScope.() -> Unit>() }
         val colorScheme = settingsRepository.colorScheme.collectAsState(defaultColorScheme).value
         val baseColor = settingsRepository.baseColor.collectAsState(defaultBaseColor).value
-        val currentPollingDelay =
-            settingsRepository.pollingDelay.collectAsState(defaultPollingDelay).value
+        val pollingDelay = settingsRepository.pollingDelay.collectAsState(defaultPollingDelay).value
 
         Text("Settings", style = MaterialTheme.typography.titleLarge)
 
@@ -99,23 +95,19 @@ fun SettingsScreen(
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.Center
             ) {
-                var pollingDelay by remember { mutableIntStateOf(currentPollingDelay) }
-
-                // Using SpinBox instead of BoundedNumericInput
                 SpinBox(
                     value = pollingDelay,
-                    onValueChange = {
-                        pollingDelay = it
+                    onValueChange = { newValue ->
                         saveJobsQueue.add {
                             launch(Dispatchers.IO) {
-                                settingsRepository.setPollingDelay(it)
+                                settingsRepository.setPollingDelay(newValue)
                             }
                         }
                     },
                     label = "Polling Interval (ms)",
                     minValue = 20,
                     maxValue = 200,
-                    step = 5
+                    step = 10
                 )
 
                 var toolTipState = rememberTooltipState()
@@ -125,7 +117,7 @@ fun SettingsScreen(
                     tooltip = {
                         PlainTooltip(shadowElevation = 10.dp) {
                             Text(
-                                "Adjust according to your reflexes\nLower means faster",
+                                "Adjust according to your reflexes\nLower is faster",
                                 style = Typography.bodyLarge
                             )
                         }
