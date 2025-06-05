@@ -1,5 +1,6 @@
 package io.github.kitswas.virtualgamepadmobile.ui.screens
 
+import android.annotation.SuppressLint
 import android.content.res.Configuration
 import android.util.Log
 import android.widget.Toast
@@ -23,12 +24,12 @@ import io.github.kitswas.virtualgamepadmobile.data.defaultPollingDelay
 import io.github.kitswas.virtualgamepadmobile.network.ConnectionViewModel
 import io.github.kitswas.virtualgamepadmobile.ui.composables.DrawGamepad
 import io.github.kitswas.virtualgamepadmobile.ui.utils.findActivity
-import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
+@SuppressLint("ConfigurationScreenWidthHeight")
 @Composable
 fun GamePad(
     connectionViewModel: ConnectionViewModel?,
@@ -45,6 +46,9 @@ fun GamePad(
     val screenHeight = configuration.screenHeightDp
     val screenWidth = configuration.screenWidthDp
 
+    // Add a state to track if we're cleaning up to avoid concurrent access
+    val isCleaningUp = remember { mutableStateOf(false) }
+
     DrawGamepad(screenWidth, screenHeight, gamepadState)
 
     val activity = LocalContext.current.findActivity()
@@ -55,19 +59,25 @@ fun GamePad(
                 && activity?.isChangingConfigurations != true // ignore screen rotation
             ) {
                 if (connectionViewModel != null) {
+                    // Set the cleaning up flag to prevent the LaunchedEffect from sending more updates
+                    isCleaningUp.value = true
                     CoroutineScope(Dispatchers.IO).launch {
-                        // unset all keys before disconnecting
-                        gamepadState.ButtonsUp = gamepadState.ButtonsDown
-                        gamepadState.ButtonsDown = 0
-                        gamepadState.LeftThumbstickX = 0F
-                        gamepadState.LeftThumbstickY = 0F
-                        gamepadState.RightThumbstickX = 0F
-                        gamepadState.RightThumbstickY = 0F
-                        gamepadState.LeftTrigger = 0F
-                        gamepadState.RightTrigger = 0F
-                        connectionViewModel.sendGamepadState(gamepadState)
-                        connectionViewModel.disconnect()
-                        Log.d("GamePad", "Disconnected")
+                        try {
+                            // unset all keys before disconnecting
+                            gamepadState.ButtonsUp = gamepadState.ButtonsDown
+                            gamepadState.ButtonsDown = 0
+                            gamepadState.LeftThumbstickX = 0F
+                            gamepadState.LeftThumbstickY = 0F
+                            gamepadState.RightThumbstickX = 0F
+                            gamepadState.RightThumbstickY = 0F
+                            gamepadState.LeftTrigger = 0F
+                            gamepadState.RightTrigger = 0F
+                            connectionViewModel.sendGamepadState(gamepadState)
+                            connectionViewModel.disconnect()
+                            Log.d("GamePad", "Disconnected")
+                        } catch (e: Exception) {
+                            Log.d("GamePad", "Error during disconnect: ${e.message}")
+                        }
                     }
                 }
             }
@@ -78,15 +88,15 @@ fun GamePad(
     // Send gamepad state every pollingDelay milliseconds
     LaunchedEffect(gamepadState, pollingDelay) {
         delay(startAfter)
-        val exceptionHandler = CoroutineExceptionHandler { _, throwable ->
-            Log.e("GamePad", throwable.message ?: "Unknown connection error")
-            lastError.value = throwable
-        }
-        while (true) {
-            if (connectionViewModel != null) {
-                CoroutineScope(Dispatchers.IO + exceptionHandler).launch {
+        while (connectionViewModel != null && !isCleaningUp.value) {
+            // Don't try to send updates if we're in the process of cleaning up
+            CoroutineScope(Dispatchers.IO).launch {
+                try {
                     connectionViewModel.sendGamepadState(gamepadState)
                     gamepadState.ButtonsUp = 0
+                } catch (e: Exception) {
+                    Log.e(this::class.qualifiedName, e.message ?: "Unknown connection error")
+                    lastError.value = e
                 }
             }
             CoroutineScope(Dispatchers.Main).launch {
@@ -97,7 +107,7 @@ fun GamePad(
                             "Disconnected: ${throwable.message}",
                             Toast.LENGTH_SHORT
                         ).show()
-                        connectionViewModel?.disconnect()
+                        connectionViewModel.disconnect()
                         navController.popBackStack()
                     }
                     lastError.value = null
