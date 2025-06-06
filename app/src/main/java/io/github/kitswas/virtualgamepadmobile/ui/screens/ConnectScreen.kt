@@ -33,8 +33,6 @@ import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.navigation.NavHostController
-import androidx.navigation.compose.rememberNavController
 import com.google.mlkit.vision.codescanner.GmsBarcodeScanner
 import io.github.kitswas.virtualgamepadmobile.data.PreviewBase
 import io.github.kitswas.virtualgamepadmobile.data.PreviewHeightDp
@@ -73,7 +71,6 @@ fun validatePort(port: String): Boolean {
 }
 
 private fun attemptToConnect(
-    navController: NavHostController,
     connectionViewModel: ConnectionViewModel?,
     ipAddress: String,
     port: String,
@@ -83,14 +80,13 @@ private fun attemptToConnect(
         CoroutineScope(Dispatchers.IO + exceptionHandler).launch {
             connectionViewModel.connect(ipAddress, port.toInt())
             // The connection state will be updated in the ViewModel
-            // Navigation is handled by the observer in the composable
         }
     }
 }
 
 @Composable
 fun ConnectMenu(
-    navController: NavHostController = rememberNavController(),
+    onNavigateToConnectingScreen: (String, String) -> Unit,
     scanner: GmsBarcodeScanner?,
     connectionViewModel: ConnectionViewModel?
 ) {
@@ -180,7 +176,9 @@ fun ConnectMenu(
                     onDone = {
                         focusManager.clearFocus()
                         attemptToConnect(
-                            navController, connectionViewModel, ipAddress, port,
+                            connectionViewModel,
+                            ipAddress,
+                            port,
                             CoroutineExceptionHandler { _, e ->
                                 scope.launch {
                                     snackbarHostState.showSnackbar(
@@ -201,8 +199,8 @@ fun ConnectMenu(
             Button(
                 onClick = {
                     if (isIPValid && isPortValid) {
-                        // Navigate to the connecting screen instead of attempting connection directly
-                        navController.navigate("connecting_screen/$ipAddress/$port")
+                        // Navigate to the connecting screen with the IP and port
+                        onNavigateToConnectingScreen(ipAddress, port)
                     } else {
                         scope.launch {
                             val errorMessage = when {
@@ -222,7 +220,6 @@ fun ConnectMenu(
             ) {
                 Text(text = "Connect")
             }
-
         }
     }
 }
@@ -234,6 +231,10 @@ fun ConnectMenu(
 @Composable
 fun ConnectMenuPreview() {
     PreviewBase {
-        ConnectMenu(scanner = null, connectionViewModel = null)
+        ConnectMenu(
+            onNavigateToConnectingScreen = { _, _ -> },
+            scanner = null,
+            connectionViewModel = null
+        )
     }
 }

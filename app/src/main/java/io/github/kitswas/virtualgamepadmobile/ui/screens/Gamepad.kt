@@ -13,8 +13,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.navigation.NavHostController
-import androidx.navigation.compose.rememberNavController
 import io.github.kitswas.VGP_Data_Exchange.GamepadReading
 import io.github.kitswas.virtualgamepadmobile.data.PreviewBase
 import io.github.kitswas.virtualgamepadmobile.data.PreviewHeightDp
@@ -35,7 +33,7 @@ private const val tag = "GamePadScreen"
 @Composable
 fun GamePad(
     connectionViewModel: ConnectionViewModel?,
-    navController: NavHostController = rememberNavController(),
+    onNavigateBack: () -> Unit,
 ) {
     val gamepadState by remember { mutableStateOf(GamepadReading()) }
     val context = LocalContext.current
@@ -101,7 +99,7 @@ fun GamePad(
                 Log.d(tag, message)
                 Toast.makeText(context, message, Toast.LENGTH_LONG).show()
 
-                navController.popBackStack()
+                onNavigateBack()
             }
         }
     }
@@ -133,7 +131,7 @@ fun GamePad(
 @Composable
 fun GamePadPreview() {
     PreviewBase {
-        GamePad(null)
+        GamePad(null) {}
     }
 }
 
@@ -145,6 +143,6 @@ fun GamePadPreview() {
 @Composable
 private fun GamePadPreviewNight() {
     PreviewBase {
-        GamePad(null)
+        GamePad(null) {}
     }
 }

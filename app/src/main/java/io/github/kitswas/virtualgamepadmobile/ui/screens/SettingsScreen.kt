@@ -31,8 +31,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.navigation.NavController
-import androidx.navigation.compose.rememberNavController
 import io.github.kitswas.virtualgamepadmobile.data.BaseColor
 import io.github.kitswas.virtualgamepadmobile.data.ColorScheme
 import io.github.kitswas.virtualgamepadmobile.data.PreviewBase
@@ -62,7 +60,8 @@ private data class SettingsChanges(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SettingsScreen(
-    navController: NavController = rememberNavController(), settingsRepository: SettingsRepository
+    onNavigateBack: () -> Unit,
+    settingsRepository: SettingsRepository
 ) {
     val settingsChanges by rememberSaveable { mutableStateOf(SettingsChanges()) }
 
@@ -161,14 +160,12 @@ fun SettingsScreen(
                     }
                 }
                 Log.i(logTag, "Saved settings: $changesSaved")
-                navController.popBackStack()
+                onNavigateBack()
             }) {
                 Text("Save")
             }
 
-            Button(onClick = {
-                navController.popBackStack()
-            }) {
+            Button(onClick = onNavigateBack) {
                 Text("Cancel")
             }
         }
@@ -182,6 +179,9 @@ fun SettingsScreen(
 @Composable
 fun SettingsScreenPreview() {
     PreviewBase {
-        SettingsScreen(settingsRepository = SettingsRepository(LocalContext.current))
+        SettingsScreen(
+            onNavigateBack = {},
+            settingsRepository = SettingsRepository(LocalContext.current)
+        )
     }
 }

@@ -28,14 +28,13 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
-import androidx.navigation.NavHostController
-import androidx.navigation.compose.rememberNavController
 import io.github.kitswas.virtualgamepadmobile.network.ConnectionViewModel
 import kotlinx.coroutines.launch
 
 @Composable
 fun ConnectingScreen(
-    navController: NavHostController = rememberNavController(),
+    onNavigateToGamepad: () -> Unit,
+    onNavigateBack: () -> Unit,
     connectionViewModel: ConnectionViewModel?,
     ipAddress: String,
     port: String
@@ -59,7 +58,7 @@ fun ConnectingScreen(
                 message = "Invalid connection parameters: ${e.message}",
                 duration = SnackbarDuration.Short
             )
-            navController.popBackStack()
+            onNavigateBack()
         }
     }
 
@@ -73,10 +72,7 @@ fun ConnectingScreen(
             if (state.connected) {
                 // Connection successful, navigate to gamepad
                 Log.d("ConnectingScreen", "Connection successful, navigating to gamepad")
-                navController.navigate("gamepad") {
-                    // Clear the back stack so user can't go back to connecting screen
-                    popUpTo("connect_screen") { inclusive = true }
-                }
+                onNavigateToGamepad()
             } else if (!state.isConnecting && state.error != null) {
                 // Connection failed, show error and stay on screen
                 Log.d("ConnectingScreen", "Connection failed: ${state.error}")
@@ -95,7 +91,7 @@ fun ConnectingScreen(
         // Cancel any pending connection
         Log.d("ConnectingScreen", "Back pressed, canceling connection")
         connectionViewModel?.disconnect()
-        navController.popBackStack()
+        onNavigateBack()
     }
 
     // UI for connecting screen
@@ -138,10 +134,7 @@ fun ConnectingScreen(
                         Text("Retry")
                     }
                     Spacer(modifier = Modifier.height(8.dp))
-                    TextButton(onClick = {
-                        // Go back to connect screen
-                        navController.popBackStack()
-                    }) {
+                    TextButton(onClick = onNavigateBack) {
                         Text("Back")
                     }
                 } ?: run {

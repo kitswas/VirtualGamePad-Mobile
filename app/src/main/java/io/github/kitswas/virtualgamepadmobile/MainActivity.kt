@@ -15,6 +15,7 @@ import androidx.compose.ui.Modifier
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
+import androidx.navigation.NavHostController
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -42,6 +43,7 @@ import io.github.kitswas.virtualgamepadmobile.ui.theme.VirtualGamePadMobileTheme
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlin.system.exitProcess
 
 class MainActivity : ComponentActivity() {
 
@@ -169,14 +171,24 @@ class MainActivity : ComponentActivity() {
     fun NavTree(
         connectionViewModel: ConnectionViewModel,
         settingsRepository: SettingsRepository,
+        navController: NavHostController = rememberNavController(),
     ) {
-        val navController = rememberNavController()
         NavHost(navController = navController, startDestination = "main_menu") {
             composable("main_menu") {
-                MainMenu(navController)
+                MainMenu(
+                    onNavigateToConnectScreen = { navController.navigate("connect_screen") },
+                    onNavigateToSettingsScreen = { navController.navigate("settings_screen") },
+                    onExit = { exitProcess(0) }
+                )
             }
             composable("connect_screen") {
-                ConnectMenu(navController, scanner, connectionViewModel)
+                ConnectMenu(
+                    onNavigateToConnectingScreen = { ipAddress, port ->
+                        navController.navigate("connecting_screen/$ipAddress/$port")
+                    },
+                    scanner = scanner,
+                    connectionViewModel = connectionViewModel
+                )
             }
             composable(
                 "connecting_screen/{ipAddress}/{port}",
@@ -188,17 +200,28 @@ class MainActivity : ComponentActivity() {
                 val ipAddress = backStackEntry.arguments?.getString("ipAddress") ?: ""
                 val port = backStackEntry.arguments?.getString("port") ?: ""
                 ConnectingScreen(
-                    navController = navController,
+                    onNavigateToGamepad = {
+                        navController.navigate("gamepad") {
+                            popUpTo("connect_screen") { inclusive = true }
+                        }
+                    },
+                    onNavigateBack = { navController.popBackStack() },
                     connectionViewModel = connectionViewModel,
                     ipAddress = ipAddress,
                     port = port
                 )
             }
             composable("gamepad") {
-                GamePad(connectionViewModel, navController)
+                GamePad(
+                    connectionViewModel = connectionViewModel,
+                    onNavigateBack = { navController.popBackStack() }
+                )
             }
             composable("settings_screen") {
-                SettingsScreen(navController, settingsRepository)
+                SettingsScreen(
+                    onNavigateBack = { navController.popBackStack() },
+                    settingsRepository = settingsRepository
+                )
             }
         }
     }
