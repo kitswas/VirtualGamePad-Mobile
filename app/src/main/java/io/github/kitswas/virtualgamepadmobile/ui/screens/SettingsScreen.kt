@@ -21,8 +21,9 @@ import androidx.compose.material3.TooltipDefaults
 import androidx.compose.material3.rememberTooltipState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.remember
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
@@ -42,10 +43,11 @@ import io.github.kitswas.virtualgamepadmobile.ui.composables.ColorSchemePicker
 import io.github.kitswas.virtualgamepadmobile.ui.composables.ListItemPicker
 import io.github.kitswas.virtualgamepadmobile.ui.composables.SpinBox
 import io.github.kitswas.virtualgamepadmobile.ui.theme.Typography
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
+import java.util.concurrent.ConcurrentLinkedQueue
+
+const val logTag = "SettingsScreen"
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -57,20 +59,21 @@ fun SettingsScreen(
         verticalArrangement = Arrangement.SpaceAround,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        // Store pending settings modifications in a queue
-        val saveJobsQueue = remember { mutableListOf<suspend CoroutineScope.() -> Unit>() }
-        val colorScheme = settingsRepository.colorScheme.collectAsState(defaultColorScheme).value
-        val baseColor = settingsRepository.baseColor.collectAsState(defaultBaseColor).value
-        val pollingDelay = settingsRepository.pollingDelay.collectAsState(defaultPollingDelay).value
+        // Store pending settings modifications in a synchronized queue
+        val saveJobsQueue = rememberSaveable {
+            ConcurrentLinkedQueue(mutableListOf<suspend () -> Unit>())
+        }
+        val colorScheme by settingsRepository.colorScheme.collectAsState(initial = defaultColorScheme)
+        val baseColor by settingsRepository.baseColor.collectAsState(initial = defaultBaseColor)
+        val pollingDelay by settingsRepository.pollingDelay.collectAsState(initial = defaultPollingDelay)
 
         Text("Settings", style = MaterialTheme.typography.titleLarge)
 
         ColorSchemePicker(default = colorScheme) {
-            saveJobsQueue.add {
-                launch(Dispatchers.IO) {
-                    settingsRepository.setColorScheme(it)
-                }
+            val job = suspend {
+                settingsRepository.setColorScheme(it)
             }
+            saveJobsQueue.add(job)
         }
 
         ListItemPicker(
@@ -78,11 +81,10 @@ fun SettingsScreen(
             default = baseColor,
             label = "Theme Color",
             onItemSelected = {
-                saveJobsQueue.add {
-                    launch(Dispatchers.IO) {
-                        settingsRepository.setBaseColor(it)
-                    }
+                val job = suspend {
+                    settingsRepository.setBaseColor(it)
                 }
+                saveJobsQueue.add(job)
             })
 
         Column(
@@ -98,11 +100,10 @@ fun SettingsScreen(
                 SpinBox(
                     value = pollingDelay,
                     onValueChange = { newValue ->
-                        saveJobsQueue.add {
-                            launch(Dispatchers.IO) {
-                                settingsRepository.setPollingDelay(newValue)
-                            }
+                        val job = suspend {
+                            settingsRepository.setPollingDelay(newValue)
                         }
+                        saveJobsQueue.add(job)
                     },
                     label = "Polling Interval (ms)",
                     minValue = 20,
@@ -142,17 +143,26 @@ fun SettingsScreen(
             Button(onClick = {
                 saveJobsQueue.clear()
                 runBlocking { settingsRepository.resetAllSettings() }
+                Log.i(logTag, "Settings reset to defaults")
             }) {
                 Text("Reset")
             }
 
             Button(onClick = {
                 val success = runBlocking {
-                    saveJobsQueue.forEach { it() }
-                    saveJobsQueue.clear()
-                    true
+                    try {
+                        saveJobsQueue.forEach {
+                            it.invoke()
+                        }
+                        saveJobsQueue.clear()
+                        true
+                    } catch (e: Exception) {
+                        Log.e(logTag, "Error saving settings", e)
+                        false
+                    }
                 }
-                Log.i("SettingsScreen", "Saved settings: $success")
+                Log.i(logTag, "Saved settings: $success")
+                navController.popBackStack()
             }) {
                 Text("Save")
             }
