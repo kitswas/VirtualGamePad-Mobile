@@ -1,5 +1,6 @@
 package io.github.kitswas.virtualgamepadmobile.ui.screens
 
+import android.os.Parcelable
 import android.util.Log
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -22,6 +23,7 @@ import androidx.compose.material3.rememberTooltipState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
@@ -32,6 +34,7 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import io.github.kitswas.virtualgamepadmobile.data.BaseColor
+import io.github.kitswas.virtualgamepadmobile.data.ColorScheme
 import io.github.kitswas.virtualgamepadmobile.data.PreviewBase
 import io.github.kitswas.virtualgamepadmobile.data.PreviewHeightDp
 import io.github.kitswas.virtualgamepadmobile.data.PreviewWidthDp
@@ -45,24 +48,29 @@ import io.github.kitswas.virtualgamepadmobile.ui.composables.SpinBox
 import io.github.kitswas.virtualgamepadmobile.ui.theme.Typography
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
-import java.util.concurrent.ConcurrentLinkedQueue
+import kotlinx.parcelize.Parcelize
 
 const val logTag = "SettingsScreen"
+
+@Parcelize
+private data class SettingsChanges(
+    var colorScheme: ColorScheme? = null,
+    var baseColor: BaseColor? = null,
+    var pollingDelay: Int? = null
+) : Parcelable
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SettingsScreen(
     navController: NavController = rememberNavController(), settingsRepository: SettingsRepository
 ) {
+    val settingsChanges by rememberSaveable { mutableStateOf(SettingsChanges()) }
+
     Column(
         modifier = Modifier.fillMaxSize(),
         verticalArrangement = Arrangement.SpaceAround,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        // Store pending settings modifications in a synchronized queue
-        val saveJobsQueue = rememberSaveable {
-            ConcurrentLinkedQueue(mutableListOf<suspend () -> Unit>())
-        }
         val colorScheme by settingsRepository.colorScheme.collectAsState(initial = defaultColorScheme)
         val baseColor by settingsRepository.baseColor.collectAsState(initial = defaultBaseColor)
         val pollingDelay by settingsRepository.pollingDelay.collectAsState(initial = defaultPollingDelay)
@@ -70,10 +78,7 @@ fun SettingsScreen(
         Text("Settings", style = MaterialTheme.typography.titleLarge)
 
         ColorSchemePicker(default = colorScheme) {
-            val job = suspend {
-                settingsRepository.setColorScheme(it)
-            }
-            saveJobsQueue.add(job)
+            settingsChanges.colorScheme = it
         }
 
         ListItemPicker(
@@ -81,10 +86,7 @@ fun SettingsScreen(
             default = baseColor,
             label = "Theme Color",
             onItemSelected = {
-                val job = suspend {
-                    settingsRepository.setBaseColor(it)
-                }
-                saveJobsQueue.add(job)
+                settingsChanges.baseColor = it
             })
 
         Column(
@@ -99,11 +101,8 @@ fun SettingsScreen(
             ) {
                 SpinBox(
                     value = pollingDelay,
-                    onValueChange = { newValue ->
-                        val job = suspend {
-                            settingsRepository.setPollingDelay(newValue)
-                        }
-                        saveJobsQueue.add(job)
+                    onValueChange = {
+                        settingsChanges.pollingDelay = it
                     },
                     label = "Polling Interval (ms)",
                     minValue = 20,
@@ -141,7 +140,9 @@ fun SettingsScreen(
             modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceEvenly
         ) {
             Button(onClick = {
-                saveJobsQueue.clear()
+                settingsChanges.pollingDelay = null
+                settingsChanges.colorScheme = null
+                settingsChanges.baseColor = null
                 runBlocking { settingsRepository.resetAllSettings() }
                 Log.i(logTag, "Settings reset to defaults")
             }) {
@@ -149,26 +150,23 @@ fun SettingsScreen(
             }
 
             Button(onClick = {
-                val success = runBlocking {
+                var changesSaved = 0
+                runBlocking {
                     try {
-                        saveJobsQueue.forEach {
-                            it.invoke()
-                        }
-                        saveJobsQueue.clear()
-                        true
+                        settingsChanges.colorScheme?.let { settingsRepository.setColorScheme(it); ++changesSaved }
+                        settingsChanges.baseColor?.let { settingsRepository.setBaseColor(it); ++changesSaved }
+                        settingsChanges.pollingDelay?.let { settingsRepository.setPollingDelay(it); ++changesSaved }
                     } catch (e: Exception) {
                         Log.e(logTag, "Error saving settings", e)
-                        false
                     }
                 }
-                Log.i(logTag, "Saved settings: $success")
+                Log.i(logTag, "Saved settings: $changesSaved")
                 navController.popBackStack()
             }) {
                 Text("Save")
             }
 
             Button(onClick = {
-                saveJobsQueue.clear()
                 navController.popBackStack()
             }) {
                 Text("Cancel")
