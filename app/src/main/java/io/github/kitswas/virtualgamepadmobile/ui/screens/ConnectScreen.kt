@@ -19,8 +19,6 @@ import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -98,27 +96,6 @@ fun ConnectMenu(
 ) {
     val snackbarHostState = remember { SnackbarHostState() }
     val scope = rememberCoroutineScope()
-
-    // Observe connection state changes
-    val connectionState = connectionViewModel?.uiState?.collectAsState()
-
-    // Effect to navigate when connection is established
-    connectionState?.value?.let { state ->
-        if (state.connected) {
-            // Navigate to gamepad screen when connection is successful
-            LaunchedEffect(Unit) {
-                navController.navigate("gamepad")
-            }
-        } else if (!state.isConnecting && state.error != null) {
-            // Show error message if connection failed
-            LaunchedEffect(state.error) {
-                snackbarHostState.showSnackbar(
-                    message = "Connection failed: ${state.error}",
-                    duration = SnackbarDuration.Short
-                )
-            }
-        }
-    }
 
     fun logScannerUnavailable() {
         val message = "Google Code Scanner unavailable"
