@@ -18,7 +18,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -37,7 +37,7 @@ fun <T : Number> SpinBox(
     modifier: Modifier = Modifier,
     formatValue: (T) -> String = { it.toString() },
 ) {
-    var currentValue by remember(value) { mutableStateOf(value) }
+    var currentValue by rememberSaveable(value) { mutableStateOf(value) }
 
     // Helper function to add numeric values - handles different numeric types
     fun add(a: T, b: T): T {
