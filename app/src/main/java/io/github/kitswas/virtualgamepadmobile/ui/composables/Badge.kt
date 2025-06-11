@@ -5,7 +5,6 @@ import android.util.Log
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.runtime.Composable
@@ -56,10 +55,16 @@ fun Badge(
                 .crossfade(true)
                 .build(),
             contentDescription = contentDescription,
-            contentScale = ContentScale.FillWidth,
+            contentScale = ContentScale.FillHeight,
             modifier = Modifier
-                .height(20.dp)
-                .width(120.dp)
+                .height(25.dp),
+            onError = { error ->
+                Log.e(
+                    TAG,
+                    "Failed to load badge image: ${error.result.throwable.message}",
+                    error.result.throwable
+                )
+            }
         )
     }
 }

@@ -76,13 +76,13 @@ fun AboutScreen(
             horizontalArrangement = Arrangement.Center
         ) {
             Badge(
-                imageUrl = "https://raster.shields.io/github/license/kitswas/VirtualGamePad-Mobile",
+                imageUrl = "https://img.shields.io/github/license/kitswas/VirtualGamePad-Mobile",
                 linkUrl = mobileLicenseUrl,
                 contentDescription = "License Badge"
             )
 
             Badge(
-                imageUrl = "https://raster.shields.io/github/stars/kitswas/VirtualGamePad?style=social",
+                imageUrl = "https://img.shields.io/github/stars/kitswas/VirtualGamePad?style=flat",
                 linkUrl = repoUrl,
                 contentDescription = "GitHub Stars Badge"
             )
@@ -93,13 +93,13 @@ fun AboutScreen(
             horizontalArrangement = Arrangement.Center
         ) {
             Badge(
-                imageUrl = "https://raster.shields.io/github/downloads/kitswas/VirtualGamePad-Mobile/total",
+                imageUrl = "https://img.shields.io/github/downloads/kitswas/VirtualGamePad-Mobile/total",
                 linkUrl = releaseUrl,
                 contentDescription = "Downloads Badge"
             )
 
             Badge(
-                imageUrl = "https://raster.shields.io/github/v/release/kitswas/VirtualGamePad-Mobile?logo=github",
+                imageUrl = "https://img.shields.io/github/v/release/kitswas/VirtualGamePad-Mobile",
                 linkUrl = releaseUrl,
                 contentDescription = "Release Badge"
             )
