@@ -1,6 +1,8 @@
 buildscript {
     ext {
+        coil_version = '3.2.0'
         compose_ui_version = '1.8.2'
+        nav_version = '2.9.0'
     }
 }// Top-level build file where you can add configuration options common to all sub-projects/modules.
 plugins {

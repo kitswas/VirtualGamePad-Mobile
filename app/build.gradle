@@ -16,8 +16,8 @@ android {
         minSdk 26
         // Specifies the API level used to test the app.
         targetSdk 34
-        versionCode 3
-        versionName "0.2.1"
+        versionCode 4
+        versionName "0.3.0"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables {
@@ -58,9 +58,9 @@ android {
 }
 
 dependencies {
-    implementation 'io.coil-kt.coil3:coil-compose:3.2.0'
-    implementation 'io.coil-kt.coil3:coil-network-okhttp:3.2.0'
-    implementation 'io.coil-kt.coil3:coil-svg:3.2.0'
+    implementation "io.coil-kt.coil3:coil-compose:$coil_version"
+    implementation "io.coil-kt.coil3:coil-network-okhttp:$coil_version"
+    implementation "io.coil-kt.coil3:coil-svg:$coil_version"
     coreLibraryDesugaring 'com.android.tools:desugar_jdk_libs:2.1.5'
     implementation 'androidx.window:window:1.4.0'
 
@@ -77,7 +77,6 @@ dependencies {
     debugImplementation "androidx.compose.ui:ui-tooling:$compose_ui_version"
     debugImplementation "androidx.compose.ui:ui-test-manifest:$compose_ui_version"
 
-    def nav_version = '2.9.0'
     // Kotlin
     implementation "androidx.navigation:navigation-fragment-ktx:$nav_version"
     implementation "androidx.navigation:navigation-ui-ktx:$nav_version"
