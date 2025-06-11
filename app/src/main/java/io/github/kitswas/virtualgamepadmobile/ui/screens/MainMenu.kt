@@ -18,6 +18,7 @@ import io.github.kitswas.virtualgamepadmobile.data.PreviewWidthDp
 fun MainMenu(
     onNavigateToConnectScreen: () -> Unit,
     onNavigateToSettingsScreen: () -> Unit,
+    onNavigateToAboutScreen: () -> Unit,
     onExit: () -> Unit
 ) {
     Column(
@@ -30,6 +31,9 @@ fun MainMenu(
         }
         Button(onClick = onNavigateToSettingsScreen, shape = CircleShape) {
             Text(text = "Settings")
+        }
+        Button(onClick = onNavigateToAboutScreen, shape = CircleShape) {
+            Text(text = "About")
         }
         Button(onClick = onExit, shape = CircleShape) {
             Text(text = "Exit")
@@ -47,6 +51,7 @@ fun MainMenuPreview() {
         MainMenu(
             onNavigateToConnectScreen = {},
             onNavigateToSettingsScreen = {},
+            onNavigateToAboutScreen = {},
             onExit = {}
         )
     }

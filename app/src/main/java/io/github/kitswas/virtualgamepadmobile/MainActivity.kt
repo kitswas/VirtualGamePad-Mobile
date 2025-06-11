@@ -34,6 +34,7 @@ import io.github.kitswas.virtualgamepadmobile.data.SettingsRepository
 import io.github.kitswas.virtualgamepadmobile.data.defaultBaseColor
 import io.github.kitswas.virtualgamepadmobile.data.defaultColorScheme
 import io.github.kitswas.virtualgamepadmobile.network.ConnectionViewModel
+import io.github.kitswas.virtualgamepadmobile.ui.screens.AboutScreen
 import io.github.kitswas.virtualgamepadmobile.ui.screens.ConnectMenu
 import io.github.kitswas.virtualgamepadmobile.ui.screens.ConnectingScreen
 import io.github.kitswas.virtualgamepadmobile.ui.screens.GamePad
@@ -178,6 +179,7 @@ class MainActivity : ComponentActivity() {
                 MainMenu(
                     onNavigateToConnectScreen = { navController.navigate("connect_screen") },
                     onNavigateToSettingsScreen = { navController.navigate("settings_screen") },
+                    onNavigateToAboutScreen = { navController.navigate("about_screen") },
                     onExit = { exitProcess(0) }
                 )
             }
@@ -221,6 +223,11 @@ class MainActivity : ComponentActivity() {
                 SettingsScreen(
                     onNavigateBack = { navController.popBackStack() },
                     settingsRepository = settingsRepository
+                )
+            }
+            composable("about_screen") {
+                AboutScreen(
+                    onNavigateBack = { navController.popBackStack() }
                 )
             }
         }
