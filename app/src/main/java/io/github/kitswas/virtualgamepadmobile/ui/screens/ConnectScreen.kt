@@ -29,15 +29,16 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusDirection
 import androidx.compose.ui.graphics.RectangleShape
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.google.mlkit.vision.codescanner.GmsBarcodeScanner
 import io.github.kitswas.virtualgamepadmobile.data.PreviewBase
 import io.github.kitswas.virtualgamepadmobile.data.PreviewHeightDp
 import io.github.kitswas.virtualgamepadmobile.data.PreviewWidthDp
 import io.github.kitswas.virtualgamepadmobile.network.ConnectionViewModel
+import io.github.kitswas.virtualgamepadmobile.utils.QRScannerManager
 import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -87,22 +88,12 @@ private fun attemptToConnect(
 @Composable
 fun ConnectMenu(
     onNavigateToConnectingScreen: (String, String) -> Unit,
-    scanner: GmsBarcodeScanner?,
+    onNavigateToModuleInstaller: () -> Unit,
+    qrScannerManager: QRScannerManager,
     connectionViewModel: ConnectionViewModel?
 ) {
     val snackbarHostState = remember { SnackbarHostState() }
     val scope = rememberCoroutineScope()
-
-    fun logScannerUnavailable() {
-        val message = "Google Code Scanner unavailable"
-        Log.d("ConnectMenu", message)
-        CoroutineScope(Dispatchers.Main).launch {
-            snackbarHostState.showSnackbar(
-                duration = SnackbarDuration.Short,
-                message = message,
-            )
-        }
-    }
 
     Scaffold(
         snackbarHost = {
@@ -111,7 +102,9 @@ fun ConnectMenu(
     ) { paddingValues ->
 
         Column(
-            modifier = Modifier.fillMaxSize().padding(paddingValues),
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(paddingValues),
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center
         ) {
@@ -120,21 +113,33 @@ fun ConnectMenu(
             var isIPValid by rememberSaveable { mutableStateOf(false) }
             var isPortValid by rememberSaveable { mutableStateOf(false) }
             val focusManager = LocalFocusManager.current
-
             Button(onClick = {
-                val task = scanner?.startScan()
-                if (scanner == null || task == null) {
-                    logScannerUnavailable()
+                // Check if modules are available
+                val scanner = qrScannerManager.getQRScanner()
+                if (scanner != null) {
+                    // Modules are available, start scanning
+                    val task = scanner.startScan()
+                    task.addOnSuccessListener { barcode ->
+                        val qrCode = barcode.rawValue ?: ""
+                        Log.d("Scanned QR Code", qrCode)
+                        ipAddress = getIP(qrCode)
+                        port = getPort(qrCode)
+                        // recalculate validity
+                        isIPValid = validateIP(ipAddress)
+                        isPortValid = validatePort(port)
+                    }.addOnFailureListener { exception ->
+                        Log.e("ConnectMenu", "QR scan failed: ${exception.message}")
+                        scope.launch {
+                            snackbarHostState.showSnackbar(
+                                message = "QR scan failed: ${exception.message}",
+                                duration = SnackbarDuration.Short
+                            )
+                        }
+                    }
+                } else {
+                    // Modules not available, navigate to installer
+                    onNavigateToModuleInstaller()
                 }
-                task!!.addOnSuccessListener {
-                    val qrCode = it.rawValue ?: ""
-                    Log.d("Scanned QR Code", qrCode)
-                    ipAddress = getIP(qrCode)
-                    port = getPort(qrCode)
-                    // recalculate validity
-                    isIPValid = validateIP(ipAddress)
-                    isPortValid = validatePort(port)
-                }.addOnFailureListener { logScannerUnavailable() }
             }, shape = CircleShape) {
                 Text(text = "Scan QR Code")
             }
@@ -232,7 +237,8 @@ fun ConnectMenuPreview() {
     PreviewBase {
         ConnectMenu(
             onNavigateToConnectingScreen = { _, _ -> },
-            scanner = null,
+            onNavigateToModuleInstaller = { },
+            qrScannerManager = QRScannerManager(LocalContext.current),
             connectionViewModel = null
         )
     }
