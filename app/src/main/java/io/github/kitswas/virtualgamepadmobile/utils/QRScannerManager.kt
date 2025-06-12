@@ -32,6 +32,7 @@ class QRScannerManager(private val context: Context) {
         object CHECKING : ModuleAvailability()
         object AVAILABLE : ModuleAvailability()
         object NOT_AVAILABLE : ModuleAvailability()
+        object API_UNAVAILABLE : ModuleAvailability()
         object INSTALLING : ModuleAvailability()
         object INSTALL_FAILED : ModuleAvailability()
         object INSTALL_CANCELLED : ModuleAvailability()
@@ -58,7 +59,23 @@ class QRScannerManager(private val context: Context) {
             }
         }.addOnFailureListener { exception ->
             Log.w("QRScannerManager", "Module detection failed: ${exception.message}")
-            _moduleAvailabilityState.value = ModuleAvailability.NOT_AVAILABLE
+            // Check if it's an API unavailable error
+            if (exception.message?.contains("API_UNAVAILABLE") == true ||
+                exception.message?.contains("not available on this device") == true
+            ) {
+                _moduleAvailabilityState.value = ModuleAvailability.API_UNAVAILABLE
+                Log.w(
+                    "QRScannerManager",
+                    "ModuleInstall API is not available - likely Google Play Services issue"
+                )
+            } else {
+                // For other failures, treat as modules not available (can still try to install)
+                _moduleAvailabilityState.value = ModuleAvailability.NOT_AVAILABLE
+                Log.w(
+                    "QRScannerManager",
+                    "Module availability check failed, but installation may still work"
+                )
+            }
         }
     }
 
@@ -94,6 +111,13 @@ class QRScannerManager(private val context: Context) {
         onComplete: (() -> Unit)? = null,
         onError: ((String) -> Unit)? = null
     ) {
+        // Check if API is available before attempting installation
+        if (_moduleAvailabilityState.value == ModuleAvailability.API_UNAVAILABLE) {
+            Log.d("QRScannerManager", "Cannot install - API unavailable")
+            onError?.invoke("QR Scanner is not available. Please update Google Play Services and try again.")
+            return
+        }
+
         if (_moduleAvailabilityState.value == ModuleAvailability.INSTALLING) {
             Log.d("QRScannerManager", "Installation already in progress")
             return
@@ -159,16 +183,26 @@ class QRScannerManager(private val context: Context) {
             .addApi(scanner!!)
             .setListener(currentInstallListener!!)
             .build()
-
         moduleInstallClient.installModules(moduleInstallRequest)
             .addOnSuccessListener {
                 Log.i("QRScannerManager", "Module installation requested")
             }
             .addOnFailureListener { exception ->
                 exception.printStackTrace()
-                Log.w("QRScannerManager", "Module installation failed: ${exception.message}")
-                _moduleAvailabilityState.value = ModuleAvailability.INSTALL_FAILED
-                onError?.invoke("Installation failed: ${exception.message}")
+                Log.w(
+                    "QRScannerManager",
+                    "Module installation failed: ${exception.message}"
+                )
+                // Check if it's an API unavailable error
+                if (exception.message?.contains("API_UNAVAILABLE") == true ||
+                    exception.message?.contains("not available on this device") == true
+                ) {
+                    _moduleAvailabilityState.value = ModuleAvailability.API_UNAVAILABLE
+                    onError?.invoke("QR Scanner is not available. Please update Google Play Services and try again.")
+                } else {
+                    _moduleAvailabilityState.value = ModuleAvailability.INSTALL_FAILED
+                    onError?.invoke("Installation failed: ${exception.message}")
+                }
             }
     }
 
