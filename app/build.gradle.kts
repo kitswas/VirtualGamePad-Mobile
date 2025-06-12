@@ -104,6 +104,11 @@ if (propFile.canRead()) {
 }
 
 dependencies {
+    // Compose BOM
+    implementation(platform(libs.compose.bom))
+    testImplementation(platform(libs.compose.bom))
+    androidTestImplementation(platform(libs.compose.bom))
+
     // Image Loading
     implementation(libs.coil.compose)
     implementation(libs.coil.network.okhttp)
@@ -126,6 +131,7 @@ dependencies {
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.test.junit)
     androidTestImplementation(libs.androidx.test.espresso.core)
+    androidTestImplementation(platform(libs.compose.bom))
     androidTestImplementation(libs.compose.ui.test.junit4)
     debugImplementation(libs.compose.ui.tooling)
     debugImplementation(libs.compose.ui.test.manifest)
