@@ -108,11 +108,10 @@ fun ConnectMenu(
         snackbarHost = {
             SnackbarHost(hostState = snackbarHostState)
         }
-    ) { contentPadding ->
-        // Ignore contentPadding as we want to fill the screen
+    ) { paddingValues ->
 
         Column(
-            modifier = Modifier.fillMaxSize(),
+            modifier = Modifier.fillMaxSize().padding(paddingValues),
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center
         ) {

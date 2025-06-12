@@ -16,6 +16,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.PlainTooltip
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TooltipBox
 import androidx.compose.material3.TooltipDefaults
@@ -65,108 +66,115 @@ fun SettingsScreen(
 ) {
     val settingsChanges by rememberSaveable { mutableStateOf(SettingsChanges()) }
 
-    Column(
-        modifier = Modifier.fillMaxSize(),
-        verticalArrangement = Arrangement.SpaceAround,
-        horizontalAlignment = Alignment.CenterHorizontally
-    ) {
-        val colorScheme by settingsRepository.colorScheme.collectAsState(initial = defaultColorScheme)
-        val baseColor by settingsRepository.baseColor.collectAsState(initial = defaultBaseColor)
-        val pollingDelay by settingsRepository.pollingDelay.collectAsState(initial = defaultPollingDelay)
-
-        Text("Settings", style = MaterialTheme.typography.titleLarge)
-
-        ColorSchemePicker(default = colorScheme) {
-            settingsChanges.colorScheme = it
-        }
-
-        ListItemPicker(
-            list = BaseColor.entries.asIterable(),
-            default = baseColor,
-            label = "Theme Color",
-            onItemSelected = {
-                settingsChanges.baseColor = it
-            })
-
+    Scaffold { paddingValues ->
         Column(
             modifier = Modifier
-                .fillMaxWidth()
-                .padding(16.dp),
+                .fillMaxSize()
+                .padding(paddingValues),
+            verticalArrangement = Arrangement.SpaceAround,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.Center
-            ) {
-                SpinBox(
-                    value = pollingDelay,
-                    onValueChange = {
-                        settingsChanges.pollingDelay = it
-                    },
-                    label = "Polling Interval (ms)",
-                    minValue = 20,
-                    maxValue = 200,
-                    step = 10
-                )
+            val colorScheme by settingsRepository.colorScheme.collectAsState(initial = defaultColorScheme)
+            val baseColor by settingsRepository.baseColor.collectAsState(initial = defaultBaseColor)
+            val pollingDelay by settingsRepository.pollingDelay.collectAsState(initial = defaultPollingDelay)
 
-                var toolTipState = rememberTooltipState()
-                var scope = rememberCoroutineScope()
-                TooltipBox(
-                    positionProvider = TooltipDefaults.rememberPlainTooltipPositionProvider(),
-                    tooltip = {
-                        PlainTooltip(shadowElevation = 10.dp) {
-                            Text(
-                                "Adjust according to your reflexes\nLower is faster",
-                                style = Typography.bodyLarge
+            Text("Settings", style = MaterialTheme.typography.titleLarge)
+
+            ColorSchemePicker(default = colorScheme) {
+                settingsChanges.colorScheme = it
+            }
+
+            ListItemPicker(
+                list = BaseColor.entries.asIterable(),
+                default = baseColor,
+                label = "Theme Color",
+                onItemSelected = {
+                    settingsChanges.baseColor = it
+                })
+
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(16.dp),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.Center
+                ) {
+                    SpinBox(
+                        value = pollingDelay,
+                        onValueChange = {
+                            settingsChanges.pollingDelay = it
+                        },
+                        label = "Polling Interval (ms)",
+                        minValue = 20,
+                        maxValue = 200,
+                        step = 10
+                    )
+
+                    var toolTipState = rememberTooltipState()
+                    var scope = rememberCoroutineScope()
+                    TooltipBox(
+                        positionProvider = TooltipDefaults.rememberPlainTooltipPositionProvider(),
+                        tooltip = {
+                            PlainTooltip(shadowElevation = 10.dp) {
+                                Text(
+                                    "Adjust according to your reflexes\nLower is faster",
+                                    style = Typography.bodyLarge
+                                )
+                            }
+                        },
+                        state = toolTipState
+                    ) {
+                        IconButton(onClick = {
+                            scope.launch { toolTipState.show() }
+                        }) {
+                            Icon(
+                                imageVector = Icons.Filled.Info,
+                                contentDescription = "Information about polling interval"
                             )
                         }
-                    },
-                    state = toolTipState
-                ) {
-                    IconButton(onClick = {
-                        scope.launch { toolTipState.show() }
-                    }) {
-                        Icon(
-                            imageVector = Icons.Filled.Info,
-                            contentDescription = "Information about polling interval"
-                        )
                     }
                 }
             }
-        }
 
-        Row(
-            modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceEvenly
-        ) {
-            Button(onClick = {
-                settingsChanges.pollingDelay = null
-                settingsChanges.colorScheme = null
-                settingsChanges.baseColor = null
-                runBlocking { settingsRepository.resetAllSettings() }
-                Log.i(logTag, "Settings reset to defaults")
-            }) {
-                Text("Reset")
-            }
-
-            Button(onClick = {
-                var changesSaved = 0
-                runBlocking {
-                    try {
-                        settingsChanges.colorScheme?.let { settingsRepository.setColorScheme(it); ++changesSaved }
-                        settingsChanges.baseColor?.let { settingsRepository.setBaseColor(it); ++changesSaved }
-                        settingsChanges.pollingDelay?.let { settingsRepository.setPollingDelay(it); ++changesSaved }
-                    } catch (e: Exception) {
-                        Log.e(logTag, "Error saving settings", e)
-                    }
+            Row(
+                modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceEvenly
+            ) {
+                Button(onClick = {
+                    settingsChanges.pollingDelay = null
+                    settingsChanges.colorScheme = null
+                    settingsChanges.baseColor = null
+                    runBlocking { settingsRepository.resetAllSettings() }
+                    Log.i(logTag, "Settings reset to defaults")
+                }) {
+                    Text("Reset")
                 }
-                Log.i(logTag, "Saved settings: $changesSaved")
-                onNavigateBack()
-            }) {
-                Text("Save")
-            }
 
-            Button(onClick = onNavigateBack) {
-                Text("Cancel")
+                Button(onClick = {
+                    var changesSaved = 0
+                    runBlocking {
+                        try {
+                            settingsChanges.colorScheme?.let { settingsRepository.setColorScheme(it); ++changesSaved }
+                            settingsChanges.baseColor?.let { settingsRepository.setBaseColor(it); ++changesSaved }
+                            settingsChanges.pollingDelay?.let {
+                                settingsRepository.setPollingDelay(
+                                    it
+                                ); ++changesSaved
+                            }
+                        } catch (e: Exception) {
+                            Log.e(logTag, "Error saving settings", e)
+                        }
+                    }
+                    Log.i(logTag, "Saved settings: $changesSaved")
+                    onNavigateBack()
+                }) {
+                    Text("Save")
+                }
+                Button(onClick = onNavigateBack) {
+                    Text("Cancel")
+                }
             }
         }
     }

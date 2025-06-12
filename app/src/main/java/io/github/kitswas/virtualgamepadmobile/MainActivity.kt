@@ -6,15 +6,8 @@ import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
-import androidx.compose.ui.Modifier
-import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.lifecycleScope
-import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.NavHostController
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
@@ -57,34 +50,16 @@ class MainActivity : ComponentActivity() {
 
         // Create a ViewModel the first time the system calls an activity's onCreate() method.
         // Re-created activities receive the same ConnectionViewModel instance created by the first activity.
-
         // Use the 'by viewModels()' Kotlin property delegate
         // from the activity-ktx artifact
         val connectionViewModel: ConnectionViewModel by viewModels()
-        lifecycleScope.launch {
-            repeatOnLifecycle(Lifecycle.State.STARTED) {
-                connectionViewModel.uiState.collect {
-                    // Update UI elements
-                    setContent {
-                        VirtualGamePadMobileTheme(
-                            settingsRepository.colorScheme.collectAsState(
-                                initial = defaultColorScheme
-                            ).value,
-                            settingsRepository.baseColor.collectAsState(
-                                initial = defaultBaseColor
-                            ).value
-                        ) {
-                            // A surface container using the 'background' color from the theme
-                            Surface(
-                                modifier = Modifier.fillMaxSize(),
-                                color = MaterialTheme.colorScheme.background
-                            ) {
-                                NavTree(connectionViewModel, settingsRepository)
-                            }
-                        }
-                    }
-                }
-            }
+
+        setContent {
+            AppUI(
+                connectionViewModel = connectionViewModel,
+                settingsRepository = settingsRepository,
+                scanner = scanner
+            )
         }
     }
 
@@ -169,9 +144,32 @@ class MainActivity : ComponentActivity() {
     }
 
     @Composable
+    fun AppUI(
+        connectionViewModel: ConnectionViewModel,
+        settingsRepository: SettingsRepository,
+        scanner: GmsBarcodeScanner
+    ) {
+        VirtualGamePadMobileTheme(
+            darkMode = settingsRepository.colorScheme.collectAsState(
+                initial = defaultColorScheme
+            ).value,
+            baseColor = settingsRepository.baseColor.collectAsState(
+                initial = defaultBaseColor
+            ).value
+        ) {
+            NavTree(
+                connectionViewModel = connectionViewModel,
+                settingsRepository = settingsRepository,
+                scanner = scanner
+            )
+        }
+    }
+
+    @Composable
     fun NavTree(
         connectionViewModel: ConnectionViewModel,
         settingsRepository: SettingsRepository,
+        scanner: GmsBarcodeScanner,
         navController: NavHostController = rememberNavController(),
     ) {
         NavHost(navController = navController, startDestination = "main_menu") {

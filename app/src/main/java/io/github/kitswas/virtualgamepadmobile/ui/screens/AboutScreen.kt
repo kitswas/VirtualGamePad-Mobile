@@ -12,6 +12,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
@@ -43,108 +44,111 @@ fun AboutScreen(
     val issuesUrl = "https://github.com/kitswas/VirtualGamePad-Mobile/issues/new"
     val releaseUrl = "https://github.com/kitswas/VirtualGamePad-Mobile/releases/latest"
 
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(16.dp)
-            .verticalScroll(scrollState),
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Top
-    ) {
-        Text(
-            text = "Virtual GamePad Mobile",
-            style = Typography.titleLarge
-        )
-
-        Spacer(modifier = Modifier.height(8.dp))
-
-        Text(
-            text = "Version ${
-                context.packageManager.getPackageInfo(
-                    context.packageName,
-                    0
-                ).versionName
-            }",
-            style = Typography.bodyMedium
-        )
-
-        Spacer(modifier = Modifier.height(16.dp))
-
-        // Badges row
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.Center
+    Scaffold { paddingValues ->
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(paddingValues)
+                .padding(16.dp)
+                .verticalScroll(scrollState),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Top
         ) {
-            Badge(
-                imageUrl = "https://img.shields.io/github/license/kitswas/VirtualGamePad-Mobile",
-                linkUrl = mobileLicenseUrl,
-                contentDescription = "License Badge"
+            Text(
+                text = "Virtual GamePad Mobile",
+                style = Typography.titleLarge
             )
 
-            Badge(
-                imageUrl = "https://img.shields.io/github/stars/kitswas/VirtualGamePad?style=flat",
-                linkUrl = repoUrl,
-                contentDescription = "GitHub Stars Badge"
-            )
-        }
+            Spacer(modifier = Modifier.height(8.dp))
 
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.Center
-        ) {
-            Badge(
-                imageUrl = "https://img.shields.io/github/downloads/kitswas/VirtualGamePad-Mobile/total",
-                linkUrl = releaseUrl,
-                contentDescription = "Downloads Badge"
+            Text(
+                text = "Version ${
+                    context.packageManager.getPackageInfo(
+                        context.packageName,
+                        0
+                    ).versionName
+                }",
+                style = Typography.bodyMedium
             )
 
-            Badge(
-                imageUrl = "https://img.shields.io/github/v/release/kitswas/VirtualGamePad-Mobile",
-                linkUrl = releaseUrl,
-                contentDescription = "Release Badge"
-            )
-        }
+            Spacer(modifier = Modifier.height(16.dp))
 
-        Spacer(modifier = Modifier.height(24.dp))
+            // Badges row
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.Center
+            ) {
+                Badge(
+                    imageUrl = "https://img.shields.io/github/license/kitswas/VirtualGamePad-Mobile",
+                    linkUrl = mobileLicenseUrl,
+                    contentDescription = "License Badge"
+                )
 
-        Text(
-            text = "A mobile application that lets your phone function as a gamepad controller for PC games.",
-            style = Typography.bodyMedium,
-            textAlign = TextAlign.Center
-        )
-
-        Spacer(modifier = Modifier.height(16.dp))
-
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.Center
-        ) {
-            TextButton(onClick = {
-                val intent = Intent(Intent.ACTION_VIEW, projectUrl.toUri())
-                context.startActivity(intent)
-            }) {
-                Text("Project Website")
+                Badge(
+                    imageUrl = "https://img.shields.io/github/stars/kitswas/VirtualGamePad?style=flat",
+                    linkUrl = repoUrl,
+                    contentDescription = "GitHub Stars Badge"
+                )
             }
 
-            TextButton(onClick = {
-                val intent = Intent(Intent.ACTION_VIEW, mobileRepoUrl.toUri())
-                context.startActivity(intent)
-            }) {
-                Text("Source Code")
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.Center
+            ) {
+                Badge(
+                    imageUrl = "https://img.shields.io/github/downloads/kitswas/VirtualGamePad-Mobile/total",
+                    linkUrl = releaseUrl,
+                    contentDescription = "Downloads Badge"
+                )
+
+                Badge(
+                    imageUrl = "https://img.shields.io/github/v/release/kitswas/VirtualGamePad-Mobile",
+                    linkUrl = releaseUrl,
+                    contentDescription = "Release Badge"
+                )
             }
 
-            TextButton(onClick = {
-                val intent = Intent(Intent.ACTION_VIEW, issuesUrl.toUri())
-                context.startActivity(intent)
-            }) {
-                Text("Report Issues")
+            Spacer(modifier = Modifier.height(24.dp))
+
+            Text(
+                text = "A mobile application that lets your phone function as a gamepad controller for PC games.",
+                style = Typography.bodyMedium,
+                textAlign = TextAlign.Center
+            )
+
+            Spacer(modifier = Modifier.height(16.dp))
+
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.Center
+            ) {
+                TextButton(onClick = {
+                    val intent = Intent(Intent.ACTION_VIEW, projectUrl.toUri())
+                    context.startActivity(intent)
+                }) {
+                    Text("Project Website")
+                }
+
+                TextButton(onClick = {
+                    val intent = Intent(Intent.ACTION_VIEW, mobileRepoUrl.toUri())
+                    context.startActivity(intent)
+                }) {
+                    Text("Source Code")
+                }
+
+                TextButton(onClick = {
+                    val intent = Intent(Intent.ACTION_VIEW, issuesUrl.toUri())
+                    context.startActivity(intent)
+                }) {
+                    Text("Report Issues")
+                }
             }
-        }
 
-        Spacer(modifier = Modifier.height(32.dp))
+            Spacer(modifier = Modifier.height(32.dp))
 
-        Button(onClick = onNavigateBack) {
-            Text("Back")
+            Button(onClick = onNavigateBack) {
+                Text("Back")
+            }
         }
     }
 }
