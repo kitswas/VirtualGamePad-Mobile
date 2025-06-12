@@ -34,12 +34,13 @@ import io.github.kitswas.virtualgamepadmobile.data.PreviewBase
 import io.github.kitswas.virtualgamepadmobile.data.PreviewHeightDp
 import io.github.kitswas.virtualgamepadmobile.data.PreviewWidthDp
 import io.github.kitswas.virtualgamepadmobile.utils.QRScannerManager
+import io.github.kitswas.virtualgamepadmobile.utils.QRScannerManagerInterface
 
 @Composable
 fun ModuleInstallerScreen(
     onNavigateBack: () -> Unit,
     onInstallationComplete: () -> Unit,
-    qrScannerManager: QRScannerManager
+    qrScannerManager: QRScannerManagerInterface
 ) {
     var installationState by remember { mutableStateOf(InstallationState.WAITING) }
     var installationProgress by remember { mutableFloatStateOf(0f) }

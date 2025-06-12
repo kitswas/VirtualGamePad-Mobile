@@ -15,12 +15,29 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 
-class QRScannerManager(private val context: Context) {
+/**
+ * Interface for QR scanner management functionality, designed for testing and dependency injection
+ */
+interface QRScannerManagerInterface {
+    val moduleAvailabilityState: StateFlow<QRScannerManager.ModuleAvailability>
+    fun getModuleAvailability(): QRScannerManager.ModuleAvailability
+    fun getQRScanner(): GmsBarcodeScanner?
+    fun areModulesAvailable(): Boolean
+    fun startInstallation(
+        onProgress: ((Int) -> Unit)? = null,
+        onComplete: (() -> Unit)? = null,
+        onError: ((String) -> Unit)? = null,
+    )
+
+    fun cancelInstallation()
+}
+
+class QRScannerManager(private val context: Context) : QRScannerManagerInterface {
 
     private var scanner: GmsBarcodeScanner? = null
     private val _moduleAvailabilityState =
         MutableStateFlow<ModuleAvailability>(ModuleAvailability.CHECKING)
-    val moduleAvailabilityState: StateFlow<ModuleAvailability> =
+    override val moduleAvailabilityState: StateFlow<ModuleAvailability> =
         _moduleAvailabilityState.asStateFlow()
 
     private var currentInstallListener: InstallStatusListener? = null
@@ -82,7 +99,7 @@ class QRScannerManager(private val context: Context) {
     /**
      * Returns the scanner if available, null if modules need to be installed
      */
-    fun getQRScanner(): GmsBarcodeScanner? {
+    override fun getQRScanner(): GmsBarcodeScanner? {
         return when (_moduleAvailabilityState.value) {
             ModuleAvailability.AVAILABLE -> {
                 Log.d("QRScannerManager", "Returning available scanner")
@@ -99,17 +116,17 @@ class QRScannerManager(private val context: Context) {
     /**
      * Checks if modules are available without installing
      */
-    fun areModulesAvailable(): Boolean {
+    override fun areModulesAvailable(): Boolean {
         return _moduleAvailabilityState.value == ModuleAvailability.AVAILABLE
     }
 
     /**
      * Starts the module installation process
      */
-    fun startInstallation(
-        onProgress: ((Int) -> Unit)? = null,
-        onComplete: (() -> Unit)? = null,
-        onError: ((String) -> Unit)? = null
+    override fun startInstallation(
+        onProgress: ((Int) -> Unit)?,
+        onComplete: (() -> Unit)?,
+        onError: ((String) -> Unit)?,
     ) {
         // Check if API is available before attempting installation
         if (_moduleAvailabilityState.value == ModuleAvailability.API_UNAVAILABLE) {
@@ -209,7 +226,7 @@ class QRScannerManager(private val context: Context) {
     /**
      * Cancels ongoing installation
      */
-    fun cancelInstallation() {
+    override fun cancelInstallation() {
         if (_moduleAvailabilityState.value == ModuleAvailability.INSTALLING) {
             Log.d("QRScannerManager", "Cancelling installation")
             _moduleAvailabilityState.value = ModuleAvailability.INSTALL_CANCELLED
@@ -220,5 +237,5 @@ class QRScannerManager(private val context: Context) {
         }
     }
 
-    fun getModuleAvailability() = _moduleAvailabilityState.value
+    override fun getModuleAvailability() = _moduleAvailabilityState.value
 }

@@ -106,6 +106,10 @@ if (propFile.canRead()) {
 dependencies {
     // Compose BOM
     implementation(platform(libs.compose.bom))
+    implementation(libs.androidx.junit.ktx)
+    implementation(libs.play.services.base.testing)
+    implementation(libs.androidx.ui.test.android)
+    implementation(libs.mockito.kotlin)
     testImplementation(platform(libs.compose.bom))
     androidTestImplementation(platform(libs.compose.bom))
 
@@ -129,10 +133,19 @@ dependencies {
 
     // Testing
     testImplementation(libs.junit)
+    testImplementation(libs.play.services.base.testing)
+    testImplementation(libs.kotlinx.coroutines.test)
+    testImplementation(libs.androidx.test.core)
+    testImplementation(libs.androidx.test.junit)
+    testImplementation(libs.mockito.core)
+    testImplementation(libs.mockito.inline)
+    testImplementation(libs.mockito.kotlin)
     androidTestImplementation(libs.androidx.test.junit)
     androidTestImplementation(libs.androidx.test.espresso.core)
-    androidTestImplementation(platform(libs.compose.bom))
     androidTestImplementation(libs.compose.ui.test.junit4)
+    androidTestImplementation(libs.mockito.core)
+    androidTestImplementation(libs.mockito.android)
+    androidTestImplementation(libs.mockito.kotlin)
     debugImplementation(libs.compose.ui.tooling)
     debugImplementation(libs.compose.ui.test.manifest)
 
