@@ -1,0 +1,96 @@
+[versions]
+# Android
+android-gradle-plugin = "8.10.1"
+
+# Kotlin
+kotlin = "2.0.0"
+kotlin-parcelize = "2.1.21"
+
+# AndroidX Core
+androidx-core-ktx = "1.16.0"
+androidx-lifecycle = "2.9.1"
+androidx-activity-compose = "1.10.1"
+androidx-window = "1.4.0"
+androidx-datastore = "1.1.7"
+
+# Compose
+compose-ui = "1.8.2"
+compose-navigation = "2.9.0"
+compose-material3 = "1.3.2"
+
+# Image Loading
+coil = "3.2.0"
+
+# Google Play Services
+play-services-code-scanner = "16.1.0"
+play-services-base = "18.7.0"
+play-services-tflite = "16.4.0"
+play-feature-delivery = "2.1.0"
+
+# Testing
+junit = "4.13.2"
+androidx-test-junit = "1.2.1"
+androidx-test-espresso = "3.6.1"
+
+# Tools
+desugar-jdk-libs = "2.1.5"
+dokka = "1.9.20"
+
+[libraries]
+# Image Loading
+coil-compose = { group = "io.coil-kt.coil3", name = "coil-compose", version.ref = "coil" }
+coil-network-okhttp = { group = "io.coil-kt.coil3", name = "coil-network-okhttp", version.ref = "coil" }
+coil-svg = { group = "io.coil-kt.coil3", name = "coil-svg", version.ref = "coil" }
+
+# AndroidX Core
+androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "androidx-core-ktx" }
+androidx-lifecycle-runtime-ktx = { group = "androidx.lifecycle", name = "lifecycle-runtime-ktx", version.ref = "androidx-lifecycle" }
+androidx-activity-compose = { group = "androidx.activity", name = "activity-compose", version.ref = "androidx-activity-compose" }
+androidx-window = { group = "androidx.window", name = "window", version.ref = "androidx-window" }
+
+# Compose
+compose-ui = { group = "androidx.compose.ui", name = "ui", version.ref = "compose-ui" }
+compose-ui-tooling-preview = { group = "androidx.compose.ui", name = "ui-tooling-preview", version.ref = "compose-ui" }
+compose-ui-tooling = { group = "androidx.compose.ui", name = "ui-tooling", version.ref = "compose-ui" }
+compose-ui-test-manifest = { group = "androidx.compose.ui", name = "ui-test-manifest", version.ref = "compose-ui" }
+compose-ui-test-junit4 = { group = "androidx.compose.ui", name = "ui-test-junit4", version.ref = "compose-ui" }
+
+# Navigation
+navigation-fragment-ktx = { group = "androidx.navigation", name = "navigation-fragment-ktx", version.ref = "compose-navigation" }
+navigation-ui-ktx = { group = "androidx.navigation", name = "navigation-ui-ktx", version.ref = "compose-navigation" }
+navigation-dynamic-features-fragment = { group = "androidx.navigation", name = "navigation-dynamic-features-fragment", version.ref = "compose-navigation" }
+navigation-testing = { group = "androidx.navigation", name = "navigation-testing", version.ref = "compose-navigation" }
+navigation-compose = { group = "androidx.navigation", name = "navigation-compose", version.ref = "compose-navigation" }
+
+# Material3
+material3 = { group = "androidx.compose.material3", name = "material3", version.ref = "compose-material3" }
+material3-window-size = { group = "androidx.compose.material3", name = "material3-window-size-class", version.ref = "compose-material3" }
+
+# Google Play Services
+play-services-code-scanner = { group = "com.google.android.gms", name = "play-services-code-scanner", version.ref = "play-services-code-scanner" }
+play-services-base = { group = "com.google.android.gms", name = "play-services-base", version.ref = "play-services-base" }
+play-services-tflite-java = { group = "com.google.android.gms", name = "play-services-tflite-java", version.ref = "play-services-tflite" }
+
+# Play Feature Delivery
+play-feature-delivery = { group = "com.google.android.play", name = "feature-delivery", version.ref = "play-feature-delivery" }
+play-feature-delivery-ktx = { group = "com.google.android.play", name = "feature-delivery-ktx", version.ref = "play-feature-delivery" }
+
+# Datastore
+androidx-datastore-preferences = { group = "androidx.datastore", name = "datastore-preferences", version.ref = "androidx-datastore" }
+
+# Tools
+desugar-jdk-libs = { group = "com.android.tools", name = "desugar_jdk_libs", version.ref = "desugar-jdk-libs" }
+
+# Testing
+junit = { group = "junit", name = "junit", version.ref = "junit" }
+androidx-test-junit = { group = "androidx.test.ext", name = "junit", version.ref = "androidx-test-junit" }
+androidx-test-espresso-core = { group = "androidx.test.espresso", name = "espresso-core", version.ref = "androidx-test-espresso" }
+
+[plugins]
+android-application = { id = "com.android.application", version.ref = "android-gradle-plugin" }
+android-library = { id = "com.android.library", version.ref = "android-gradle-plugin" }
+kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
+kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
+kotlin-compose = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
+kotlin-parcelize = { id = "org.jetbrains.kotlin.plugin.parcelize", version.ref = "kotlin-parcelize" }
+dokka = { id = "org.jetbrains.dokka", version.ref = "dokka" }
