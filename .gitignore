@@ -40,3 +40,6 @@ google-services.json
 
 # Generated files
 /app/src/main/java/io/github/kitswas/VGP_Data_Exchange
+
+# Ignore the following file to keep keystore information private
+signing.properties

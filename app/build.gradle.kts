@@ -1,3 +1,6 @@
+import java.io.FileInputStream
+import java.util.Properties
+
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
@@ -25,6 +28,11 @@ android {
         }
     }
 
+    signingConfigs {
+        create("release") {
+        }
+    }
+
     buildTypes {
         release {
             isShrinkResources = true
@@ -33,6 +41,10 @@ android {
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
             )
+            signingConfig = signingConfigs.getByName("release")
+        }
+        debug {
+            signingConfig = signingConfigs.getByName("debug")
         }
     }
 
@@ -64,6 +76,31 @@ android {
         includeInApk = true
         includeInBundle = true
     }
+}
+
+val props = Properties()
+val propFile = File("signing.properties")
+
+if (propFile.canRead()) {
+    props.load(FileInputStream(propFile))
+
+    if (props.containsKey("STORE_FILE") && props.containsKey("STORE_PASSWORD") &&
+        props.containsKey("KEY_ALIAS") && props.containsKey("KEY_PASSWORD")
+    ) {
+        android.signingConfigs.getByName("release").apply {
+            storeFile = File(props["STORE_FILE"].toString())
+            println("Using keystore at: ${storeFile?.absolutePath}")
+            storePassword = props["STORE_PASSWORD"].toString()
+            keyAlias = props["KEY_ALIAS"].toString()
+            keyPassword = props["KEY_PASSWORD"].toString()
+        }
+    } else {
+        println("signing.properties found but some entries are missing")
+        android.buildTypes.getByName("release").signingConfig = null
+    }
+} else {
+    println("signing.properties not found")
+    android.buildTypes.getByName("release").signingConfig = null
 }
 
 dependencies {
