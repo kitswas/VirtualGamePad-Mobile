@@ -3,7 +3,7 @@
 android-gradle-plugin = "8.10.1"
 
 # Kotlin
-kotlin = "2.0.0"
+kotlin = "2.1.21"
 kotlin-parcelize = "2.1.21"
 
 # AndroidX Core
@@ -34,7 +34,7 @@ androidx-test-espresso = "3.6.1"
 
 # Tools
 desugar-jdk-libs = "2.1.5"
-dokka = "1.9.20"
+dokka = "2.0.0"
 
 [libraries]
 # Image Loading
