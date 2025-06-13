@@ -5,6 +5,9 @@ import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import io.github.kitswas.virtualgamepadmobile.data.BaseColor
+import io.github.kitswas.virtualgamepadmobile.data.ColorScheme
+import io.github.kitswas.virtualgamepadmobile.ui.theme.VirtualGamePadMobileTheme
 import io.github.kitswas.virtualgamepadmobile.utils.QRScannerManager
 import io.github.kitswas.virtualgamepadmobile.utils.QRScannerManagerInterface
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -79,11 +82,16 @@ class ModuleInstallerScreenTest {
     private fun setScreenContent(initialState: QRScannerManager.ModuleAvailability = QRScannerManager.ModuleAvailability.NOT_AVAILABLE) {
         mockModuleAvailabilityState.value = initialState
         composeTestRule.setContent {
-            ModuleInstallerScreen(
-                onNavigateBack = { onNavigateBackCalled = true },
-                onInstallationComplete = { onInstallationCompleteCalled = true },
-                qrScannerManager = mockQrScannerManager
-            )
+            VirtualGamePadMobileTheme(
+                darkMode = ColorScheme.SYSTEM,
+                baseColor = BaseColor.RED
+            ) {
+                ModuleInstallerScreen(
+                    onNavigateBack = { onNavigateBackCalled = true },
+                    onInstallationComplete = { onInstallationCompleteCalled = true },
+                    qrScannerManager = mockQrScannerManager
+                )
+            }
         }
         addVisualDelay("Screen content set")
     }

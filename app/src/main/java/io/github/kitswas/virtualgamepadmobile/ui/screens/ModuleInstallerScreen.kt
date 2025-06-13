@@ -26,13 +26,21 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.LinkAnnotation
+import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.TextLinkStyles
+import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextDecoration
+import androidx.compose.ui.text.withLink
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import io.github.kitswas.virtualgamepadmobile.data.PreviewBase
 import io.github.kitswas.virtualgamepadmobile.data.PreviewHeightDp
 import io.github.kitswas.virtualgamepadmobile.data.PreviewWidthDp
+import io.github.kitswas.virtualgamepadmobile.ui.theme.Typography
 import io.github.kitswas.virtualgamepadmobile.utils.QRScannerManager
 import io.github.kitswas.virtualgamepadmobile.utils.QRScannerManagerInterface
 
@@ -91,19 +99,40 @@ fun ModuleInstallerScreen(
         ) {
             Text(
                 text = "QR Scanner Module Required",
-                style = MaterialTheme.typography.headlineSmall,
+                style = Typography.headlineSmall,
                 textAlign = TextAlign.Center
             )
 
             Spacer(modifier = Modifier.height(16.dp))
 
+            val annotatedString = buildAnnotatedString {
+                append("The QR code scanner requires additional modules to be downloaded.\n")
+                append("The module is a part of Google Play Services.\n")
+                append("See ")
+
+                val link =
+                    "https://developers.google.com/ml-kit/vision/barcode-scanning/code-scanner"
+                withLink(
+                    LinkAnnotation.Url(
+                        link,
+                        TextLinkStyles(
+                            style = SpanStyle(
+                                color = Color.Blue,
+                                textDecoration = TextDecoration.Underline
+                            )
+                        )
+                    )
+                ) {
+                    append(link)
+                }
+
+                append("\nThis is a one-time setup that enables QR scanning functionality.")
+            }
+
             Text(
-                text = """The QR code scanner requires additional modules to be downloaded.
-                    |The module is a part of Google Play Services.
-                    |See https://developers.google.com/ml-kit/vision/barcode-scanning/code-scanner
-                    |This is a one-time setup that enables QR scanning functionality.""".trimMargin(),
-                style = MaterialTheme.typography.bodyMedium,
-                textAlign = TextAlign.Center
+                text = annotatedString,
+                style = Typography.bodyMedium,
+                textAlign = TextAlign.Center,
             )
 
             Spacer(modifier = Modifier.height(24.dp))
@@ -144,7 +173,7 @@ fun ModuleInstallerScreen(
 
                     Text(
                         text = "Downloading module...",
-                        style = MaterialTheme.typography.bodyMedium
+                        style = Typography.bodyMedium
                     )
 
                     if (installationProgress > 0f) {
@@ -159,7 +188,7 @@ fun ModuleInstallerScreen(
 
                         Text(
                             text = "${(installationProgress * 100).toInt()}%",
-                            style = MaterialTheme.typography.bodySmall
+                            style = Typography.bodySmall
                         )
                     }
 
@@ -178,7 +207,7 @@ fun ModuleInstallerScreen(
                 InstallationState.COMPLETED -> {
                     Text(
                         text = "✓ Installation completed successfully!",
-                        style = MaterialTheme.typography.bodyLarge,
+                        style = Typography.bodyLarge,
                         color = MaterialTheme.colorScheme.primary
                     )
 
@@ -192,7 +221,7 @@ fun ModuleInstallerScreen(
                 InstallationState.FAILED, InstallationState.CANCELLED -> {
                     Text(
                         text = errorMessage ?: "Installation failed",
-                        style = MaterialTheme.typography.bodyMedium,
+                        style = Typography.bodyMedium,
                         color = MaterialTheme.colorScheme.error,
                         textAlign = TextAlign.Center
                     )
@@ -220,9 +249,8 @@ fun ModuleInstallerScreen(
 
             Text(
                 text = "Note: Please stay connected to the internet during download.",
-                style = MaterialTheme.typography.bodySmall,
+                style = Typography.bodySmall,
                 textAlign = TextAlign.Center,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
             )
         }
     }
