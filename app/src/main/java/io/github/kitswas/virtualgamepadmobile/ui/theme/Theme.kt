@@ -27,12 +27,14 @@ fun VirtualGamePadMobileTheme(
 
     val darkColorPalette = darkColorScheme(
         primary = darkColorPrimary,
+        secondary = shift(darkColorPrimary, -45),
         onPrimary = contrasting(darkColorPrimary),
         outline = Silver,
     )
 
     val lightColorPalette = lightColorScheme(
         primary = lightColorPrimary,
+        secondary = shift(lightColorPrimary, 45),
         onPrimary = contrasting(lightColorPrimary),
         outline = Gold,
     )

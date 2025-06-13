@@ -2,6 +2,8 @@ package io.github.kitswas.virtualgamepadmobile.ui.theme
 
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.luminance
+import androidx.compose.ui.graphics.toArgb
+import androidx.core.graphics.ColorUtils
 
 // Should be the same as the values defined in values/colors.xml
 
@@ -45,6 +47,20 @@ fun lighten(color: Color, fraction: Float): Color {
         blue = color.blue + (1 - color.blue) * fraction,
         alpha = color.alpha
     )
+}
+
+/**
+ * Hue shifts a [Color] by the given [degrees] (-359 to 359).
+ */
+fun shift(color: Color, degrees: Int): Color {
+    val degrees = degrees % 360 // Ensure degrees is in range
+    // Convert to HSL
+    var hsl = FloatArray(3)
+    ColorUtils.colorToHSL(color.toArgb(), hsl)
+    // Shift hue
+    hsl[0] = (hsl[0] + degrees + 360) % 360
+    // Convert back to Color
+    return Color(ColorUtils.HSLToColor(hsl))
 }
 
 /**
