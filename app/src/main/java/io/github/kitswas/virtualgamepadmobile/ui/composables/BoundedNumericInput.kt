@@ -3,6 +3,7 @@ package io.github.kitswas.virtualgamepadmobile.ui.composables
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -14,7 +15,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
-import io.github.kitswas.virtualgamepadmobile.ui.theme.Typography
 
 
 @Composable
@@ -71,7 +71,7 @@ fun <T : Number> BoundedNumericInput(
                     errorMessage = "Please enter a valid number"
                 }
             },
-            label = { Text(label, style = Typography.labelMedium) },
+            label = { Text(label, style = MaterialTheme.typography.labelMedium) },
             singleLine = true,
             keyboardOptions = KeyboardOptions(keyboardType = keyboardType),
             isError = isError,

@@ -39,7 +39,6 @@ import androidx.compose.ui.unit.dp
 import io.github.kitswas.virtualgamepadmobile.data.PreviewBase
 import io.github.kitswas.virtualgamepadmobile.data.PreviewHeightDp
 import io.github.kitswas.virtualgamepadmobile.data.PreviewWidthDp
-import io.github.kitswas.virtualgamepadmobile.ui.theme.Typography
 import io.github.kitswas.virtualgamepadmobile.utils.QRScannerManager
 import io.github.kitswas.virtualgamepadmobile.utils.QRScannerManagerInterface
 
@@ -98,7 +97,7 @@ fun ModuleInstallerScreen(
         ) {
             Text(
                 text = "QR Scanner Module Required",
-                style = Typography.headlineSmall,
+                style = MaterialTheme.typography.headlineSmall,
                 textAlign = TextAlign.Center
             )
 
@@ -130,7 +129,7 @@ fun ModuleInstallerScreen(
 
             Text(
                 text = annotatedString,
-                style = Typography.bodyMedium,
+                style = MaterialTheme.typography.bodyMedium,
                 textAlign = TextAlign.Center,
             )
 
@@ -172,7 +171,7 @@ fun ModuleInstallerScreen(
 
                     Text(
                         text = "Downloading module...",
-                        style = Typography.bodyMedium
+                        style = MaterialTheme.typography.bodyMedium
                     )
 
                     if (installationProgress > 0f) {
@@ -187,7 +186,7 @@ fun ModuleInstallerScreen(
 
                         Text(
                             text = "${(installationProgress * 100).toInt()}%",
-                            style = Typography.bodySmall
+                            style = MaterialTheme.typography.bodySmall
                         )
                     }
 
@@ -206,7 +205,7 @@ fun ModuleInstallerScreen(
                 InstallationState.COMPLETED -> {
                     Text(
                         text = "✓ Installation completed successfully!",
-                        style = Typography.bodyLarge,
+                        style = MaterialTheme.typography.bodyLarge,
                         color = MaterialTheme.colorScheme.primary
                     )
 
@@ -220,7 +219,7 @@ fun ModuleInstallerScreen(
                 InstallationState.FAILED, InstallationState.CANCELLED -> {
                     Text(
                         text = errorMessage ?: "Installation failed",
-                        style = Typography.bodyMedium,
+                        style = MaterialTheme.typography.bodyMedium,
                         color = MaterialTheme.colorScheme.error,
                         textAlign = TextAlign.Center
                     )
@@ -248,7 +247,7 @@ fun ModuleInstallerScreen(
 
             Text(
                 text = "Note: Please stay connected to the internet during download.",
-                style = Typography.bodySmall,
+                style = MaterialTheme.typography.bodySmall,
                 textAlign = TextAlign.Center,
             )
         }

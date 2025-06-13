@@ -24,7 +24,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import io.github.kitswas.virtualgamepadmobile.ui.theme.Typography
 
 @Composable
 fun <T : Number> SpinBox(
@@ -74,7 +73,7 @@ fun <T : Number> SpinBox(
     ) {
         Text(
             text = label,
-            style = Typography.labelMedium,
+            style = MaterialTheme.typography.labelMedium,
             modifier = Modifier.padding(bottom = 4.dp)
         )
 

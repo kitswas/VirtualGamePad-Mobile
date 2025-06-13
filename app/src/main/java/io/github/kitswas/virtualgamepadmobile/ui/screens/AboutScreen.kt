@@ -12,6 +12,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -27,7 +28,6 @@ import io.github.kitswas.virtualgamepadmobile.data.PreviewBase
 import io.github.kitswas.virtualgamepadmobile.data.PreviewHeightDp
 import io.github.kitswas.virtualgamepadmobile.data.PreviewWidthDp
 import io.github.kitswas.virtualgamepadmobile.ui.composables.Badge
-import io.github.kitswas.virtualgamepadmobile.ui.theme.Typography
 
 @Composable
 fun AboutScreen(
@@ -56,7 +56,7 @@ fun AboutScreen(
         ) {
             Text(
                 text = "Virtual GamePad Mobile",
-                style = Typography.titleLarge
+                style = MaterialTheme.typography.titleLarge
             )
 
             Spacer(modifier = Modifier.height(8.dp))
@@ -68,7 +68,7 @@ fun AboutScreen(
                         0
                     ).versionName
                 }",
-                style = Typography.bodyMedium
+                style = MaterialTheme.typography.bodyMedium
             )
 
             Spacer(modifier = Modifier.height(16.dp))
@@ -112,7 +112,7 @@ fun AboutScreen(
 
             Text(
                 text = "A mobile application that lets your phone function as a gamepad controller for PC games.",
-                style = Typography.bodyMedium,
+                style = MaterialTheme.typography.bodyMedium,
                 textAlign = TextAlign.Center
             )
 

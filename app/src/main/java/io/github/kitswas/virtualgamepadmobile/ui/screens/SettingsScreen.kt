@@ -44,7 +44,6 @@ import io.github.kitswas.virtualgamepadmobile.data.defaultPollingDelay
 import io.github.kitswas.virtualgamepadmobile.ui.composables.ColorSchemePicker
 import io.github.kitswas.virtualgamepadmobile.ui.composables.ListItemPicker
 import io.github.kitswas.virtualgamepadmobile.ui.composables.SpinBox
-import io.github.kitswas.virtualgamepadmobile.ui.theme.Typography
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import kotlinx.parcelize.Parcelize
@@ -121,7 +120,7 @@ fun SettingsScreen(
                             PlainTooltip(shadowElevation = 10.dp) {
                                 Text(
                                     "Adjust according to your reflexes\nLower is faster",
-                                    style = Typography.bodyLarge
+                                    style = MaterialTheme.typography.bodyLarge
                                 )
                             }
                         },
