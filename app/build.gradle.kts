@@ -187,36 +187,3 @@ tasks.matching {
 }.configureEach {
     dependsOn(updateVGPDataExchangePackage)
 }
-
-tasks.register<JavaExec>("runTestGamepadServer") {
-    group = "application"
-    description = "Run the TestGamepadServer to log gamepad state from the client."
-
-    mainClass.set("io.github.kitswas.virtualgamepadmobile.TestGamepadServer")
-
-    // Set working directory to project directory
-    workingDir = projectDir
-
-    val defaultPort = 5555
-
-    // Pass port as argument if provided: gradlew :app:runTestGamepadServer --args='5555'
-    args = if (project.hasProperty("args")) {
-        project.property("args").toString().split(" ")
-    } else {
-        listOf(defaultPort.toString())
-    }
-
-    // Ensure dependencies are built
-    dependsOn(
-        "compileDebugJavaWithJavac",
-        "compileDebugUnitTestJavaWithJavac",
-        "compileDebugKotlin",
-        "compileDebugUnitTestKotlin",
-        updateVGPDataExchangePackage
-    )
-
-    // Configure JVM args for better performance
-    jvmArgs = listOf(
-        "-Xmx512m",
-    )
-}
