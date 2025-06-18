@@ -3,6 +3,7 @@ package io.github.kitswas.virtualgamepadmobile.data
 import android.content.Context
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
+import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.intPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
@@ -27,6 +28,10 @@ class SettingsRepository(context: Context) {
         preferences[POLLING_DELAY] ?: defaultPollingDelay
     }
 
+    val hapticFeedbackEnabled: Flow<Boolean> = dataStore.data.map { preferences ->
+        preferences[HAPTIC_FEEDBACK_ENABLED] ?: defaultHapticFeedbackEnabled
+    }
+
     suspend fun setBaseColor(baseColor: BaseColor) {
         dataStore.edit { preferences ->
             preferences[BASE_COLOR] = baseColor.ordinal
@@ -45,6 +50,12 @@ class SettingsRepository(context: Context) {
         }
     }
 
+    suspend fun setHapticFeedbackEnabled(enabled: Boolean) {
+        dataStore.edit { preferences ->
+            preferences[HAPTIC_FEEDBACK_ENABLED] = enabled
+        }
+    }
+
     suspend fun resetAllSettings() {
         dataStore.edit { preferences ->
             preferences.clear()
@@ -55,5 +66,6 @@ class SettingsRepository(context: Context) {
         private val COLOR_SCHEME = intPreferencesKey("color_scheme")
         private val BASE_COLOR = intPreferencesKey("base_color")
         private val POLLING_DELAY = intPreferencesKey("polling_delay")
+        private val HAPTIC_FEEDBACK_ENABLED = booleanPreferencesKey("haptic_feedback_enabled")
     }
 }

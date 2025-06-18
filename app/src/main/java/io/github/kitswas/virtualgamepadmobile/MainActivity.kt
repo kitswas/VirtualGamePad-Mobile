@@ -5,6 +5,7 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.navigation.NavHostController
 import androidx.navigation.NavType
@@ -15,6 +16,7 @@ import androidx.navigation.navArgument
 import io.github.kitswas.virtualgamepadmobile.data.SettingsRepository
 import io.github.kitswas.virtualgamepadmobile.data.defaultBaseColor
 import io.github.kitswas.virtualgamepadmobile.data.defaultColorScheme
+import io.github.kitswas.virtualgamepadmobile.data.defaultHapticFeedbackEnabled
 import io.github.kitswas.virtualgamepadmobile.network.ConnectionViewModel
 import io.github.kitswas.virtualgamepadmobile.ui.screens.AboutScreen
 import io.github.kitswas.virtualgamepadmobile.ui.screens.ConnectMenu
@@ -24,6 +26,7 @@ import io.github.kitswas.virtualgamepadmobile.ui.screens.MainMenu
 import io.github.kitswas.virtualgamepadmobile.ui.screens.ModuleInstallerScreen
 import io.github.kitswas.virtualgamepadmobile.ui.screens.SettingsScreen
 import io.github.kitswas.virtualgamepadmobile.ui.theme.VirtualGamePadMobileTheme
+import io.github.kitswas.virtualgamepadmobile.ui.utils.HapticUtils
 import io.github.kitswas.virtualgamepadmobile.utils.QRScannerManager
 import kotlin.system.exitProcess
 
@@ -56,6 +59,14 @@ class MainActivity : ComponentActivity() {
         settingsRepository: SettingsRepository,
         qrScannerManager: QRScannerManager
     ) {
+        val hapticEnabled = settingsRepository.hapticFeedbackEnabled.collectAsState(
+            initial = defaultHapticFeedbackEnabled
+        )
+
+        LaunchedEffect(hapticEnabled.value) {
+            HapticUtils.isEnabled = hapticEnabled.value
+        }
+
         VirtualGamePadMobileTheme(
             darkMode = settingsRepository.colorScheme.collectAsState(
                 initial = defaultColorScheme

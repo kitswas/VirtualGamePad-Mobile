@@ -17,6 +17,7 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.PlainTooltip
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.material3.TooltipBox
 import androidx.compose.material3.TooltipDefaults
@@ -27,6 +28,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
@@ -40,6 +42,7 @@ import io.github.kitswas.virtualgamepadmobile.data.PreviewWidthDp
 import io.github.kitswas.virtualgamepadmobile.data.SettingsRepository
 import io.github.kitswas.virtualgamepadmobile.data.defaultBaseColor
 import io.github.kitswas.virtualgamepadmobile.data.defaultColorScheme
+import io.github.kitswas.virtualgamepadmobile.data.defaultHapticFeedbackEnabled
 import io.github.kitswas.virtualgamepadmobile.data.defaultPollingDelay
 import io.github.kitswas.virtualgamepadmobile.ui.composables.ColorSchemePicker
 import io.github.kitswas.virtualgamepadmobile.ui.composables.ListItemPicker
@@ -54,7 +57,8 @@ const val logTag = "SettingsScreen"
 private data class SettingsChanges(
     var colorScheme: ColorScheme? = null,
     var baseColor: BaseColor? = null,
-    var pollingDelay: Int? = null
+    var pollingDelay: Int? = null,
+    var hapticFeedbackEnabled: Boolean? = null
 ) : Parcelable
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -76,6 +80,7 @@ fun SettingsScreen(
             val colorScheme by settingsRepository.colorScheme.collectAsState(initial = defaultColorScheme)
             val baseColor by settingsRepository.baseColor.collectAsState(initial = defaultBaseColor)
             val pollingDelay by settingsRepository.pollingDelay.collectAsState(initial = defaultPollingDelay)
+            val hapticEnabled by settingsRepository.hapticFeedbackEnabled.collectAsState(initial = defaultHapticFeedbackEnabled)
 
             Text("Settings", style = MaterialTheme.typography.titleLarge)
 
@@ -139,12 +144,34 @@ fun SettingsScreen(
             }
 
             Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(16.dp),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.SpaceEvenly
+            ) {
+                var switchState by rememberSaveable { mutableStateOf(hapticEnabled) }
+                Text(
+                    "Haptic Feedback (Vibrations)",
+                    style = MaterialTheme.typography.bodyLarge
+                )
+                Switch(
+                    checked = switchState,
+                    onCheckedChange = {
+                        settingsChanges.hapticFeedbackEnabled = it
+                        switchState = it
+                    }
+                )
+            }
+
+            Row(
                 modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceEvenly
             ) {
                 Button(onClick = {
                     settingsChanges.pollingDelay = null
                     settingsChanges.colorScheme = null
                     settingsChanges.baseColor = null
+                    settingsChanges.hapticFeedbackEnabled = null
                     runBlocking { settingsRepository.resetAllSettings() }
                     Log.i(logTag, "Settings reset to defaults")
                 }) {
@@ -159,6 +186,11 @@ fun SettingsScreen(
                             settingsChanges.baseColor?.let { settingsRepository.setBaseColor(it); ++changesSaved }
                             settingsChanges.pollingDelay?.let {
                                 settingsRepository.setPollingDelay(
+                                    it
+                                ); ++changesSaved
+                            }
+                            settingsChanges.hapticFeedbackEnabled?.let {
+                                settingsRepository.setHapticFeedbackEnabled(
                                     it
                                 ); ++changesSaved
                             }

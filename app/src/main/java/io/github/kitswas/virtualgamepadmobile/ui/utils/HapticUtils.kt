@@ -9,7 +9,13 @@ import android.view.View
  * Utility class for handling haptic feedback consistently across the app
  */
 object HapticUtils {
+    private const val TAG = "HapticUtils"
+
+    // Static property to control haptic feedback globally
+    var isEnabled: Boolean = true
+
     fun performButtonPressFeedback(view: View) {
+        if (!isEnabled) return
         try {
             view.performHapticFeedback(
                 HapticFeedbackConstants.VIRTUAL_KEY,
@@ -17,11 +23,12 @@ object HapticUtils {
             )
         } catch (e: Exception) {
             // Log the error but don't crash if haptic feedback fails
-            Log.e("HapticUtils", "Error performing haptic feedback: ${e.message}")
+            Log.e(TAG, "Error performing haptic feedback: ${e.message}")
         }
     }
 
     fun performButtonReleaseFeedback(view: View) {
+        if (!isEnabled) return
         try {
             // For Android 8.1 (API 27) and higher, use VIRTUAL_KEY_RELEASE
             if (Build.VERSION.SDK_INT >= 27) {
@@ -38,11 +45,12 @@ object HapticUtils {
             }
         } catch (e: Exception) {
             // Log the error but don't crash if haptic feedback fails
-            Log.e("HapticUtils", "Error performing haptic feedback: ${e.message}")
+            Log.e(TAG, "Error performing haptic feedback: ${e.message}")
         }
     }
 
     fun performGestureFeedback(view: View) {
+        if (!isEnabled) return
         try {
             if (Build.VERSION.SDK_INT >= 30) {
                 view.performHapticFeedback(
@@ -52,11 +60,12 @@ object HapticUtils {
             }
         } catch (e: Exception) {
             // Log the error but don't crash if haptic feedback fails
-            Log.e("HapticUtils", "Error performing gesture haptic feedback: ${e.message}")
+            Log.e(TAG, "Error performing gesture haptic feedback: ${e.message}")
         }
     }
 
     fun performGestureEndFeedback(view: View) {
+        if (!isEnabled) return
         try {
             if (Build.VERSION.SDK_INT >= 30) {
                 view.performHapticFeedback(
@@ -66,7 +75,7 @@ object HapticUtils {
             }
         } catch (e: Exception) {
             // Log the error but don't crash if haptic feedback fails
-            Log.e("HapticUtils", "Error performing gesture end haptic feedback: ${e.message}")
+            Log.e(TAG, "Error performing gesture end haptic feedback: ${e.message}")
         }
     }
 }
