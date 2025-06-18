@@ -15,6 +15,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.IntOffset
@@ -22,6 +23,7 @@ import androidx.compose.ui.unit.dp
 import io.github.kitswas.VGP_Data_Exchange.GamepadReading
 import io.github.kitswas.virtualgamepadmobile.ui.theme.darken
 import io.github.kitswas.virtualgamepadmobile.ui.theme.lighten
+import io.github.kitswas.virtualgamepadmobile.ui.utils.HapticUtils
 import kotlin.math.abs
 import kotlin.math.min
 import kotlin.math.roundToInt
@@ -70,6 +72,7 @@ fun AnalogStick(
     type: AnalogStickType,
 ) {
     val density = LocalDensity.current
+    val view = LocalView.current
 
     Box(
         modifier = modifier,
@@ -134,6 +137,8 @@ fun AnalogStick(
                                             gamepadState.RightThumbstickY = 0f
                                         }
                                     }
+
+                                    HapticUtils.performGestureEndFeedback(view)
                                 },
                                 onDrag = { change, dragAmount ->
                                     change.consume()
@@ -170,6 +175,7 @@ fun AnalogStick(
                                             }
                                         }
                                     }
+                                    HapticUtils.performGestureFeedback(view)
                                 }
                             )
                         }

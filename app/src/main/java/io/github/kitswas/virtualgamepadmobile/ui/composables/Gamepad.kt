@@ -24,11 +24,13 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.unit.dp
 import io.github.kitswas.VGP_Data_Exchange.GameButtons
 import io.github.kitswas.VGP_Data_Exchange.GamepadReading
 import io.github.kitswas.virtualgamepadmobile.R
+import io.github.kitswas.virtualgamepadmobile.ui.utils.HapticUtils
 
 @Composable
 fun DrawGamepad(
@@ -101,6 +103,7 @@ fun DrawGamepad(
                 modifier = Modifier.fillMaxSize(),
                 contentAlignment = Alignment.TopCenter // Origin is top center
             ) {
+                val view = LocalView.current
                 for ((gameButton, text, offsetX) in listOf(
                     Triple(GameButtons.LeftShoulder, "LSHLDR", -(baseDp / 4).dp),
                     Triple(GameButtons.RightShoulder, "RSHLDR", (baseDp / 4).dp),
@@ -110,11 +113,13 @@ fun DrawGamepad(
                     // See https://stackoverflow.com/a/69157877/8659747
                     if (isPressed) {
                         Log.d(gameButton.name, "Pressed")
+                        HapticUtils.performButtonPressFeedback(view)
                         gamepadState.ButtonsDown = gamepadState.ButtonsDown or gameButton.value
                         //Use if + DisposableEffect to wait for the press action is completed
                         DisposableEffect(Unit) {
                             onDispose {
                                 Log.d(gameButton.name, "Released")
+                                HapticUtils.performButtonReleaseFeedback(view)
                                 gamepadState.ButtonsDown =
                                     gamepadState.ButtonsDown and gameButton.value.inv()
                                 gamepadState.ButtonsUp = gamepadState.ButtonsUp or gameButton.value
@@ -144,11 +149,13 @@ fun DrawGamepad(
                     // See https://stackoverflow.com/a/69157877/8659747
                     if (isPressed) {
                         Log.d(gameButton.name, "Pressed")
+                        HapticUtils.performButtonPressFeedback(view)
                         gamepadState.ButtonsDown = gamepadState.ButtonsDown or gameButton.value
                         //Use if + DisposableEffect to wait for the press action is completed
                         DisposableEffect(Unit) {
                             onDispose {
                                 Log.d(gameButton.name, "Released")
+                                HapticUtils.performButtonReleaseFeedback(view)
                                 gamepadState.ButtonsDown =
                                     gamepadState.ButtonsDown and gameButton.value.inv()
                                 gamepadState.ButtonsUp = gamepadState.ButtonsUp or gameButton.value

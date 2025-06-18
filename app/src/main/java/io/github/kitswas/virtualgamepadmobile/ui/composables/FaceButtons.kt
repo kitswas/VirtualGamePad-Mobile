@@ -18,6 +18,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
@@ -28,6 +29,7 @@ import io.github.kitswas.VGP_Data_Exchange.GamepadReading
 import io.github.kitswas.virtualgamepadmobile.data.PreviewBase
 import io.github.kitswas.virtualgamepadmobile.ui.theme.darken
 import io.github.kitswas.virtualgamepadmobile.ui.theme.lighten
+import io.github.kitswas.virtualgamepadmobile.ui.utils.HapticUtils
 
 
 enum class FaceButtonType {
@@ -50,6 +52,7 @@ fun FaceButton(
     size: Dp,
     gamepadState: GamepadReading,
 ) {
+    val view = LocalView.current
     val gameButton = when (type) {
         FaceButtonType.A -> GameButtons.A
         FaceButtonType.B -> GameButtons.B
@@ -61,11 +64,13 @@ fun FaceButton(
     // See https://stackoverflow.com/a/69157877/8659747
     if (isPressed) {
         Log.d("FaceButton ${type.name}", "Pressed")
+        HapticUtils.performButtonPressFeedback(view)
         gamepadState.ButtonsDown = gamepadState.ButtonsDown or gameButton.value
         //Use if + DisposableEffect to wait for the press action is completed
         DisposableEffect(Unit) {
             onDispose {
                 Log.d("FaceButton ${type.name}", "Released")
+                HapticUtils.performButtonReleaseFeedback(view)
                 gamepadState.ButtonsDown = gamepadState.ButtonsDown and gameButton.value.inv()
                 gamepadState.ButtonsUp = gamepadState.ButtonsUp or gameButton.value
             }
