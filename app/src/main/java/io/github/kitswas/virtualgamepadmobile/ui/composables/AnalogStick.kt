@@ -1,5 +1,6 @@
 package io.github.kitswas.virtualgamepadmobile.ui.composables
 
+import android.util.Log
 import androidx.compose.foundation.gestures.detectDragGestures
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.offset
@@ -9,6 +10,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -24,6 +26,7 @@ import io.github.kitswas.VGP_Data_Exchange.GamepadReading
 import io.github.kitswas.virtualgamepadmobile.ui.theme.darken
 import io.github.kitswas.virtualgamepadmobile.ui.theme.lighten
 import io.github.kitswas.virtualgamepadmobile.ui.utils.HapticUtils
+import io.github.kitswas.virtualgamepadmobile.ui.utils.RichHapticUtils
 import kotlin.math.abs
 import kotlin.math.min
 import kotlin.math.roundToInt
@@ -73,6 +76,11 @@ fun AnalogStick(
 ) {
     val density = LocalDensity.current
     val view = LocalView.current
+    val supportsRichHaptics = rememberSaveable { RichHapticUtils.supportsRichHaptics(view) }
+
+    rememberSaveable {
+        Log.i("AnalogStick:${type.name}", "Supports rich haptics: $supportsRichHaptics")
+    }
 
     Box(
         modifier = modifier,
@@ -138,6 +146,7 @@ fun AnalogStick(
                                         }
                                     }
 
+                                    // Use basic haptic feedback for gesture end
                                     HapticUtils.performGestureEndFeedback(view)
                                 },
                                 onDrag = { change, dragAmount ->
@@ -149,6 +158,25 @@ fun AnalogStick(
 
                                     // Calculate magnitude for normalized position
                                     val magnitude = sqrt(offsetX * offsetX + offsetY * offsetY)
+
+                                    // Calculate normalized distance (0-1 range) for haptic intensity
+                                    val normalizedDistance =
+                                        (magnitude / maxOffset).coerceIn(0f, 1f)
+
+                                    // Determine if we're at the edge (near max displacement)
+                                    val isAtEdge = normalizedDistance > 0.95f
+
+                                    // Use rich haptics if supported, otherwise fall back to basic
+                                    if (supportsRichHaptics) {
+                                        RichHapticUtils.performAnalogStickFeedback(
+                                            view,
+                                            normalizedDistance,
+                                            isAtEdge
+                                        )
+                                    } else if (isAtEdge) {
+                                        // Only provide basic feedback at the edge to avoid constant vibration
+                                        HapticUtils.performGestureFeedback(view)
+                                    }
 
                                     // Only update UI when magnitude > 0
                                     if (magnitude > 0f) {
@@ -175,7 +203,6 @@ fun AnalogStick(
                                             }
                                         }
                                     }
-                                    HapticUtils.performGestureFeedback(view)
                                 }
                             )
                         }
