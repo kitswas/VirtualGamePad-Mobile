@@ -96,64 +96,56 @@ fun SettingsScreen(
                     settingsChanges.baseColor = it
                 })
 
-            Column(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(16.dp),
-                horizontalAlignment = Alignment.CenterHorizontally
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.SpaceAround
             ) {
-                Row(
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.Center
-                ) {
-                    SpinBox(
-                        value = pollingDelay,
-                        onValueChange = {
-                            settingsChanges.pollingDelay = it
-                        },
-                        label = "Polling Interval (ms)",
-                        minValue = 20,
-                        maxValue = 200,
-                        step = 10
-                    )
+                SpinBox(
+                    value = pollingDelay,
+                    onValueChange = {
+                        settingsChanges.pollingDelay = it
+                    },
+                    label = "Polling Interval (ms)",
+                    minValue = 20,
+                    maxValue = 200,
+                    step = 10
+                )
 
-                    var toolTipState = rememberTooltipState()
-                    var scope = rememberCoroutineScope()
-                    TooltipBox(
-                        positionProvider = TooltipDefaults.rememberPlainTooltipPositionProvider(),
-                        tooltip = {
-                            PlainTooltip(shadowElevation = 10.dp) {
-                                Text(
-                                    "Adjust according to your reflexes\nLower is faster",
-                                    style = MaterialTheme.typography.bodyLarge
-                                )
-                            }
-                        },
-                        state = toolTipState
-                    ) {
-                        IconButton(onClick = {
-                            scope.launch { toolTipState.show() }
-                        }) {
-                            Icon(
-                                imageVector = Icons.Filled.Info,
-                                contentDescription = "Information about polling interval"
+                var toolTipState = rememberTooltipState()
+                var scope = rememberCoroutineScope()
+                TooltipBox(
+                    positionProvider = TooltipDefaults.rememberPlainTooltipPositionProvider(),
+                    tooltip = {
+                        PlainTooltip(shadowElevation = 10.dp) {
+                            Text(
+                                "Adjust according to your reflexes\nLower is faster",
+                                style = MaterialTheme.typography.bodyLarge
                             )
                         }
+                    },
+                    state = toolTipState
+                ) {
+                    IconButton(onClick = {
+                        scope.launch { toolTipState.show() }
+                    }) {
+                        Icon(
+                            imageVector = Icons.Filled.Info,
+                            contentDescription = "Information about polling interval",
+                            tint = MaterialTheme.colorScheme.secondary,
+                        )
                     }
                 }
             }
 
             Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(16.dp),
+                modifier = Modifier.fillMaxWidth(),
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.SpaceEvenly
             ) {
                 var switchState by rememberSaveable(hapticEnabled) { mutableStateOf(hapticEnabled) }
                 Text(
                     "Haptic Feedback (Vibrations)",
-                    style = MaterialTheme.typography.bodyLarge
+                    style = MaterialTheme.typography.labelMedium
                 )
                 Switch(
                     checked = switchState,
@@ -165,7 +157,10 @@ fun SettingsScreen(
             }
 
             Row(
-                modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceEvenly
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(4.dp),
+                horizontalArrangement = Arrangement.SpaceEvenly
             ) {
                 Button(onClick = {
                     settingsChanges.pollingDelay = null
