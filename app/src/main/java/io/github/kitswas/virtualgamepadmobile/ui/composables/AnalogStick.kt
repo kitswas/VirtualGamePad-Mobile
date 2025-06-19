@@ -80,6 +80,10 @@ fun AnalogStick(
 
     rememberSaveable {
         Log.i("AnalogStick:${type.name}", "Supports rich haptics: $supportsRichHaptics")
+        RichHapticUtils.RichHapticsNotSupportedReason?.let {
+            Log.i("AnalogStick:${type.name}", "Rich haptics not supported reason: $it")
+        }
+        supportsRichHaptics
     }
 
     Box(

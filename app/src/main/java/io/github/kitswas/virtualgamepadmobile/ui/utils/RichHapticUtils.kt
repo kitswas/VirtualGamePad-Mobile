@@ -15,21 +15,48 @@ import kotlin.math.min
 object RichHapticUtils {
     private const val TAG = "RichHapticUtils"
 
+    var RichHapticsNotSupportedReason: String? = null
+        private set
+
+    const val MIN_API = Build.VERSION_CODES.S
+
+    // Array/List of required primitives for rich haptics
+    @RequiresApi(MIN_API)
+    private val requiredPrimitives: IntArray = intArrayOf(
+        VibrationEffect.Composition.PRIMITIVE_CLICK,
+        VibrationEffect.Composition.PRIMITIVE_TICK,
+        VibrationEffect.Composition.PRIMITIVE_LOW_TICK,
+        VibrationEffect.Composition.PRIMITIVE_THUD
+    )
 
     /**
      * Check if the device supports rich haptics
      */
     fun supportsRichHaptics(view: View): Boolean {
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.S) return false
+        if (Build.VERSION.SDK_INT < MIN_API) {
+            RichHapticsNotSupportedReason = "Device API level is below $MIN_API"
+            return false
+        }
 
         val vibrator =
-            ContextCompat.getSystemService(view.context, Vibrator::class.java) ?: return false
-        return vibrator.areAllPrimitivesSupported(
-            VibrationEffect.Composition.PRIMITIVE_CLICK,
-            VibrationEffect.Composition.PRIMITIVE_TICK,
-            VibrationEffect.Composition.PRIMITIVE_LOW_TICK,
-            VibrationEffect.Composition.PRIMITIVE_THUD,
-        )
+            ContextCompat.getSystemService(view.context, Vibrator::class.java)
+        if (vibrator == null || !vibrator.hasVibrator()) {
+            RichHapticsNotSupportedReason = "Device does not have a vibrator"
+            return false
+        }
+        for (primitive in requiredPrimitives) {
+            if (vibrator.areAllPrimitivesSupported(primitive)) {
+                RichHapticsNotSupportedReason =
+                    "Device does not support required haptic primitive: $primitive"
+                return false
+            }
+        }
+        val hasAmplitudeControl = vibrator.hasAmplitudeControl()
+        if (!hasAmplitudeControl) {
+            RichHapticsNotSupportedReason = "Device does not support amplitude control"
+            return false
+        }
+        return true
     }
 
     /**
@@ -71,7 +98,7 @@ object RichHapticUtils {
         }
     }
 
-    @RequiresApi(Build.VERSION_CODES.S)
+    @RequiresApi(MIN_API)
     private fun performEdgeFeedback(vibrator: Vibrator) {
         vibrator.vibrate(
             VibrationEffect.startComposition()
@@ -81,7 +108,7 @@ object RichHapticUtils {
         )
     }
 
-    @RequiresApi(Build.VERSION_CODES.S)
+    @RequiresApi(MIN_API)
     private fun performMovementFeedback(vibrator: Vibrator, intensity: Float) {
         vibrator.vibrate(
             VibrationEffect.startComposition()
