@@ -150,7 +150,7 @@ fun SettingsScreen(
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.SpaceEvenly
             ) {
-                var switchState by rememberSaveable { mutableStateOf(hapticEnabled) }
+                var switchState by rememberSaveable(hapticEnabled) { mutableStateOf(hapticEnabled) }
                 Text(
                     "Haptic Feedback (Vibrations)",
                     style = MaterialTheme.typography.bodyLarge
