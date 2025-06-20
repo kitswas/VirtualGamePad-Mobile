@@ -29,13 +29,16 @@ object HapticUtils {
 
     /**
      * Provides haptic feedback for gamepad button press events (buttons down).
-     * Uses VIRTUAL_KEY constant which provides a clear, crisp button press sensation
-     * that's consistent with Android system behavior.
      */
     fun performButtonPressFeedback(view: View) {
         if (!isEnabled) return
         try {
-            view.performHapticFeedback(HapticFeedbackConstants.VIRTUAL_KEY, OVERRIDE_FLAGS)
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O_MR1) {
+                view.performHapticFeedback(HapticFeedbackConstants.KEYBOARD_PRESS, OVERRIDE_FLAGS)
+            } else {
+                // For older versions, use VIRTUAL_KEY for a consistent press feel
+                view.performHapticFeedback(HapticFeedbackConstants.VIRTUAL_KEY, OVERRIDE_FLAGS)
+            }
         } catch (e: Exception) {
             Log.e(TAG, "Error performing button press haptic feedback: ${e.message}")
         }
@@ -43,15 +46,13 @@ object HapticUtils {
 
     /**
      * Provides haptic feedback for gamepad button release events (buttons up).
-     * Uses VIRTUAL_KEY_RELEASE (API 27+) for a softer release feel, with fallback to basic feedback.
-     * This creates a complete press-release cycle that feels natural.
      */
     fun performButtonReleaseFeedback(view: View) {
         if (!isEnabled) return
         try {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O_MR1) {
                 view.performHapticFeedback(
-                    HapticFeedbackConstants.VIRTUAL_KEY_RELEASE, OVERRIDE_FLAGS
+                    HapticFeedbackConstants.KEYBOARD_RELEASE, OVERRIDE_FLAGS
                 )
             } else {
                 // For older versions, use a very light alternative
@@ -63,9 +64,26 @@ object HapticUtils {
     }
 
     /**
+     * Provides haptic feedback when an analog stick gesture starts.
+     * Uses GESTURE_START (API 30+) for modern devices, with fallback.
+     */
+    fun performGestureStartFeedback(view: View) {
+        if (!isEnabled) return
+        try {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+                view.performHapticFeedback(HapticFeedbackConstants.GESTURE_START, OVERRIDE_FLAGS)
+            } else {
+                // For older devices, use a subtle feedback
+                view.performHapticFeedback(HapticFeedbackConstants.CLOCK_TICK, OVERRIDE_FLAGS)
+            }
+        } catch (e: Exception) {
+            Log.e(TAG, "Error performing gesture start haptic feedback: ${e.message}")
+        }
+    }
+
+    /**
      * Provides haptic feedback when analog stick is released and returns to center.
-     * Uses GESTURE_END (API 30+) for modern devices, with fallback to subtle feedback.
-     * This signals the completion of the analog input gesture.
+     * Uses GESTURE_END (API 30+) for modern devices, with fallback.
      */
     fun performGestureEndFeedback(view: View) {
         if (!isEnabled) return

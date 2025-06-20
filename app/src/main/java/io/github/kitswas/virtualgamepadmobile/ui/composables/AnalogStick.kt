@@ -120,6 +120,9 @@ fun AnalogStick(
                         }
                         .pointerInput(Unit) {
                             detectDragGestures(
+                                onDragStart = { _ ->
+                                    HapticUtils.performGestureStartFeedback(view)
+                                },
                                 onDragEnd = {
                                     // Reset position
                                     offsetX = 0f
