@@ -1,6 +1,6 @@
 # VirtualGamePad Mobile App (The Client)
 
-![GitHub Downloads (all assets, all releases)](https://img.shields.io/github/downloads/kitswas/VirtualGamePad-Mobile/total)
+![GitHub Downloads (all assets, all releases)](https://img.shields.io/github/downloads/kitswas/VirtualGamePad-Mobile/total) [![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=kitswas_VirtualGamePad-Mobile&metric=alert_status)](https://sonarcloud.io/summary/new_code?id=kitswas_VirtualGamePad-Mobile)
 
 This is a mobile app that allows you to use your Android phone as a gamepad for your computer.
 
