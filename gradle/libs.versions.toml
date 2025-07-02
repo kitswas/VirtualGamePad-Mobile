@@ -1,10 +1,10 @@
 [versions]
 # Android
-android-gradle-plugin = "8.10.1"
+android-gradle-plugin = "8.11.0"
 
 # Kotlin
-kotlin = "2.1.21"
-kotlin-parcelize = "2.1.21"
+kotlin = "2.2.0"
+kotlin-parcelize = "2.2.0"
 
 # AndroidX Core
 androidx-core-ktx = "1.16.0"
@@ -14,7 +14,7 @@ androidx-window = "1.4.0"
 androidx-datastore = "1.1.7"
 
 # Compose
-compose-bom = "2025.06.00"
+compose-bom = "2025.06.01"
 compose-navigation = "2.9.0"
 
 # Image Loading
@@ -34,7 +34,7 @@ androidx-test-espresso = "3.5.0"
 androidx-test-core = "1.6.1"
 kotlinx-coroutines-test = "1.10.2"
 junit-ktx = "1.2.1"
-ui-test-android = "1.8.2"
+ui-test-android = "1.8.3"
 mockito-kotlin = "5.4.0"
 mockito-core = "5.12.0"
 mockito-inline = "5.2.0"
