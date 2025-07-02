@@ -23,20 +23,16 @@ import io.github.kitswas.virtualgamepadmobile.ui.screens.ConnectMenu
 import io.github.kitswas.virtualgamepadmobile.ui.screens.ConnectingScreen
 import io.github.kitswas.virtualgamepadmobile.ui.screens.GamePad
 import io.github.kitswas.virtualgamepadmobile.ui.screens.MainMenu
-import io.github.kitswas.virtualgamepadmobile.ui.screens.ModuleInstallerScreen
 import io.github.kitswas.virtualgamepadmobile.ui.screens.SettingsScreen
 import io.github.kitswas.virtualgamepadmobile.ui.theme.VirtualGamePadMobileTheme
 import io.github.kitswas.virtualgamepadmobile.ui.utils.HapticUtils
-import io.github.kitswas.virtualgamepadmobile.utils.QRScannerManager
 import kotlin.system.exitProcess
+
 
 class MainActivity : ComponentActivity() {
 
-    private lateinit var qrScannerManager: QRScannerManager
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        qrScannerManager = QRScannerManager(this)
         val settingsRepository = SettingsRepository(this)
 
         // Create a ViewModel the first time the system calls an activity's onCreate() method.
@@ -48,7 +44,6 @@ class MainActivity : ComponentActivity() {
             AppUI(
                 connectionViewModel = connectionViewModel,
                 settingsRepository = settingsRepository,
-                qrScannerManager = qrScannerManager
             )
         }
     }
@@ -57,7 +52,6 @@ class MainActivity : ComponentActivity() {
     fun AppUI(
         connectionViewModel: ConnectionViewModel,
         settingsRepository: SettingsRepository,
-        qrScannerManager: QRScannerManager
     ) {
         val hapticEnabled = settingsRepository.hapticFeedbackEnabled.collectAsState(
             initial = defaultHapticFeedbackEnabled
@@ -78,7 +72,6 @@ class MainActivity : ComponentActivity() {
             NavTree(
                 connectionViewModel = connectionViewModel,
                 settingsRepository = settingsRepository,
-                qrScannerManager = qrScannerManager
             )
         }
     }
@@ -87,7 +80,6 @@ class MainActivity : ComponentActivity() {
     fun NavTree(
         connectionViewModel: ConnectionViewModel,
         settingsRepository: SettingsRepository,
-        qrScannerManager: QRScannerManager,
         navController: NavHostController = rememberNavController(),
     ) {
         NavHost(navController = navController, startDestination = "main_menu") {
@@ -104,18 +96,7 @@ class MainActivity : ComponentActivity() {
                     onNavigateToConnectingScreen = { ipAddress, port ->
                         navController.navigate("connecting_screen/$ipAddress/$port")
                     },
-                    onNavigateToModuleInstaller = {
-                        navController.navigate("module_installer")
-                    },
-                    qrScannerManager = qrScannerManager,
                     connectionViewModel = connectionViewModel
-                )
-            }
-            composable("module_installer") {
-                ModuleInstallerScreen(
-                    onNavigateBack = { navController.popBackStack() },
-                    onInstallationComplete = { navController.popBackStack() },
-                    qrScannerManager = qrScannerManager
                 )
             }
             composable(

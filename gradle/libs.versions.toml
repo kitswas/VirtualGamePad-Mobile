@@ -20,25 +20,12 @@ compose-navigation = "2.9.0"
 # Image Loading
 coil = "3.2.0"
 
-# Google Play Services
-play-services-code-scanner = "16.1.0"
-play-services-base = "18.7.0"
-play-services-base-testing = "16.1.0"
-play-services-tflite = "16.4.0"
-play-feature-delivery = "2.1.0"
+# QR Code Scanner
+quickie = "1.11.0"
 
 # Testing
 junit = "4.13.2"
-androidx-test-junit = "1.2.1"
-androidx-test-espresso = "3.5.0"
-androidx-test-core = "1.6.1"
 kotlinx-coroutines-test = "1.10.2"
-junit-ktx = "1.2.1"
-ui-test-android = "1.8.3"
-mockito-kotlin = "5.4.0"
-mockito-core = "5.12.0"
-mockito-inline = "5.2.0"
-mockito-android = "5.12.0"
 
 # Tools
 desugar-jdk-libs = "2.1.5"
@@ -67,28 +54,18 @@ compose-ui-test-manifest = { group = "androidx.compose.ui", name = "ui-test-mani
 compose-ui-test-junit4 = { group = "androidx.compose.ui", name = "ui-test-junit4" }
 
 # Navigation
-mockito-core = { module = "org.mockito:mockito-core", version.ref = "mockito-core" }
-mockito-android = { module = "org.mockito:mockito-android", version.ref = "mockito-android" }
-mockito-inline = { module = "org.mockito:mockito-inline", version.ref = "mockito-inline" }
 navigation-fragment-ktx = { group = "androidx.navigation", name = "navigation-fragment-ktx", version.ref = "compose-navigation" }
 navigation-ui-ktx = { group = "androidx.navigation", name = "navigation-ui-ktx", version.ref = "compose-navigation" }
 navigation-dynamic-features-fragment = { group = "androidx.navigation", name = "navigation-dynamic-features-fragment", version.ref = "compose-navigation" }
 navigation-testing = { group = "androidx.navigation", name = "navigation-testing", version.ref = "compose-navigation" }
 navigation-compose = { group = "androidx.navigation", name = "navigation-compose", version.ref = "compose-navigation" }
 
+# QR Code Scanner
+quickie-bundled = { group = "io.github.g00fy2.quickie", name = "quickie-bundled", version.ref = "quickie" }
+
 # Material3
 material3 = { group = "androidx.compose.material3", name = "material3" }
 material3-window-size = { group = "androidx.compose.material3", name = "material3-window-size-class" }
-
-# Google Play Services
-play-services-code-scanner = { group = "com.google.android.gms", name = "play-services-code-scanner", version.ref = "play-services-code-scanner" }
-play-services-base = { group = "com.google.android.gms", name = "play-services-base", version.ref = "play-services-base" }
-play-services-base-testing = { group = "com.google.android.gms", name = "play-services-base-testing", version.ref = "play-services-base-testing" }
-play-services-tflite-java = { group = "com.google.android.gms", name = "play-services-tflite-java", version.ref = "play-services-tflite" }
-
-# Play Feature Delivery
-play-feature-delivery = { group = "com.google.android.play", name = "feature-delivery", version.ref = "play-feature-delivery" }
-play-feature-delivery-ktx = { group = "com.google.android.play", name = "feature-delivery-ktx", version.ref = "play-feature-delivery" }
 
 # Datastore
 androidx-datastore-preferences = { group = "androidx.datastore", name = "datastore-preferences", version.ref = "androidx-datastore" }
@@ -98,13 +75,7 @@ desugar-jdk-libs = { group = "com.android.tools", name = "desugar_jdk_libs", ver
 
 # Testing
 junit = { group = "junit", name = "junit", version.ref = "junit" }
-androidx-test-junit = { group = "androidx.test.ext", name = "junit", version.ref = "androidx-test-junit" }
-androidx-test-espresso-core = { group = "androidx.test.espresso", name = "espresso-core", version.ref = "androidx-test-espresso" }
-androidx-test-core = { group = "androidx.test", name = "core", version.ref = "androidx-test-core" }
 kotlinx-coroutines-test = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-test", version.ref = "kotlinx-coroutines-test" }
-androidx-junit-ktx = { group = "androidx.test.ext", name = "junit-ktx", version.ref = "junit-ktx" }
-androidx-ui-test-android = { group = "androidx.compose.ui", name = "ui-test-android", version.ref = "ui-test-android" }
-mockito-kotlin = { group = "org.mockito.kotlin", name = "mockito-kotlin", version.ref = "mockito-kotlin" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "android-gradle-plugin" }
