@@ -1,0 +1,1 @@
+Release Notes: https://github.com/kitswas/VirtualGamePad-Mobile/releases/tag/v0.3.2
