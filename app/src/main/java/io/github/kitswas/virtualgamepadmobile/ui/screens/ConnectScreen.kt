@@ -4,7 +4,6 @@ import android.net.InetAddresses
 import android.os.Build
 import android.util.Log
 import android.util.Patterns
-import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
@@ -34,12 +33,12 @@ import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import io.github.g00fy2.quickie.QRResult
-import io.github.g00fy2.quickie.ScanQRCode
 import io.github.kitswas.virtualgamepadmobile.data.PreviewBase
 import io.github.kitswas.virtualgamepadmobile.data.PreviewHeightDp
 import io.github.kitswas.virtualgamepadmobile.data.PreviewWidthDp
 import io.github.kitswas.virtualgamepadmobile.network.ConnectionViewModel
+import io.github.kitswas.virtualgamepadmobile.ui.components.QRScanResult
+import io.github.kitswas.virtualgamepadmobile.ui.components.rememberQRCodeScanner
 import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -95,11 +94,12 @@ fun ConnectMenu(
 ) {
     val snackbarHostState = remember { SnackbarHostState() }
     val scope = rememberCoroutineScope()
-    val scanQrCodeLauncher = rememberLauncherForActivityResult(ScanQRCode()) { result ->
+    
+    val qrCodeScanner = rememberQRCodeScanner { result ->
         when (result) {
-            is QRResult.QRSuccess -> {
+            is QRScanResult.Success -> {
                 try {
-                    val qrCode = result.content.rawValue!!
+                    val qrCode = result.content
                     Log.d(LOG_TAG, qrCode)
                     val ipAddress = getIP(qrCode)
                     val port = getPort(qrCode)
@@ -123,15 +123,15 @@ fun ConnectMenu(
                 }
             }
 
-            is QRResult.QRError -> {
+            is QRScanResult.Error -> {
                 scope.launch {
                     snackbarHostState.showSnackbar(
-                        message = "Error scanning QR Code: ${result.exception.message ?: result.toString()}",
+                        message = "Error scanning QR Code: ${result.message}",
                     )
                 }
             }
 
-            is QRResult.QRMissingPermission -> {
+            is QRScanResult.PermissionDenied -> {
                 scope.launch {
                     snackbarHostState.showSnackbar(
                         message = "Camera permission is required to scan QR Codes",
@@ -139,7 +139,7 @@ fun ConnectMenu(
                 }
             }
 
-            is QRResult.QRUserCanceled -> {} // User canceled the QR code scan
+            is QRScanResult.Cancelled -> {} // User canceled the QR code scan
         }
     }
 
@@ -161,7 +161,7 @@ fun ConnectMenu(
             var isIPValid by rememberSaveable { mutableStateOf(false) }
             var isPortValid by rememberSaveable { mutableStateOf(false) }
             val focusManager = LocalFocusManager.current
-            Button(onClick = { scanQrCodeLauncher.launch(null) }, shape = CircleShape) {
+            Button(onClick = { qrCodeScanner() }, shape = CircleShape) {
                 Text(text = "Scan QR Code")
             }
 

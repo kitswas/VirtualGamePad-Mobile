@@ -21,7 +21,8 @@ compose-navigation = "2.9.1"
 coil = "3.2.0"
 
 # QR Code Scanner
-quickie = "1.11.0"
+zxing-android-embedded = "4.3.0"
+zxing-core = "3.5.3"
 
 # Testing
 junit = "4.13.2"
@@ -61,7 +62,8 @@ navigation-testing = { group = "androidx.navigation", name = "navigation-testing
 navigation-compose = { group = "androidx.navigation", name = "navigation-compose", version.ref = "compose-navigation" }
 
 # QR Code Scanner
-quickie-bundled = { group = "io.github.g00fy2.quickie", name = "quickie-bundled", version.ref = "quickie" }
+zxing-android-embedded = { group = "com.journeyapps", name = "zxing-android-embedded", version.ref = "zxing-android-embedded" }
+zxing-core = { group = "com.google.zxing", name = "core", version.ref = "zxing-core" }
 
 # Material3
 material3 = { group = "androidx.compose.material3", name = "material3" }

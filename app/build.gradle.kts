@@ -148,7 +148,8 @@ dependencies {
     implementation(libs.navigation.compose)
 
     // QR Code Scanner
-    implementation(libs.quickie.bundled)
+    implementation(libs.zxing.android.embedded)
+    implementation(libs.zxing.core)
 
     // Material3
     implementation(libs.material3)
