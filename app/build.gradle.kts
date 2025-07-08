@@ -140,8 +140,6 @@ dependencies {
     // Navigation
     implementation(libs.navigation.fragment.ktx)
     implementation(libs.navigation.ui.ktx)
-    // Feature module Support
-    implementation(libs.navigation.dynamic.features.fragment)
     // Testing Navigation
     androidTestImplementation(libs.navigation.testing)
     // Jetpack Compose Integration
