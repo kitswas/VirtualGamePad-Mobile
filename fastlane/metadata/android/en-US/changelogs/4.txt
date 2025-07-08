@@ -1,3 +1,1 @@
 Release Notes: https://github.com/kitswas/VirtualGamePad-Mobile/releases/tag/v0.3.0
-
-Full Changelog: https://github.com/kitswas/VirtualGamePad-Mobile/compare/v0.2.1...v0.3.0
