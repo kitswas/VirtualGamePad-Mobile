@@ -75,9 +75,11 @@ android {
         }
     }
 
+    // See https://gitlab.com/fdroid/fdroiddata/-/merge_requests/24636#note_2619840233
+    // DependencyInfoBlock cannot be read by anyone other than Google.
     dependenciesInfo {
-        includeInApk = true
-        includeInBundle = true
+        includeInApk = false
+        includeInBundle = false
     }
 }
 
