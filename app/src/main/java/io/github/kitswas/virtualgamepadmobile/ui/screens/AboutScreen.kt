@@ -1,6 +1,7 @@
 package io.github.kitswas.virtualgamepadmobile.ui.screens
 
 import android.content.Intent
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -12,25 +13,29 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
+import androidx.compose.material3.FilledTonalButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.Dp.Companion.Hairline
 import androidx.compose.ui.unit.dp
 import androidx.core.net.toUri
 import io.github.kitswas.virtualgamepadmobile.data.PreviewBase
 import io.github.kitswas.virtualgamepadmobile.data.PreviewHeightDp
 import io.github.kitswas.virtualgamepadmobile.data.PreviewWidthDp
-import io.github.kitswas.virtualgamepadmobile.ui.composables.Badge
 
 @Composable
 fun AboutScreen(
+    versionName: String? = LocalContext.current.packageManager.getPackageInfo(
+        LocalContext.current.packageName, 0
+    ).versionName,
     onNavigateBack: () -> Unit
 ) {
     val context = LocalContext.current
@@ -38,7 +43,6 @@ fun AboutScreen(
 
     // GitHub URLs
     val projectUrl = "https://kitswas.github.io/VirtualGamePad/"
-    val repoUrl = "https://github.com/kitswas/VirtualGamePad/"
     val mobileRepoUrl = "https://github.com/kitswas/VirtualGamePad-Mobile/"
     val mobileLicenseUrl = "https://github.com/kitswas/VirtualGamePad-Mobile/blob/main/LICENCE.TXT"
     val issuesUrl = "https://github.com/kitswas/VirtualGamePad-Mobile/issues/new"
@@ -54,64 +58,44 @@ fun AboutScreen(
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Top
         ) {
-            Text(
-                text = "Virtual GamePad Mobile",
-                style = MaterialTheme.typography.titleLarge
-            )
+            Text(text = "🎮 Virtual GamePad Mobile", style = MaterialTheme.typography.titleLarge)
 
             Spacer(modifier = Modifier.height(8.dp))
 
-            Text(
-                text = "Version ${
-                    context.packageManager.getPackageInfo(
-                        context.packageName,
-                        0
-                    ).versionName
-                }",
-                style = MaterialTheme.typography.bodyMedium
-            )
+            Text(text = "Version $versionName", style = MaterialTheme.typography.bodyMedium)
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            // Badges row
             Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.Center
+                modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceEvenly
             ) {
-                Badge(
-                    imageUrl = "https://img.shields.io/github/license/kitswas/VirtualGamePad-Mobile",
-                    linkUrl = mobileLicenseUrl,
-                    contentDescription = "License Badge"
-                )
+                OutlinedButton(
+                    modifier = Modifier.padding(0.dp),
+                    shape = MaterialTheme.shapes.small,
+                    border = BorderStroke(Hairline, MaterialTheme.colorScheme.secondary),
+                    onClick = {
+                        val intent = Intent(Intent.ACTION_VIEW, mobileLicenseUrl.toUri())
+                        context.startActivity(intent)
+                    }) {
+                    Text("View Licence", style = MaterialTheme.typography.labelSmall)
+                }
 
-                Badge(
-                    imageUrl = "https://img.shields.io/github/stars/kitswas/VirtualGamePad?style=flat",
-                    linkUrl = repoUrl,
-                    contentDescription = "GitHub Stars Badge"
-                )
-            }
-
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.Center
-            ) {
-                Badge(
-                    imageUrl = "https://img.shields.io/github/downloads/kitswas/VirtualGamePad-Mobile/total",
-                    linkUrl = releaseUrl,
-                    contentDescription = "Downloads Badge"
-                )
-
-                Badge(
-                    imageUrl = "https://img.shields.io/github/v/release/kitswas/VirtualGamePad-Mobile",
-                    linkUrl = releaseUrl,
-                    contentDescription = "Release Badge"
-                )
+                OutlinedButton(
+                    modifier = Modifier.padding(0.dp),
+                    shape = MaterialTheme.shapes.small,
+                    border = BorderStroke(Hairline, MaterialTheme.colorScheme.secondary),
+                    onClick = {
+                        val intent = Intent(Intent.ACTION_VIEW, releaseUrl.toUri())
+                        context.startActivity(intent)
+                    }) {
+                    Text("Latest Release", style = MaterialTheme.typography.labelSmall)
+                }
             }
 
             Spacer(modifier = Modifier.height(24.dp))
 
             Text(
-                text = "A mobile application that lets your phone function as a gamepad controller for PC games.",
+                text = "A mobile application that lets your phone work as a gamepad for PC games.",
                 style = MaterialTheme.typography.bodyMedium,
                 textAlign = TextAlign.Center
             )
@@ -119,28 +103,27 @@ fun AboutScreen(
             Spacer(modifier = Modifier.height(16.dp))
 
             Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.Center
+                modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceEvenly
             ) {
-                TextButton(onClick = {
-                    val intent = Intent(Intent.ACTION_VIEW, projectUrl.toUri())
-                    context.startActivity(intent)
-                }) {
-                    Text("Project Website")
-                }
-
-                TextButton(onClick = {
+                FilledTonalButton(onClick = {
                     val intent = Intent(Intent.ACTION_VIEW, mobileRepoUrl.toUri())
                     context.startActivity(intent)
                 }) {
-                    Text("Source Code")
+                    Text("Source Code", style = MaterialTheme.typography.labelMedium)
                 }
 
-                TextButton(onClick = {
+                FilledTonalButton(onClick = {
+                    val intent = Intent(Intent.ACTION_VIEW, projectUrl.toUri())
+                    context.startActivity(intent)
+                }) {
+                    Text("Project Website", style = MaterialTheme.typography.labelMedium)
+                }
+
+                FilledTonalButton(onClick = {
                     val intent = Intent(Intent.ACTION_VIEW, issuesUrl.toUri())
                     context.startActivity(intent)
                 }) {
-                    Text("Report Issues")
+                    Text("Report Issues", style = MaterialTheme.typography.labelMedium)
                 }
             }
 
@@ -160,6 +143,6 @@ fun AboutScreen(
 @Composable
 fun AboutScreenPreview() {
     PreviewBase {
-        AboutScreen(onNavigateBack = {})
+        AboutScreen(onNavigateBack = {}, versionName = "Development")
     }
 }

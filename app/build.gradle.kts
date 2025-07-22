@@ -114,11 +114,6 @@ dependencies {
     testImplementation(platform(libs.compose.bom))
     androidTestImplementation(platform(libs.compose.bom))
 
-    // Image Loading
-    implementation(libs.coil.compose)
-    implementation(libs.coil.network.okhttp)
-    implementation(libs.coil.svg)
-
     // Core Libraries
     coreLibraryDesugaring(libs.desugar.jdk.libs)
     implementation(libs.androidx.window)

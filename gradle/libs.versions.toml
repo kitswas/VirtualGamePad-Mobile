@@ -17,9 +17,6 @@ androidx-datastore = "1.1.7"
 compose-bom = "2025.06.01"
 compose-navigation = "2.9.1"
 
-# Image Loading
-coil = "3.2.0"
-
 # QR Code Scanner
 zxing-android-embedded = "4.3.0"
 zxing-core = "3.5.3"
@@ -33,11 +30,6 @@ desugar-jdk-libs = "2.1.5"
 dokka = "2.0.0"
 
 [libraries]
-# Image Loading
-coil-compose = { group = "io.coil-kt.coil3", name = "coil-compose", version.ref = "coil" }
-coil-network-okhttp = { group = "io.coil-kt.coil3", name = "coil-network-okhttp", version.ref = "coil" }
-coil-svg = { group = "io.coil-kt.coil3", name = "coil-svg", version.ref = "coil" }
-
 # AndroidX Core
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "androidx-core-ktx" }
 androidx-lifecycle-runtime-ktx = { group = "androidx.lifecycle", name = "lifecycle-runtime-ktx", version.ref = "androidx-lifecycle" }
