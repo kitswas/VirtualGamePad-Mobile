@@ -8,6 +8,43 @@ import androidx.compose.runtime.Composable
 import io.github.kitswas.virtualgamepadmobile.data.BaseColor
 import io.github.kitswas.virtualgamepadmobile.data.ColorScheme
 import io.github.kitswas.virtualgamepadmobile.data.getColorFromBaseColor
+import androidx.compose.material3.ColorScheme as MaterialColorScheme
+
+/**
+ * Creates a dark mode color palette for the given base color.
+ */
+private fun createDarkColorPalette(baseColor: BaseColor): MaterialColorScheme {
+    val darkColorPrimary = getColorFromBaseColor(baseColor, true)
+    val onDarkColorPrimary = contrasting(darkColorPrimary)
+
+    return darkColorScheme(
+        primary = darkColorPrimary,
+        secondary = darken(shift(darkColorPrimary, -45), 0.1f),
+        tertiary = darken(shift(darkColorPrimary, -90), 0.2f),
+        onPrimary = onDarkColorPrimary,
+        onSecondary = lighten(onDarkColorPrimary, 0.1f),
+        onTertiary = lighten(onDarkColorPrimary, 0.2f),
+        outline = Silver,
+    )
+}
+
+/**
+ * Creates a light mode color palette for the given base color.
+ */
+private fun createLightColorPalette(baseColor: BaseColor): MaterialColorScheme {
+    val lightColorPrimary = getColorFromBaseColor(baseColor, false)
+    val onLightColorPrimary = contrasting(lightColorPrimary)
+
+    return lightColorScheme(
+        primary = lightColorPrimary,
+        secondary = lighten(shift(lightColorPrimary, 45), 0.1f),
+        tertiary = lighten(shift(lightColorPrimary, 90), 0.2f),
+        onPrimary = onLightColorPrimary,
+        onSecondary = darken(onLightColorPrimary, 0.1f),
+        onTertiary = darken(onLightColorPrimary, 0.2f),
+        outline = Gold,
+    )
+}
 
 @Composable
 fun VirtualGamePadMobileTheme(
@@ -22,35 +59,10 @@ fun VirtualGamePadMobileTheme(
         ColorScheme.SYSTEM -> isSystemInDarkTheme()
     }
 
-    val darkColorPrimary = getColorFromBaseColor(baseColor, true)
-    val lightColorPrimary = getColorFromBaseColor(baseColor, false)
-    val onDarkColorPrimary = contrasting(darkColorPrimary)
-    val onLightColorPrimary = contrasting(lightColorPrimary)
-
-    val darkColorPalette = darkColorScheme(
-        primary = darkColorPrimary,
-        secondary = darken(shift(darkColorPrimary, -45), 0.1f),
-        tertiary = darken(shift(darkColorPrimary, -90), 0.2f),
-        onPrimary = onDarkColorPrimary,
-        onSecondary = lighten(onDarkColorPrimary, 0.1f),
-        onTertiary = lighten(onDarkColorPrimary, 0.2f),
-        outline = Silver,
-    )
-
-    val lightColorPalette = lightColorScheme(
-        primary = lightColorPrimary,
-        secondary = lighten(shift(lightColorPrimary, 45), 0.1f),
-        tertiary = lighten(shift(lightColorPrimary, 90), 0.2f),
-        onPrimary = onLightColorPrimary,
-        onSecondary = darken(onLightColorPrimary, 0.1f),
-        onTertiary = darken(onLightColorPrimary, 0.2f),
-        outline = Gold,
-    )
-
     val colorScheme = if (darkTheme) {
-        darkColorPalette
+        createDarkColorPalette(baseColor)
     } else {
-        lightColorPalette
+        createLightColorPalette(baseColor)
     }
 
     MaterialTheme(
