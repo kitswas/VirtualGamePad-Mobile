@@ -89,6 +89,19 @@ private fun VirtualGamePadMobileThemePreview(
                 )
             )
 
+            // Other Colors Section
+            ColorSection(
+                title = "Other Colors",
+                colors = listOf(
+                    ColorInfo("Outline", MaterialTheme.colorScheme.outline),
+                    ColorInfo("Outline Variant", MaterialTheme.colorScheme.outlineVariant),
+                    ColorInfo("Scrim", MaterialTheme.colorScheme.scrim),
+                    ColorInfo("Inverse Surface", MaterialTheme.colorScheme.inverseSurface),
+                    ColorInfo("Inverse On Surface", MaterialTheme.colorScheme.inverseOnSurface),
+                    ColorInfo("Inverse Primary", MaterialTheme.colorScheme.inversePrimary)
+                )
+            )
+
             // Surface Colors Section
             ColorSection(
                 title = "Surface Colors",
@@ -119,19 +132,6 @@ private fun VirtualGamePadMobileThemePreview(
                     ColorInfo("On Error Container", MaterialTheme.colorScheme.onErrorContainer)
                 )
             )
-
-            // Other Colors Section
-            ColorSection(
-                title = "Other Colors",
-                colors = listOf(
-                    ColorInfo("Outline", MaterialTheme.colorScheme.outline),
-                    ColorInfo("Outline Variant", MaterialTheme.colorScheme.outlineVariant),
-                    ColorInfo("Scrim", MaterialTheme.colorScheme.scrim),
-                    ColorInfo("Inverse Surface", MaterialTheme.colorScheme.inverseSurface),
-                    ColorInfo("Inverse On Surface", MaterialTheme.colorScheme.inverseOnSurface),
-                    ColorInfo("Inverse Primary", MaterialTheme.colorScheme.inversePrimary)
-                )
-            )
         }
     }
 }
@@ -156,7 +156,7 @@ private fun ColorSection(
                 fontWeight = FontWeight.SemiBold
             )
 
-            colors.chunked(2).forEach { rowColors ->
+            colors.chunked(4).forEach { rowColors ->
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.spacedBy(8.dp)
@@ -224,6 +224,18 @@ private data class ColorInfo(
 
 @Composable
 @PreviewLightDark()
-private fun ThemeDefault() {
-    VirtualGamePadMobileThemePreview()
+private fun ThemeBlue() {
+    VirtualGamePadMobileThemePreview(baseColor = BaseColor.BLUE)
+}
+
+@Composable
+@PreviewLightDark()
+private fun ThemeRed() {
+    VirtualGamePadMobileThemePreview(baseColor = BaseColor.RED)
+}
+
+@Composable
+@PreviewLightDark()
+private fun ThemeGreen() {
+    VirtualGamePadMobileThemePreview(baseColor = BaseColor.GREEN)
 }

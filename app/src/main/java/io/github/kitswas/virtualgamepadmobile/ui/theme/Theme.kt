@@ -16,14 +16,22 @@ import androidx.compose.material3.ColorScheme as MaterialColorScheme
 private fun createDarkColorPalette(baseColor: BaseColor): MaterialColorScheme {
     val darkColorPrimary = getColorFromBaseColor(baseColor, true)
     val onDarkColorPrimary = contrasting(darkColorPrimary)
+    val darkColorSecondary = darken(shift(darkColorPrimary, -45), 0.1f)
+    val darkColorTertiary = darken(shift(darkColorPrimary, -75), 0.25f)
 
     return darkColorScheme(
         primary = darkColorPrimary,
-        secondary = darken(shift(darkColorPrimary, -45), 0.1f),
-        tertiary = darken(shift(darkColorPrimary, -90), 0.2f),
+        secondary = darkColorSecondary,
+        tertiary = darkColorTertiary,
         onPrimary = onDarkColorPrimary,
         onSecondary = lighten(onDarkColorPrimary, 0.1f),
         onTertiary = lighten(onDarkColorPrimary, 0.2f),
+        primaryContainer = darken(darkColorPrimary, 0.6f),
+        secondaryContainer = darken(darkColorSecondary, 0.6f),
+        tertiaryContainer = darken(darkColorTertiary, 0.6f),
+        onPrimaryContainer = lighten(darkColorPrimary, 0.6f),
+        onSecondaryContainer = lighten(darkColorSecondary, 0.6f),
+        onTertiaryContainer = lighten(darkColorTertiary, 0.6f),
         outline = Silver,
     )
 }
@@ -34,14 +42,22 @@ private fun createDarkColorPalette(baseColor: BaseColor): MaterialColorScheme {
 private fun createLightColorPalette(baseColor: BaseColor): MaterialColorScheme {
     val lightColorPrimary = getColorFromBaseColor(baseColor, false)
     val onLightColorPrimary = contrasting(lightColorPrimary)
+    val lightColorSecondary = lighten(shift(lightColorPrimary, 45), 0.1f)
+    val lightColorTertiary = lighten(shift(lightColorPrimary, 75), 0.25f)
 
     return lightColorScheme(
         primary = lightColorPrimary,
-        secondary = lighten(shift(lightColorPrimary, 45), 0.1f),
-        tertiary = lighten(shift(lightColorPrimary, 90), 0.2f),
+        secondary = lightColorSecondary,
+        tertiary = lightColorTertiary,
         onPrimary = onLightColorPrimary,
         onSecondary = darken(onLightColorPrimary, 0.1f),
         onTertiary = darken(onLightColorPrimary, 0.2f),
+        primaryContainer = lighten(lightColorPrimary, 0.6f),
+        secondaryContainer = lighten(lightColorSecondary, 0.6f),
+        tertiaryContainer = lighten(lightColorTertiary, 0.6f),
+        onPrimaryContainer = darken(lightColorPrimary, 0.6f),
+        onSecondaryContainer = darken(lightColorSecondary, 0.6f),
+        onTertiaryContainer = darken(lightColorTertiary, 0.6f),
         outline = Gold,
     )
 }
