@@ -55,7 +55,7 @@ fun lighten(color: Color, fraction: Float): Color {
 fun shift(color: Color, degrees: Int): Color {
     val degrees = degrees % 360 // Ensure degrees is in range
     // Convert to HSL
-    var hsl = FloatArray(3)
+    val hsl = FloatArray(3)
     ColorUtils.colorToHSL(color.toArgb(), hsl)
     // Shift hue
     hsl[0] = (hsl[0] + degrees + 360) % 360

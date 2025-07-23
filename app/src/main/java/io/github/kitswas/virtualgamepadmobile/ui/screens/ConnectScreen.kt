@@ -59,7 +59,7 @@ private fun getPort(qrCode: String): String {
 }
 
 @Suppress("DEPRECATION")
-fun validateIP(ipAddress: String): Boolean {
+private fun validateIP(ipAddress: String): Boolean {
     return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
         InetAddresses.isNumericAddress(ipAddress)
     } else {
@@ -67,7 +67,7 @@ fun validateIP(ipAddress: String): Boolean {
     }
 }
 
-fun validatePort(port: String): Boolean {
+private fun validatePort(port: String): Boolean {
     val minPort = 1
     val maxPort = 65535
     return port.toIntOrNull().let { it != null && it in minPort..maxPort }
@@ -94,7 +94,7 @@ fun ConnectMenu(
 ) {
     val snackbarHostState = remember { SnackbarHostState() }
     val scope = rememberCoroutineScope()
-    
+
     val qrCodeScanner = rememberQRCodeScanner { result ->
         when (result) {
             is QRScanResult.Success -> {

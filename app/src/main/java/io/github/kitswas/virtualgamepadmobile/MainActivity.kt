@@ -49,7 +49,7 @@ class MainActivity : ComponentActivity() {
     }
 
     @Composable
-    fun AppUI(
+    private fun AppUI(
         connectionViewModel: ConnectionViewModel,
         settingsRepository: SettingsRepository,
     ) {
@@ -77,7 +77,7 @@ class MainActivity : ComponentActivity() {
     }
 
     @Composable
-    fun NavTree(
+    private fun NavTree(
         connectionViewModel: ConnectionViewModel,
         settingsRepository: SettingsRepository,
         navController: NavHostController = rememberNavController(),
