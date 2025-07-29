@@ -8,3 +8,5 @@ It is a part of [the VirtualGamePad project](https://kitswas.github.io/VirtualGa
 
 > [!NOTE]  
 > I am not an experienced mobile developer. Help is appreciated.
+
+[![Get it on F-Droid](https://f-droid.org/badge/get-it-on.png)](https://f-droid.org/packages/io.github.kitswas.virtualgamepadmobile/)
