@@ -12,6 +12,8 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.tooling.preview.Devices.DESKTOP
+import androidx.compose.ui.tooling.preview.Devices.TABLET
 import androidx.compose.ui.tooling.preview.Preview
 import io.github.kitswas.VGP_Data_Exchange.GamepadReading
 import io.github.kitswas.virtualgamepadmobile.data.PreviewBase
@@ -124,24 +126,55 @@ fun GamePad(
     }
 }
 
+@Retention(AnnotationRetention.BINARY)
+@Target(AnnotationTarget.ANNOTATION_CLASS, AnnotationTarget.FUNCTION)
 @Preview(
-    widthDp = PreviewWidthDp,
-    heightDp = PreviewHeightDp,
+    name = "Design Preview (Light)",
+    device = "spec:width=${PreviewWidthDp}dp,height=${PreviewHeightDp}dp,orientation=landscape,dpi=420",
 )
+@Preview(
+    name = "Design Preview (Dark)",
+    device = "spec:width=${PreviewWidthDp}dp,height=${PreviewHeightDp}dp,orientation=landscape,dpi=420",
+    uiMode = Configuration.UI_MODE_NIGHT_YES or Configuration.UI_MODE_TYPE_NORMAL
+)
+@Preview(
+    name = "Phone - Landscape (Light)",
+    device = "spec:width=411dp,height=891dp,orientation=landscape,dpi=420",
+    showSystemUi = true
+)
+@Preview(
+    name = "Phone - Landscape (Dark)",
+    device = "spec:width=411dp,height=891dp,orientation=landscape,dpi=420",
+    showSystemUi = true,
+    uiMode = Configuration.UI_MODE_NIGHT_YES or Configuration.UI_MODE_TYPE_NORMAL
+)
+@Preview(
+    name = "Tablet (Light)",
+    device = TABLET,
+    showSystemUi = true
+)
+@Preview(
+    name = "Tablet (Dark)",
+    device = TABLET,
+    showSystemUi = true,
+    uiMode = Configuration.UI_MODE_NIGHT_YES or Configuration.UI_MODE_TYPE_NORMAL
+)
+@Preview(
+    name = "Desktop (Light)",
+    device = DESKTOP,
+    showSystemUi = true
+)
+@Preview(
+    name = "Desktop (Dark)",
+    device = DESKTOP,
+    showSystemUi = true,
+    uiMode = Configuration.UI_MODE_NIGHT_YES or Configuration.UI_MODE_TYPE_NORMAL
+)
+annotation class MultiDevicePreview
+
+@MultiDevicePreview
 @Composable
 fun GamePadPreview() {
-    PreviewBase {
-        GamePad(null) {}
-    }
-}
-
-@Preview(
-    widthDp = PreviewWidthDp,
-    heightDp = PreviewHeightDp,
-    uiMode = Configuration.UI_MODE_NIGHT_YES
-)
-@Composable
-private fun GamePadPreviewNight() {
     PreviewBase {
         GamePad(null) {}
     }

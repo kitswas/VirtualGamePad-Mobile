@@ -54,6 +54,11 @@ fun DrawGamepad(
                     size = (0.45 * baseDp).dp,
                     gamepadState = gamepadState,
                 )
+                Trigger(
+                    type = TriggerType.LEFT,
+                    size = (baseDp / 6).dp,
+                    gamepadState = gamepadState,
+                )
             }
             Box(
                 modifier = Modifier.fillMaxSize(),
@@ -76,6 +81,11 @@ fun DrawGamepad(
                     innerCircleRadius = (baseDp / 12).dp,
                     gamepadState = gamepadState,
                     type = AnalogStickType.RIGHT,
+                )
+                Trigger(
+                    type = TriggerType.RIGHT,
+                    size = (baseDp / 6).dp,
+                    gamepadState = gamepadState,
                 )
             }
             CentralButtons(
