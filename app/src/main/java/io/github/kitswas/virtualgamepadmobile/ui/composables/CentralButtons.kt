@@ -6,8 +6,10 @@ import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.collectIsPressedAsState
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material3.Button
@@ -44,6 +46,7 @@ enum class MenuButtonType {
 fun ShoulderButton(
     type: ShoulderButtonType,
     modifier: Modifier = Modifier,
+    size: Dp,
     gamepadState: GamepadReading,
 ) {
     val view = LocalView.current
@@ -77,7 +80,9 @@ fun ShoulderButton(
     }
 
     Button(
-        modifier = modifier,
+        modifier = modifier
+            .heightIn(min = size)
+            .widthIn(min = size * 1.5f),
         border = BorderStroke(2.dp, MaterialTheme.colorScheme.outline),
         onClick = { },
         interactionSource = interactionSource,
@@ -124,7 +129,7 @@ fun MenuButton(
     }
 
     OutlinedIconButton(
-        modifier = modifier,
+        modifier = modifier.size(size),
         border = BorderStroke(2.dp, MaterialTheme.colorScheme.outline),
         onClick = { },
         interactionSource = interactionSource,
@@ -157,6 +162,7 @@ fun CentralButtons(
             modifier = Modifier.offset(
                 x = -(baseDp / 4).dp, y = 0.dp
             ),
+            size = (baseDp / 8).dp,
             gamepadState = gamepadState,
         )
 
@@ -165,6 +171,7 @@ fun CentralButtons(
             modifier = Modifier.offset(
                 x = (baseDp / 4).dp, y = 0.dp
             ),
+            size = (baseDp / 8).dp,
             gamepadState = gamepadState,
         )
 
@@ -172,7 +179,6 @@ fun CentralButtons(
         MenuButton(
             type = MenuButtonType.VIEW,
             modifier = Modifier
-                .size((baseDp / 8).dp)
                 .offset(
                     x = -(baseDp / 4).dp, y = (baseDp / 4).dp
                 ),
@@ -183,7 +189,6 @@ fun CentralButtons(
         MenuButton(
             type = MenuButtonType.MENU,
             modifier = Modifier
-                .size((baseDp / 8).dp)
                 .offset(
                     x = (baseDp / 4).dp, y = (baseDp / 4).dp
                 ),
