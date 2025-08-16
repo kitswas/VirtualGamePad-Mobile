@@ -3,19 +3,19 @@
 android-gradle-plugin = "8.11.1"
 
 # Kotlin
-kotlin = "2.2.0"
-kotlin-parcelize = "2.2.0"
+kotlin = "2.2.10"
+kotlin-parcelize = "2.2.10"
 
 # AndroidX Core
-androidx-core-ktx = "1.16.0"
+androidx-core-ktx = "1.17.0"
 androidx-lifecycle = "2.9.2"
 androidx-activity-compose = "1.10.1"
 androidx-window = "1.4.0"
 androidx-datastore = "1.1.7"
 
 # Compose
-compose-bom = "2025.07.00"
-compose-navigation = "2.9.2"
+compose-bom = "2025.08.00"
+compose-navigation = "2.9.3"
 
 # QR Code Scanner
 zxing-android-embedded = "4.3.0"
