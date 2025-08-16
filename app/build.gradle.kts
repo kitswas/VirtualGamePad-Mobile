@@ -109,49 +109,37 @@ if (propFile.canRead()) {
 }
 
 dependencies {
-    // Compose BOM
-    implementation(platform(libs.compose.bom))
-    testImplementation(platform(libs.compose.bom))
-    androidTestImplementation(platform(libs.compose.bom))
-
-    // Core Libraries
-    coreLibraryDesugaring(libs.desugar.jdk.libs)
-    implementation(libs.androidx.window)
-
-    // AndroidX Core
-    implementation(libs.androidx.core.ktx)
-    implementation(libs.androidx.lifecycle.runtime.ktx)
+    // Implementation dependencies
     implementation(libs.androidx.activity.compose)
-
-    // Compose UI
+    implementation(libs.androidx.core.ktx)
+    implementation(libs.androidx.datastore.preferences)
+    implementation(libs.androidx.lifecycle.runtime.ktx)
+    implementation(libs.androidx.window)
     implementation(libs.compose.ui)
     implementation(libs.compose.ui.tooling.preview)
-
-    // Testing
-    testImplementation(libs.junit)
-    testImplementation(libs.kotlinx.coroutines.test)
-    androidTestImplementation(libs.compose.ui.test.junit4)
-    debugImplementation(libs.compose.ui.tooling)
-    debugImplementation(libs.compose.ui.test.manifest)
-
-    // Navigation
-    implementation(libs.navigation.fragment.ktx)
-    implementation(libs.navigation.ui.ktx)
-    // Testing Navigation
-    androidTestImplementation(libs.navigation.testing)
-    // Jetpack Compose Integration
-    implementation(libs.navigation.compose)
-
-    // QR Code Scanner
-    implementation(libs.zxing.android.embedded)
-    implementation(libs.zxing.core)
-
-    // Material3
     implementation(libs.material3)
     implementation(libs.material3.window.size)
+    implementation(libs.navigation.compose)
+    implementation(libs.navigation.fragment.ktx)
+    implementation(libs.navigation.ui.ktx)
+    implementation(libs.zxing.android.embedded)
+    implementation(libs.zxing.core)
+    implementation(platform(libs.compose.bom))
+    coreLibraryDesugaring(libs.desugar.jdk.libs)
 
-    // Datastore
-    implementation(libs.androidx.datastore.preferences)
+    // Test dependencies
+    testImplementation(libs.junit)
+    testImplementation(libs.kotlinx.coroutines.test)
+    testImplementation(platform(libs.compose.bom))
+
+    // AndroidTest dependencies
+    androidTestImplementation(libs.compose.ui.test.junit4)
+    androidTestImplementation(libs.navigation.testing)
+    androidTestImplementation(platform(libs.compose.bom))
+
+    // Debug dependencies
+    debugImplementation(libs.compose.ui.test.manifest)
+    debugImplementation(libs.compose.ui.tooling)
 }
 
 val updateVGPDataExchangePackage by tasks.registering(ProcessResources::class) {
