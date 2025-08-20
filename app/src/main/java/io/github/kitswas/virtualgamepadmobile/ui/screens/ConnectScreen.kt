@@ -87,6 +87,60 @@ private fun attemptToConnect(
     }
 }
 
+private fun processQRScanResult(
+    result: QRScanResult,
+    onNavigateToConnectingScreen: (String, String) -> Unit,
+    snackbarHostState: SnackbarHostState,
+    scope: CoroutineScope
+) {
+    when (result) {
+        is QRScanResult.Success -> {
+            try {
+                val qrCode = result.content
+                Log.d(LOG_TAG, qrCode)
+                val ipAddress = getIP(qrCode)
+                val port = getPort(qrCode)
+
+                if (validateIP(ipAddress) && validatePort(port)) {
+                    // Navigate to the connecting screen with the IP and port
+                    onNavigateToConnectingScreen(ipAddress, port)
+                } else {
+                    scope.launch {
+                        snackbarHostState.showSnackbar(
+                            message = "Invalid QR Code format",
+                        )
+                    }
+                }
+            } catch (e: Exception) {
+                scope.launch {
+                    snackbarHostState.showSnackbar(
+                        message = "Error processing QR Code: ${e.message ?: e.toString()}",
+                    )
+                }
+            }
+        }
+
+        is QRScanResult.Error -> {
+            scope.launch {
+                snackbarHostState.showSnackbar(
+                    message = "Error scanning QR Code: ${result.message}",
+                )
+            }
+        }
+
+        is QRScanResult.PermissionDenied -> {
+            scope.launch {
+                snackbarHostState.showSnackbar(
+                    message = "Camera permission is required to scan QR Codes",
+                )
+            }
+        }
+
+        is QRScanResult.Cancelled -> { // User canceled the QR code scan
+        }
+    }
+}
+
 @Composable
 fun ConnectMenu(
     onNavigateToConnectingScreen: (String, String) -> Unit,
@@ -96,51 +150,12 @@ fun ConnectMenu(
     val scope = rememberCoroutineScope()
 
     val qrCodeScanner = rememberQRCodeScanner { result ->
-        when (result) {
-            is QRScanResult.Success -> {
-                try {
-                    val qrCode = result.content
-                    Log.d(LOG_TAG, qrCode)
-                    val ipAddress = getIP(qrCode)
-                    val port = getPort(qrCode)
-
-                    if (validateIP(ipAddress) && validatePort(port)) {
-                        // Navigate to the connecting screen with the IP and port
-                        onNavigateToConnectingScreen(ipAddress, port)
-                    } else {
-                        scope.launch {
-                            snackbarHostState.showSnackbar(
-                                message = "Invalid QR Code format",
-                            )
-                        }
-                    }
-                } catch (e: Exception) {
-                    scope.launch {
-                        snackbarHostState.showSnackbar(
-                            message = "Error processing QR Code: ${e.message ?: e.toString()}",
-                        )
-                    }
-                }
-            }
-
-            is QRScanResult.Error -> {
-                scope.launch {
-                    snackbarHostState.showSnackbar(
-                        message = "Error scanning QR Code: ${result.message}",
-                    )
-                }
-            }
-
-            is QRScanResult.PermissionDenied -> {
-                scope.launch {
-                    snackbarHostState.showSnackbar(
-                        message = "Camera permission is required to scan QR Codes",
-                    )
-                }
-            }
-
-            is QRScanResult.Cancelled -> {} // User canceled the QR code scan
-        }
+        processQRScanResult(
+            result,
+            onNavigateToConnectingScreen = onNavigateToConnectingScreen,
+            snackbarHostState = snackbarHostState,
+            scope = scope
+        )
     }
 
     Scaffold(
