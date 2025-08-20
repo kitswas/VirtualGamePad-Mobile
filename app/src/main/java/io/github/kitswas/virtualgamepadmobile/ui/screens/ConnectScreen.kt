@@ -1,5 +1,6 @@
 package io.github.kitswas.virtualgamepadmobile.ui.screens
 
+import android.content.Intent
 import android.net.InetAddresses
 import android.os.Build
 import android.util.Log
@@ -7,11 +8,14 @@ import android.util.Patterns
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.Button
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarDuration
 import androidx.compose.material3.SnackbarHost
@@ -29,10 +33,12 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusDirection
 import androidx.compose.ui.graphics.RectangleShape
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.core.net.toUri
 import io.github.kitswas.virtualgamepadmobile.data.PreviewBase
 import io.github.kitswas.virtualgamepadmobile.data.PreviewHeightDp
 import io.github.kitswas.virtualgamepadmobile.data.PreviewWidthDp
@@ -148,6 +154,8 @@ fun ConnectMenu(
 ) {
     val snackbarHostState = remember { SnackbarHostState() }
     val scope = rememberCoroutineScope()
+    val context = LocalContext.current
+    val downloadsUrl = "https://kitswas.github.io/VirtualGamePad/#installation"
 
     val qrCodeScanner = rememberQRCodeScanner { result ->
         processQRScanResult(
@@ -176,6 +184,7 @@ fun ConnectMenu(
             var isIPValid by rememberSaveable { mutableStateOf(false) }
             var isPortValid by rememberSaveable { mutableStateOf(false) }
             val focusManager = LocalFocusManager.current
+
             Button(onClick = { qrCodeScanner() }, shape = CircleShape) {
                 Text(text = "Scan QR Code")
             }
@@ -259,6 +268,16 @@ fun ConnectMenu(
                 enabled = isIPValid && isPortValid,
             ) {
                 Text(text = "Connect")
+            }
+
+            OutlinedButton(
+                modifier = Modifier.offset(y = 16.dp),
+                shape = MaterialTheme.shapes.small,
+                onClick = {
+                    val intent = Intent(Intent.ACTION_VIEW, downloadsUrl.toUri())
+                    context.startActivity(intent)
+                }) {
+                Text(text = "Download Server", style = MaterialTheme.typography.labelSmall)
             }
         }
     }
