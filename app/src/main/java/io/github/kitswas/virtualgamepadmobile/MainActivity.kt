@@ -95,8 +95,7 @@ class MainActivity : ComponentActivity() {
                 ConnectMenu(
                     onNavigateToConnectingScreen = { ipAddress, port ->
                         navController.navigate("connecting_screen/$ipAddress/$port")
-                    },
-                    connectionViewModel = connectionViewModel
+                    }
                 )
             }
             composable(

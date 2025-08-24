@@ -42,12 +42,9 @@ import androidx.core.net.toUri
 import io.github.kitswas.virtualgamepadmobile.data.PreviewBase
 import io.github.kitswas.virtualgamepadmobile.data.PreviewHeightDp
 import io.github.kitswas.virtualgamepadmobile.data.PreviewWidthDp
-import io.github.kitswas.virtualgamepadmobile.network.ConnectionViewModel
 import io.github.kitswas.virtualgamepadmobile.ui.components.QRScanResult
 import io.github.kitswas.virtualgamepadmobile.ui.components.rememberQRCodeScanner
-import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
 const val LOG_TAG = "ConnectMenu"
@@ -77,20 +74,6 @@ private fun validatePort(port: String): Boolean {
     val minPort = 1
     val maxPort = 65535
     return port.toIntOrNull().let { it != null && it in minPort..maxPort }
-}
-
-private fun attemptToConnect(
-    connectionViewModel: ConnectionViewModel?,
-    ipAddress: String,
-    port: String,
-    exceptionHandler: CoroutineExceptionHandler
-) {
-    if (connectionViewModel != null) {
-        CoroutineScope(Dispatchers.IO + exceptionHandler).launch {
-            connectionViewModel.connect(ipAddress, port.toInt())
-            // The connection state will be updated in the ViewModel
-        }
-    }
 }
 
 private fun processQRScanResult(
@@ -149,8 +132,7 @@ private fun processQRScanResult(
 
 @Composable
 fun ConnectMenu(
-    onNavigateToConnectingScreen: (String, String) -> Unit,
-    connectionViewModel: ConnectionViewModel?
+    onNavigateToConnectingScreen: (String, String) -> Unit
 ) {
     val snackbarHostState = remember { SnackbarHostState() }
     val scope = rememberCoroutineScope()
@@ -184,6 +166,25 @@ fun ConnectMenu(
             var isIPValid by rememberSaveable { mutableStateOf(false) }
             var isPortValid by rememberSaveable { mutableStateOf(false) }
             val focusManager = LocalFocusManager.current
+
+            fun attemptToConnect() {
+                if (isIPValid && isPortValid) {
+                    // Navigate to the connecting screen with the IP and port
+                    onNavigateToConnectingScreen(ipAddress, port)
+                } else {
+                    scope.launch {
+                        val errorMessage = when {
+                            !isIPValid -> "Invalid IP address format"
+                            !isPortValid -> "Invalid port number (must be between 1-65535)"
+                            else -> "Invalid connection parameters"
+                        }
+                        snackbarHostState.showSnackbar(
+                            message = errorMessage,
+                            duration = SnackbarDuration.Short
+                        )
+                    }
+                }
+            }
 
             Button(onClick = { qrCodeScanner() }, shape = CircleShape) {
                 Text(text = "Scan QR Code")
@@ -224,20 +225,7 @@ fun ConnectMenu(
                 keyboardActions = KeyboardActions(
                     onDone = {
                         focusManager.clearFocus()
-                        attemptToConnect(
-                            connectionViewModel,
-                            ipAddress,
-                            port,
-                            CoroutineExceptionHandler { _, e ->
-                                scope.launch {
-                                    snackbarHostState.showSnackbar(
-                                        duration = SnackbarDuration.Short,
-                                        message = e.message
-                                            ?: "Failed to connect to server: ${e.cause}",
-                                    )
-                                }
-                            }
-                        )
+                        attemptToConnect()
                     }
                 ),
                 shape = RectangleShape,
@@ -246,24 +234,7 @@ fun ConnectMenu(
             )
 
             Button(
-                onClick = {
-                    if (isIPValid && isPortValid) {
-                        // Navigate to the connecting screen with the IP and port
-                        onNavigateToConnectingScreen(ipAddress, port)
-                    } else {
-                        scope.launch {
-                            val errorMessage = when {
-                                !isIPValid -> "Invalid IP address format"
-                                !isPortValid -> "Invalid port number (must be between 1-65535)"
-                                else -> "Invalid connection parameters"
-                            }
-                            snackbarHostState.showSnackbar(
-                                message = errorMessage,
-                                duration = SnackbarDuration.Short
-                            )
-                        }
-                    }
-                },
+                onClick = { attemptToConnect() },
                 shape = CircleShape,
                 enabled = isIPValid && isPortValid,
             ) {
@@ -291,8 +262,7 @@ fun ConnectMenu(
 fun ConnectMenuPreview() {
     PreviewBase {
         ConnectMenu(
-            onNavigateToConnectingScreen = { _, _ -> },
-            connectionViewModel = null
+            onNavigateToConnectingScreen = { _, _ -> }
         )
     }
 }
