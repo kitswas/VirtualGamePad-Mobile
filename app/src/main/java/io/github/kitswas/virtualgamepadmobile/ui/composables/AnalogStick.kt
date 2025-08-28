@@ -1,6 +1,7 @@
 package io.github.kitswas.virtualgamepadmobile.ui.composables
 
 import androidx.compose.foundation.gestures.detectDragGestures
+import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.size
@@ -8,6 +9,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -20,6 +22,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
+import io.github.kitswas.VGP_Data_Exchange.GameButtons
 import io.github.kitswas.VGP_Data_Exchange.GamepadReading
 import io.github.kitswas.virtualgamepadmobile.ui.theme.darken
 import io.github.kitswas.virtualgamepadmobile.ui.theme.lighten
@@ -100,6 +103,8 @@ fun AnalogStick(
                 val maxOffset = with(density) {
                     (innerCircleRadius + outerCircleWidth).toPx()
                 }
+
+                var isPressed by remember { mutableStateOf(false) }
 
                 // Then draw the inner circle
                 Circle(
@@ -187,6 +192,31 @@ fun AnalogStick(
                                                 gamepadState.RightThumbstickY = squareY
                                             }
                                         }
+                                    }
+                                }
+                            )
+                        }
+                        .pointerInput(Unit) {
+                            detectTapGestures(
+                                onLongPress = { _ ->
+                                    if (!isPressed) {
+                                        isPressed = true
+                                        gamepadState.ButtonsDown = when (type) {
+                                            AnalogStickType.LEFT -> gamepadState.ButtonsDown or GameButtons.LeftThumbstick.value
+                                            AnalogStickType.RIGHT -> gamepadState.ButtonsDown or GameButtons.RightThumbstick.value
+                                        }
+                                        HapticUtils.performButtonPressFeedback(view)
+                                    } else {
+                                        isPressed = false
+                                        gamepadState.ButtonsDown = when (type) {
+                                            AnalogStickType.LEFT -> gamepadState.ButtonsDown and GameButtons.LeftThumbstick.value.inv()
+                                            AnalogStickType.RIGHT -> gamepadState.ButtonsDown and GameButtons.RightThumbstick.value.inv()
+                                        }
+                                        gamepadState.ButtonsUp = when (type) {
+                                            AnalogStickType.LEFT -> gamepadState.ButtonsUp or GameButtons.LeftThumbstick.value
+                                            AnalogStickType.RIGHT -> gamepadState.ButtonsUp or GameButtons.RightThumbstick.value
+                                        }
+                                        HapticUtils.performGestureEndFeedback(view)
                                     }
                                 }
                             )
