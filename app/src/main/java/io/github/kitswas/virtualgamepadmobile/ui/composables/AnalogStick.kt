@@ -71,6 +71,10 @@ fun AnalogStick(
                 var offsetX by remember { mutableFloatStateOf(0f) }
                 var offsetY by remember { mutableFloatStateOf(0f) }
 
+                // Visual position values (calculated once and reused)
+                var visualX by remember { mutableFloatStateOf(0f) }
+                var visualY by remember { mutableFloatStateOf(0f) }
+
                 // Calculate maximum offset once
                 val maxOffset = with(density) {
                     (innerCircleRadius + outerCircleWidth).toPx()
@@ -84,12 +88,6 @@ fun AnalogStick(
                     modifier = Modifier
                         .size(innerCircleRadius * 2)
                         .offset {
-                            val magnitude = sqrt(offsetX * offsetX + offsetY * offsetY)
-                            val scaleFactor =
-                                if (magnitude > maxOffset) maxOffset / magnitude else 1f
-                            val visualX = offsetX * scaleFactor
-                            val visualY = offsetY * scaleFactor
-
                             IntOffset(
                                 visualX.roundToInt(),
                                 visualY.roundToInt()
@@ -104,6 +102,8 @@ fun AnalogStick(
                                     // Reset position
                                     offsetX = 0f
                                     offsetY = 0f
+                                    visualX = 0f
+                                    visualY = 0f
 
                                     // Update gamepad state
                                     when (type) {
@@ -140,13 +140,13 @@ fun AnalogStick(
                                         )
                                     }
 
-                                    // Only update UI when magnitude > 0
+                                    // Only update when magnitude > 0
                                     if (magnitude > 0f) {
-                                        // Normalize with max offset
+                                        // Normalize with max offset (calculate once and reuse)
                                         val scaleFactor =
                                             if (magnitude > maxOffset) maxOffset / magnitude else 1f
-                                        val visualX = offsetX * scaleFactor
-                                        val visualY = offsetY * scaleFactor
+                                        visualX = offsetX * scaleFactor
+                                        visualY = offsetY * scaleFactor
 
                                         when (type) {
                                             AnalogStickType.LEFT -> {
