@@ -27,39 +27,11 @@ import io.github.kitswas.VGP_Data_Exchange.GamepadReading
 import io.github.kitswas.virtualgamepadmobile.ui.theme.darken
 import io.github.kitswas.virtualgamepadmobile.ui.theme.lighten
 import io.github.kitswas.virtualgamepadmobile.ui.utils.HapticUtils
-import kotlin.math.abs
-import kotlin.math.min
 import kotlin.math.roundToInt
 import kotlin.math.sqrt
 
 enum class AnalogStickType {
     LEFT, RIGHT
-}
-
-/**
- * Converts a circular position (x,y with radius=1) to square coordinates
- * This allows diagonal movement to reach (1,1) instead of (0.71,0.71)
- */
-private fun circleToSquare(x: Float, y: Float): Pair<Float, Float> {
-    // Fast path for common cases
-    if (x == 0f && y == 0f) return Pair(0f, 0f)
-
-    val magnitude = sqrt(x * x + y * y)
-    if (magnitude == 0f) return Pair(0f, 0f)
-
-    // Normalize coordinates
-    val nx = x / magnitude
-    val ny = y / magnitude
-
-    // Calculate scaling factor - simplified to avoid multiple abs calls
-    val scale = if (abs(nx) > abs(ny)) 1f / abs(nx) else 1f / abs(ny)
-
-    // Apply magnitude limits and return
-    val clampedMagnitude = min(magnitude, 1f)
-    return Pair(
-        nx * scale * clampedMagnitude,
-        ny * scale * clampedMagnitude
-    )
 }
 
 @Composable
@@ -171,25 +143,20 @@ fun AnalogStick(
                                     // Only update UI when magnitude > 0
                                     if (magnitude > 0f) {
                                         // Normalize with max offset
-                                        val normalizedX = (offsetX / maxOffset).coerceIn(-1f, 1f)
-                                        val normalizedY = (offsetY / maxOffset).coerceIn(-1f, 1f)
+                                        val scaleFactor =
+                                            if (magnitude > maxOffset) maxOffset / magnitude else 1f
+                                        val visualX = offsetX * scaleFactor
+                                        val visualY = offsetY * scaleFactor
 
-                                        // Calculate circle-to-square mapping only when updating gamepad state
-                                        val (squareX, squareY) = circleToSquare(
-                                            normalizedX,
-                                            normalizedY
-                                        )
-
-                                        // Update gamepad state
                                         when (type) {
                                             AnalogStickType.LEFT -> {
-                                                gamepadState.LeftThumbstickX = squareX
-                                                gamepadState.LeftThumbstickY = squareY
+                                                gamepadState.LeftThumbstickX = visualX / maxOffset
+                                                gamepadState.LeftThumbstickY = visualY / maxOffset
                                             }
 
                                             AnalogStickType.RIGHT -> {
-                                                gamepadState.RightThumbstickX = squareX
-                                                gamepadState.RightThumbstickY = squareY
+                                                gamepadState.RightThumbstickX = visualX / maxOffset
+                                                gamepadState.RightThumbstickY = visualY / maxOffset
                                             }
                                         }
                                     }
