@@ -125,6 +125,7 @@ dependencies {
     implementation(libs.zxing.android.embedded)
     implementation(libs.zxing.core)
     implementation(platform(libs.compose.bom))
+    testImplementation(libs.robolectric)
     coreLibraryDesugaring(libs.desugar.jdk.libs)
 
     // Test dependencies

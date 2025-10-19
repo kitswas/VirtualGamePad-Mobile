@@ -28,6 +28,7 @@ kotlinx-coroutines-test = "1.10.2"
 # Tools
 desugar-jdk-libs = "2.1.5"
 dokka = "2.0.0"
+robolectric = "4.15.1"
 
 [libraries]
 # AndroidX Core
@@ -69,6 +70,7 @@ desugar-jdk-libs = { group = "com.android.tools", name = "desugar_jdk_libs", ver
 # Testing
 junit = { group = "junit", name = "junit", version.ref = "junit" }
 kotlinx-coroutines-test = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-test", version.ref = "kotlinx-coroutines-test" }
+robolectric = { group = "org.robolectric", name = "robolectric", version.ref = "robolectric" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "android-gradle-plugin" }
