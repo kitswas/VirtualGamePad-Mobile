@@ -10,8 +10,6 @@ import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.widthIn
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material3.Button
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -25,6 +23,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalView
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
@@ -103,9 +102,9 @@ fun MenuButton(
         MenuButtonType.VIEW -> GameButtons.View
         MenuButtonType.MENU -> GameButtons.Menu
     }
-    val icon = when (type) {
-        MenuButtonType.VIEW -> ImageVector.vectorResource(R.drawable.screenicon)
-        MenuButtonType.MENU -> Icons.Default.Menu
+    val iconPainter = when (type) {
+        MenuButtonType.VIEW -> null
+        MenuButtonType.MENU -> painterResource(R.drawable.ic_menu)
     }
 
     val interactionSource = remember { MutableInteractionSource() }
@@ -134,12 +133,21 @@ fun MenuButton(
         onClick = { },
         interactionSource = interactionSource,
     ) {
-        Icon(
-            imageVector = icon,
-            contentDescription = "${gameButton.name} Button",
-            modifier = Modifier.size(size / 2),
-            tint = MaterialTheme.colorScheme.primary
-        )
+        if (iconPainter != null) {
+            Icon(
+                painter = iconPainter,
+                contentDescription = "${gameButton.name} Button",
+                modifier = Modifier.size(size / 2),
+                tint = MaterialTheme.colorScheme.primary
+            )
+        } else {
+            Icon(
+                imageVector = ImageVector.vectorResource(R.drawable.screenicon),
+                contentDescription = "${gameButton.name} Button",
+                modifier = Modifier.size(size / 2),
+                tint = MaterialTheme.colorScheme.primary
+            )
+        }
     }
 }
 

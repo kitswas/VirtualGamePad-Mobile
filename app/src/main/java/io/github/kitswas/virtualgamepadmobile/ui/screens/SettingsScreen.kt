@@ -8,8 +8,8 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Info
+import androidx.compose.ui.res.painterResource
+import io.github.kitswas.virtualgamepadmobile.R
 import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -129,7 +129,7 @@ fun SettingsScreen(
                         scope.launch { toolTipState.show() }
                     }) {
                         Icon(
-                            imageVector = Icons.Filled.Info,
+                            painter = painterResource(R.drawable.ic_info),
                             contentDescription = "Information about polling interval",
                             tint = MaterialTheme.colorScheme.secondary,
                         )

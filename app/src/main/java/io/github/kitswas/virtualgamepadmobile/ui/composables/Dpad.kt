@@ -7,8 +7,8 @@ import androidx.compose.foundation.interaction.collectIsPressedAsState
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.PlayArrow
+import androidx.compose.ui.res.painterResource
+import io.github.kitswas.virtualgamepadmobile.R
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.MaterialTheme
@@ -86,7 +86,7 @@ fun DpadButton(
         interactionSource = interactionSource,
     ) {
         Icon(
-            imageVector = Icons.Default.PlayArrow,
+            painter = painterResource(R.drawable.ic_play_arrow),
             contentDescription = "Dpad Button ${type.name}",
             modifier = Modifier
                 .rotate(rotation)
