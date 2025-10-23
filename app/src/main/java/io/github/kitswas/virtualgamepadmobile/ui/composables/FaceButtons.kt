@@ -91,6 +91,7 @@ fun FaceButton(
             text = type.name,
             color = foregroundColour,
             textAlign = TextAlign.Center,
+            fontWeight = androidx.compose.ui.text.font.FontWeight.ExtraBold,
         )
     }
 }
