@@ -3,19 +3,18 @@
 android-gradle-plugin = "8.11.1"
 
 # Kotlin
-kotlin = "2.2.10"
-kotlin-parcelize = "2.2.10"
+kotlin = "2.2.21"
 
 # AndroidX Core
 androidx-core-ktx = "1.17.0"
-androidx-lifecycle = "2.9.2"
-androidx-activity-compose = "1.10.1"
-androidx-window = "1.4.0"
+androidx-lifecycle = "2.9.4"
+androidx-activity-compose = "1.11.0"
+androidx-window = "1.5.0"
 androidx-datastore = "1.1.7"
 
 # Compose
-compose-bom = "2025.08.00"
-compose-navigation = "2.9.3"
+compose-bom = "2025.09.00"
+compose-navigation = "2.9.5"
 
 # QR Code Scanner
 zxing-android-embedded = "4.3.0"
@@ -27,8 +26,8 @@ kotlinx-coroutines-test = "1.10.2"
 
 # Tools
 desugar-jdk-libs = "2.1.5"
-dokka = "2.0.0"
-robolectric = "4.15.1"
+dokka = "2.1.0"
+robolectric = "4.16"
 
 [libraries]
 # AndroidX Core
@@ -78,5 +77,5 @@ android-library = { id = "com.android.library", version.ref = "android-gradle-pl
 kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
 kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
 kotlin-compose = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
-kotlin-parcelize = { id = "org.jetbrains.kotlin.plugin.parcelize", version.ref = "kotlin-parcelize" }
+kotlin-parcelize = { id = "org.jetbrains.kotlin.plugin.parcelize", version.ref = "kotlin" }
 dokka = { id = "org.jetbrains.dokka", version.ref = "dokka" }
