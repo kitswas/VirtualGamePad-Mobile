@@ -4,6 +4,8 @@ import androidx.compose.material3.Typography
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import io.github.kitswas.virtualgamepadmobile.R
 
@@ -55,3 +57,17 @@ val Typography = Typography(
         fontSize = 24.sp
     ),
 )
+
+// Helper function to get a TextStyle for Face Buttons based on size
+fun faceButtonTextStyle(size: Dp): TextStyle {
+    val threshold = 20.dp
+    val fontSize = when {
+        size < threshold -> (size.value * 0.6).sp
+        else -> (size.value * 0.4).sp
+    }
+    return TextStyle(
+        fontFamily = FontFamily(androidx.compose.ui.text.font.Font(R.font.astro_space)),
+        fontWeight = FontWeight.Bold,
+        fontSize = fontSize
+    )
+}

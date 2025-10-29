@@ -28,6 +28,7 @@ import io.github.kitswas.VGP_Data_Exchange.GameButtons
 import io.github.kitswas.VGP_Data_Exchange.GamepadReading
 import io.github.kitswas.virtualgamepadmobile.data.PreviewBase
 import io.github.kitswas.virtualgamepadmobile.ui.theme.darken
+import io.github.kitswas.virtualgamepadmobile.ui.theme.faceButtonTextStyle
 import io.github.kitswas.virtualgamepadmobile.ui.theme.lighten
 import io.github.kitswas.virtualgamepadmobile.ui.utils.HapticUtils
 
@@ -91,7 +92,7 @@ fun FaceButton(
             text = type.name,
             color = foregroundColour,
             textAlign = TextAlign.Center,
-            fontWeight = androidx.compose.ui.text.font.FontWeight.ExtraBold,
+            style = faceButtonTextStyle(size),
         )
     }
 }
