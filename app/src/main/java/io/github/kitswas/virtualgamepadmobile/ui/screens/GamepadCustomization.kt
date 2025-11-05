@@ -1,6 +1,8 @@
 package io.github.kitswas.virtualgamepadmobile.ui.screens
 
+import android.annotation.SuppressLint
 import android.util.Log
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -21,9 +23,11 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import io.github.kitswas.VGP_Data_Exchange.GamepadReading
 import io.github.kitswas.virtualgamepadmobile.data.ButtonComponent
 import io.github.kitswas.virtualgamepadmobile.data.ButtonConfig
 import io.github.kitswas.virtualgamepadmobile.data.PreviewBase
@@ -32,10 +36,12 @@ import io.github.kitswas.virtualgamepadmobile.data.PreviewWidthDp
 import io.github.kitswas.virtualgamepadmobile.data.SettingsRepository
 import io.github.kitswas.virtualgamepadmobile.data.defaultButtonConfigs
 import io.github.kitswas.virtualgamepadmobile.ui.composables.ButtonConfigEditor
+import io.github.kitswas.virtualgamepadmobile.ui.composables.DrawGamepad
 import kotlinx.coroutines.runBlocking
 
 const val gamepadCustomizationLogTag = "GamepadCustomizationScreen"
 
+@SuppressLint("ConfigurationScreenWidthHeight")
 @Composable
 fun GamepadCustomizationScreen(
     onNavigateBack: () -> Unit,
@@ -43,6 +49,30 @@ fun GamepadCustomizationScreen(
 ) {
     val buttonConfigs by settingsRepository.buttonConfigs.collectAsState(initial = defaultButtonConfigs)
     var modifiedConfigs by remember { mutableStateOf<Map<ButtonComponent, ButtonConfig>?>(null) }
+    var showPreview by remember { mutableStateOf(false) }
+
+    val configuration = LocalConfiguration.current
+    val screenHeight = configuration.screenHeightDp
+    val screenWidth = configuration.screenWidthDp
+
+    // Get the current configs to preview (modified or saved)
+    val currentConfigs = modifiedConfigs ?: buttonConfigs
+
+    // Handle back button to close preview
+    BackHandler(enabled = showPreview) {
+        showPreview = false
+    }
+
+    if (showPreview) {
+        // Full-screen preview overlay
+        GamepadPreview(
+            screenWidth = screenWidth,
+            screenHeight = screenHeight,
+            buttonConfigs = currentConfigs,
+            onDismiss = { showPreview = false }
+        )
+        return
+    }
 
     Scaffold { paddingValues ->
         Column(
@@ -94,44 +124,83 @@ fun GamepadCustomizationScreen(
             }
 
             // Fixed buttons at the bottom
-            Row(
+            Column(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(vertical = 8.dp, horizontal = 4.dp),
-                horizontalArrangement = Arrangement.SpaceEvenly
+                verticalArrangement = Arrangement.spacedBy(8.dp)
             ) {
-                Button(onClick = {
-                    modifiedConfigs = null
-                    runBlocking {
-                        settingsRepository.setAllButtonConfigs(defaultButtonConfigs)
-                    }
-                    Log.i(gamepadCustomizationLogTag, "Button configs reset to defaults")
-                }) {
-                    Text("Reset")
+                // Preview button (full width)
+                Button(
+                    onClick = { showPreview = true },
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Text("Preview Gamepad")
                 }
 
-                Button(onClick = {
-                    modifiedConfigs?.let { configs ->
+                // Action buttons
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceEvenly
+                ) {
+                    Button(onClick = {
+                        modifiedConfigs = null
                         runBlocking {
-                            try {
-                                settingsRepository.setAllButtonConfigs(configs)
-                                Log.i(gamepadCustomizationLogTag, "Button configs saved")
-                            } catch (e: Exception) {
-                                Log.e(gamepadCustomizationLogTag, "Error saving button configs", e)
+                            settingsRepository.setAllButtonConfigs(defaultButtonConfigs)
+                        }
+                        Log.i(gamepadCustomizationLogTag, "Button configs reset to defaults")
+                    }) {
+                        Text("Reset")
+                    }
+
+                    Button(onClick = {
+                        modifiedConfigs?.let { configs ->
+                            runBlocking {
+                                try {
+                                    settingsRepository.setAllButtonConfigs(configs)
+                                    Log.i(gamepadCustomizationLogTag, "Button configs saved")
+                                } catch (e: Exception) {
+                                    Log.e(
+                                        gamepadCustomizationLogTag,
+                                        "Error saving button configs",
+                                        e
+                                    )
+                                }
                             }
                         }
+                        onNavigateBack()
+                    }) {
+                        Text("Save")
                     }
-                    onNavigateBack()
-                }) {
-                    Text("Save")
-                }
 
-                Button(onClick = onNavigateBack) {
-                    Text("Cancel")
+                    Button(onClick = onNavigateBack) {
+                        Text("Cancel")
+                    }
                 }
             }
         }
     }
+}
+
+/**
+ * Full-screen gamepad preview overlay
+ */
+@Composable
+fun GamepadPreview(
+    screenWidth: Int,
+    screenHeight: Int,
+    buttonConfigs: Map<ButtonComponent, ButtonConfig>,
+    onDismiss: () -> Unit
+) {
+    val gamepadState = remember { GamepadReading() }
+
+    // Draw the gamepad with current configuration
+    DrawGamepad(
+        widthDp = screenWidth,
+        heightDp = screenHeight,
+        gamepadState = gamepadState,
+        buttonConfigs = buttonConfigs
+    )
 }
 
 @Preview(
