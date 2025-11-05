@@ -37,14 +37,12 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import io.github.kitswas.virtualgamepadmobile.R
 import io.github.kitswas.virtualgamepadmobile.data.BaseColor
-import io.github.kitswas.virtualgamepadmobile.data.ButtonSize
 import io.github.kitswas.virtualgamepadmobile.data.ColorScheme
 import io.github.kitswas.virtualgamepadmobile.data.PreviewBase
 import io.github.kitswas.virtualgamepadmobile.data.PreviewHeightDp
 import io.github.kitswas.virtualgamepadmobile.data.PreviewWidthDp
 import io.github.kitswas.virtualgamepadmobile.data.SettingsRepository
 import io.github.kitswas.virtualgamepadmobile.data.defaultBaseColor
-import io.github.kitswas.virtualgamepadmobile.data.defaultButtonSize
 import io.github.kitswas.virtualgamepadmobile.data.defaultColorScheme
 import io.github.kitswas.virtualgamepadmobile.data.defaultHapticFeedbackEnabled
 import io.github.kitswas.virtualgamepadmobile.data.defaultPollingDelay
@@ -62,14 +60,14 @@ private data class SettingsChanges(
     var colorScheme: ColorScheme? = null,
     var baseColor: BaseColor? = null,
     var pollingDelay: Int? = null,
-    var hapticFeedbackEnabled: Boolean? = null,
-    var buttonSize: ButtonSize? = null
+    var hapticFeedbackEnabled: Boolean? = null
 ) : Parcelable
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SettingsScreen(
     onNavigateBack: () -> Unit,
+    onNavigateToGamepadCustomization: () -> Unit,
     settingsRepository: SettingsRepository
 ) {
     val settingsChanges by rememberSaveable { mutableStateOf(SettingsChanges()) }
@@ -79,7 +77,6 @@ fun SettingsScreen(
         val baseColor by settingsRepository.baseColor.collectAsState(initial = defaultBaseColor)
         val pollingDelay by settingsRepository.pollingDelay.collectAsState(initial = defaultPollingDelay)
         val hapticEnabled by settingsRepository.hapticFeedbackEnabled.collectAsState(initial = defaultHapticFeedbackEnabled)
-        val buttonSize by settingsRepository.buttonSize.collectAsState(initial = defaultButtonSize)
 
         Column(
             modifier = Modifier
@@ -106,7 +103,6 @@ fun SettingsScreen(
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
 
-
                 ColorSchemePicker(default = colorScheme) {
                     settingsChanges.colorScheme = it
                 }
@@ -117,14 +113,6 @@ fun SettingsScreen(
                     label = "Theme Color",
                     onItemSelected = {
                         settingsChanges.baseColor = it
-                    })
-
-                ListItemPicker(
-                    list = ButtonSize.entries.asIterable(),
-                    default = buttonSize,
-                    label = "Button Size",
-                    onItemSelected = {
-                        settingsChanges.buttonSize = it
                     })
 
                 Row(
@@ -191,6 +179,15 @@ fun SettingsScreen(
                     )
                 }
 
+                Button(
+                    onClick = onNavigateToGamepadCustomization,
+                    modifier = Modifier
+                        .fillMaxWidth(0.6f)
+                        .padding(vertical = 8.dp)
+                ) {
+                    Text("Customize Gamepad Layout")
+                }
+
             }
 
             // Fixed buttons at the bottom
@@ -205,7 +202,6 @@ fun SettingsScreen(
                     settingsChanges.colorScheme = null
                     settingsChanges.baseColor = null
                     settingsChanges.hapticFeedbackEnabled = null
-                    settingsChanges.buttonSize = null
                     runBlocking { settingsRepository.resetAllSettings() }
                     Log.i(logTag, "Settings reset to defaults")
                 }) {
@@ -229,11 +225,6 @@ fun SettingsScreen(
                             }
                             settingsChanges.hapticFeedbackEnabled?.let {
                                 settingsRepository.setHapticFeedbackEnabled(
-                                    it
-                                ); ++changesSaved
-                            }
-                            settingsChanges.buttonSize?.let {
-                                settingsRepository.setButtonSize(
                                     it
                                 ); ++changesSaved
                             }
@@ -263,6 +254,7 @@ fun SettingsScreenPreview() {
     PreviewBase {
         SettingsScreen(
             onNavigateBack = {},
+            onNavigateToGamepadCustomization = {},
             settingsRepository = SettingsRepository(LocalContext.current)
         )
     }

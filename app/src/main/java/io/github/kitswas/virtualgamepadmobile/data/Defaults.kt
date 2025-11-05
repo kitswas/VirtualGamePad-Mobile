@@ -4,4 +4,8 @@ val defaultColorScheme = ColorScheme.SYSTEM
 val defaultBaseColor = BaseColor.BLUE
 const val defaultPollingDelay = 80 // in milliseconds
 const val defaultHapticFeedbackEnabled = false // vibrations
-val defaultButtonSize = ButtonSize.LARGE
+
+// Default button configurations
+val defaultButtonConfigs = ButtonComponent.entries.associate { 
+    it to ButtonConfig.default(it)
+}

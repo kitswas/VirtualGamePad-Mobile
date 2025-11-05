@@ -8,6 +8,7 @@ plugins {
     alias(libs.plugins.kotlin.compose)
     alias(libs.plugins.dokka)
     alias(libs.plugins.kotlin.parcelize)
+    alias(libs.plugins.kotlin.serialization)
 }
 
 android {
@@ -117,6 +118,7 @@ dependencies {
     implementation(libs.androidx.window)
     implementation(libs.compose.ui)
     implementation(libs.compose.ui.tooling.preview)
+    implementation(libs.kotlinx.serialization.json)
     implementation(libs.material3)
     implementation(libs.material3.window.size)
     implementation(libs.navigation.compose)

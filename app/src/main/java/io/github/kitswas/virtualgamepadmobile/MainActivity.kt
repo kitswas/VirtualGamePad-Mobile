@@ -22,6 +22,7 @@ import io.github.kitswas.virtualgamepadmobile.ui.screens.AboutScreen
 import io.github.kitswas.virtualgamepadmobile.ui.screens.ConnectMenu
 import io.github.kitswas.virtualgamepadmobile.ui.screens.ConnectingScreen
 import io.github.kitswas.virtualgamepadmobile.ui.screens.GamePad
+import io.github.kitswas.virtualgamepadmobile.ui.screens.GamepadCustomizationScreen
 import io.github.kitswas.virtualgamepadmobile.ui.screens.MainMenu
 import io.github.kitswas.virtualgamepadmobile.ui.screens.SettingsScreen
 import io.github.kitswas.virtualgamepadmobile.ui.theme.VirtualGamePadMobileTheme
@@ -127,6 +128,13 @@ class MainActivity : ComponentActivity() {
             }
             composable("settings_screen") {
                 SettingsScreen(
+                    onNavigateBack = { navController.popBackStack() },
+                    onNavigateToGamepadCustomization = { navController.navigate("gamepad_customization") },
+                    settingsRepository = settingsRepository
+                )
+            }
+            composable("gamepad_customization") {
+                GamepadCustomizationScreen(
                     onNavigateBack = { navController.popBackStack() },
                     settingsRepository = settingsRepository
                 )
