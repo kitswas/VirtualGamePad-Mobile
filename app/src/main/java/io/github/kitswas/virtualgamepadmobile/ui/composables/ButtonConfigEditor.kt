@@ -19,6 +19,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import io.github.kitswas.virtualgamepadmobile.data.ButtonAnchor
 import io.github.kitswas.virtualgamepadmobile.data.ButtonComponent
 import io.github.kitswas.virtualgamepadmobile.data.ButtonConfig
 
@@ -32,6 +33,7 @@ fun ButtonConfigEditor(
     var scale by remember(config) { mutableFloatStateOf(config.scale) }
     var offsetX by remember(config) { mutableFloatStateOf(config.offsetX) }
     var offsetY by remember(config) { mutableFloatStateOf(config.offsetY) }
+    var anchor by remember(config) { mutableStateOf(config.anchor) }
 
     Card(
         modifier = Modifier
@@ -73,6 +75,17 @@ fun ButtonConfigEditor(
                 }
             }
 
+            // Anchor picker
+            ListItemPicker(
+                list = ButtonAnchor.entries.asIterable(),
+                default = anchor,
+                label = "Anchor Position",
+                onItemSelected = {
+                    anchor = it
+                    onConfigChange(config.copy(anchor = it))
+                }
+            )
+
             // Scale slider
             Row(
                 modifier = Modifier.fillMaxWidth(),
@@ -101,7 +114,7 @@ fun ButtonConfigEditor(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(
-                    text = "Offset X: ${String.format("%.0f", offsetX)}dp",
+                    text = "Offset X: ${String.format("%.2f", offsetX)}× baseDp",
                     style = MaterialTheme.typography.bodyMedium
                 )
                 androidx.compose.material3.Slider(
@@ -110,7 +123,7 @@ fun ButtonConfigEditor(
                     onValueChangeFinished = {
                         onConfigChange(config.copy(offsetX = offsetX))
                     },
-                    valueRange = -100f..100f,
+                    valueRange = -0.5f..0.5f,
                     modifier = Modifier.weight(1f).padding(horizontal = 8.dp)
                 )
             }
@@ -122,7 +135,7 @@ fun ButtonConfigEditor(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(
-                    text = "Offset Y: ${String.format("%.0f", offsetY)}dp",
+                    text = "Offset Y: ${String.format("%.2f", offsetY)}× baseDp",
                     style = MaterialTheme.typography.bodyMedium
                 )
                 androidx.compose.material3.Slider(
@@ -131,7 +144,7 @@ fun ButtonConfigEditor(
                     onValueChangeFinished = {
                         onConfigChange(config.copy(offsetY = offsetY))
                     },
-                    valueRange = -100f..100f,
+                    valueRange = -0.5f..0.5f,
                     modifier = Modifier.weight(1f).padding(horizontal = 8.dp)
                 )
             }

@@ -10,8 +10,24 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import io.github.kitswas.VGP_Data_Exchange.GamepadReading
+import io.github.kitswas.virtualgamepadmobile.data.ButtonAnchor
 import io.github.kitswas.virtualgamepadmobile.data.ButtonComponent
 import io.github.kitswas.virtualgamepadmobile.data.ButtonConfig
+
+/**
+ * Convert ButtonAnchor to Compose Alignment
+ */
+private fun ButtonAnchor.toAlignment(): Alignment = when (this) {
+    ButtonAnchor.TOP_LEFT -> Alignment.TopStart
+    ButtonAnchor.TOP_CENTER -> Alignment.TopCenter
+    ButtonAnchor.TOP_RIGHT -> Alignment.TopEnd
+    ButtonAnchor.CENTER_LEFT -> Alignment.CenterStart
+    ButtonAnchor.CENTER -> Alignment.Center
+    ButtonAnchor.CENTER_RIGHT -> Alignment.CenterEnd
+    ButtonAnchor.BOTTOM_LEFT -> Alignment.BottomStart
+    ButtonAnchor.BOTTOM_CENTER -> Alignment.BottomCenter
+    ButtonAnchor.BOTTOM_RIGHT -> Alignment.BottomEnd
+}
 
 @Composable
 fun DrawGamepad(
@@ -28,6 +44,20 @@ fun DrawGamepad(
 
     // Helper function to get config for a component
     fun getConfig(component: ButtonComponent) = buttonConfigs[component] ?: ButtonConfig.default(component)
+    
+    // Helper function to render a button component
+    @Composable
+    fun RenderComponent(component: ButtonComponent, content: @Composable (ButtonConfig) -> Unit) {
+        val config = getConfig(component)
+        if (config.visible) {
+            Box(
+                modifier = Modifier.fillMaxSize(),
+                contentAlignment = config.anchor.toAlignment()
+            ) {
+                content(config)
+            }
+        }
+    }
 
     // First we make a box that will contain the gamepad
     // And put padding around it so that it doesn't touch the edges of the screen
@@ -37,107 +67,82 @@ fun DrawGamepad(
                 .padding(deadZonePadding.dp)
                 .fillMaxSize()
         ) {
-
             // Left Analog Stick
-            val leftStickConfig = getConfig(ButtonComponent.LEFT_ANALOG_STICK)
-            if (leftStickConfig.visible) {
-                Box(
-                    modifier = Modifier.fillMaxSize(),
-                    contentAlignment = Alignment.TopStart // Origin is top left
-                ) {
-                    AnalogStick(
-                        modifier = Modifier.offset(
-                            x = leftStickConfig.offsetX.dp,
-                            y = leftStickConfig.offsetY.dp
-                        ),
-                        outerCircleWidth = (baseDp / 8 * leftStickConfig.scale).dp,
-                        innerCircleRadius = (baseDp / 12 * leftStickConfig.scale).dp,
-                        gamepadState = gamepadState,
-                        type = AnalogStickType.LEFT,
-                    )
-                }
+            RenderComponent(ButtonComponent.LEFT_ANALOG_STICK) { config ->
+                AnalogStick(
+                    modifier = Modifier.offset(
+                        x = (config.offsetX * baseDp).dp,
+                        y = (config.offsetY * baseDp).dp
+                    ),
+                    outerCircleWidth = (baseDp / 8 * config.scale).dp,
+                    innerCircleRadius = (baseDp / 12 * config.scale).dp,
+                    gamepadState = gamepadState,
+                    type = AnalogStickType.LEFT,
+                )
             }
 
-            // D-Pad and Left Trigger
-            Box(
-                modifier = Modifier.fillMaxSize(),
-                contentAlignment = Alignment.BottomStart // Origin is bottom left
-            ) {
-                val dpadConfig = getConfig(ButtonComponent.DPAD)
-                if (dpadConfig.visible) {
-                    Dpad(
-                        modifier = Modifier.offset(
-                            x = (baseDp / 3).dp + dpadConfig.offsetX.dp,
-                            y = dpadConfig.offsetY.dp
-                        ),
-                        size = (0.45 * baseDp * dpadConfig.scale).dp,
-                        gamepadState = gamepadState,
-                    )
-                }
+            // Right Analog Stick
+            RenderComponent(ButtonComponent.RIGHT_ANALOG_STICK) { config ->
+                AnalogStick(
+                    modifier = Modifier.offset(
+                        x = (config.offsetX * baseDp).dp,
+                        y = (config.offsetY * baseDp).dp
+                    ),
+                    outerCircleWidth = (baseDp / 8 * config.scale).dp,
+                    innerCircleRadius = (baseDp / 12 * config.scale).dp,
+                    gamepadState = gamepadState,
+                    type = AnalogStickType.RIGHT,
+                )
+            }
 
-                val leftTriggerConfig = getConfig(ButtonComponent.LEFT_TRIGGER)
-                if (leftTriggerConfig.visible) {
-                    Trigger(
-                        modifier = Modifier.offset(
-                            x = leftTriggerConfig.offsetX.dp,
-                            y = leftTriggerConfig.offsetY.dp
-                        ),
-                        type = TriggerType.LEFT,
-                        size = (baseDp / 6 * leftTriggerConfig.scale).dp,
-                        gamepadState = gamepadState,
-                    )
-                }
+            // D-Pad
+            RenderComponent(ButtonComponent.DPAD) { config ->
+                Dpad(
+                    modifier = Modifier.offset(
+                        x = (config.offsetX * baseDp).dp,
+                        y = (config.offsetY * baseDp).dp
+                    ),
+                    size = (0.45 * baseDp * config.scale).dp,
+                    gamepadState = gamepadState,
+                )
             }
 
             // Face Buttons
-            val faceButtonsConfig = getConfig(ButtonComponent.FACE_BUTTONS)
-            if (faceButtonsConfig.visible) {
-                Box(
-                    modifier = Modifier.fillMaxSize(),
-                    contentAlignment = Alignment.TopEnd // Origin is top right
-                ) {
-                    FaceButtons(
-                        modifier = Modifier.offset(
-                            x = faceButtonsConfig.offsetX.dp,
-                            y = faceButtonsConfig.offsetY.dp
-                        ),
-                        size = (0.45 * baseDp * faceButtonsConfig.scale).dp,
-                        gamepadState = gamepadState,
-                    )
-                }
+            RenderComponent(ButtonComponent.FACE_BUTTONS) { config ->
+                FaceButtons(
+                    modifier = Modifier.offset(
+                        x = (config.offsetX * baseDp).dp,
+                        y = (config.offsetY * baseDp).dp
+                    ),
+                    size = (0.45 * baseDp * config.scale).dp,
+                    gamepadState = gamepadState,
+                )
             }
 
-            // Right Analog Stick and Right Trigger
-            Box(
-                modifier = Modifier.fillMaxSize(),
-                contentAlignment = Alignment.BottomEnd // Origin is bottom right
-            ) {
-                val rightStickConfig = getConfig(ButtonComponent.RIGHT_ANALOG_STICK)
-                if (rightStickConfig.visible) {
-                    AnalogStick(
-                        modifier = Modifier.offset(
-                            x = -(baseDp / 4).dp + rightStickConfig.offsetX.dp,
-                            y = rightStickConfig.offsetY.dp
-                        ),
-                        outerCircleWidth = (baseDp / 8 * rightStickConfig.scale).dp,
-                        innerCircleRadius = (baseDp / 12 * rightStickConfig.scale).dp,
-                        gamepadState = gamepadState,
-                        type = AnalogStickType.RIGHT,
-                    )
-                }
+            // Left Trigger
+            RenderComponent(ButtonComponent.LEFT_TRIGGER) { config ->
+                Trigger(
+                    modifier = Modifier.offset(
+                        x = (config.offsetX * baseDp).dp,
+                        y = (config.offsetY * baseDp).dp
+                    ),
+                    type = TriggerType.LEFT,
+                    size = (baseDp / 6 * config.scale).dp,
+                    gamepadState = gamepadState,
+                )
+            }
 
-                val rightTriggerConfig = getConfig(ButtonComponent.RIGHT_TRIGGER)
-                if (rightTriggerConfig.visible) {
-                    Trigger(
-                        modifier = Modifier.offset(
-                            x = rightTriggerConfig.offsetX.dp,
-                            y = rightTriggerConfig.offsetY.dp
-                        ),
-                        type = TriggerType.RIGHT,
-                        size = (baseDp / 6 * rightTriggerConfig.scale).dp,
-                        gamepadState = gamepadState,
-                    )
-                }
+            // Right Trigger
+            RenderComponent(ButtonComponent.RIGHT_TRIGGER) { config ->
+                Trigger(
+                    modifier = Modifier.offset(
+                        x = (config.offsetX * baseDp).dp,
+                        y = (config.offsetY * baseDp).dp
+                    ),
+                    type = TriggerType.RIGHT,
+                    size = (baseDp / 6 * config.scale).dp,
+                    gamepadState = gamepadState,
+                )
             }
 
             // Central Buttons (LB, RB, Select, Start)

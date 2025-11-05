@@ -5,21 +5,40 @@ import kotlinx.parcelize.Parcelize
 import kotlinx.serialization.Serializable
 
 /**
+ * Anchor point for button positioning
+ */
+@Serializable
+@Parcelize
+enum class ButtonAnchor(val displayName: String) : Parcelable {
+    TOP_LEFT("Top Left"),
+    TOP_CENTER("Top Center"),
+    TOP_RIGHT("Top Right"),
+    CENTER_LEFT("Center Left"),
+    CENTER("Center"),
+    CENTER_RIGHT("Center Right"),
+    BOTTOM_LEFT("Bottom Left"),
+    BOTTOM_CENTER("Bottom Center"),
+    BOTTOM_RIGHT("Bottom Right");
+
+    override fun toString(): String = displayName
+}
+
+/**
  * Represents all customizable button components in the gamepad
  */
 @Serializable
 @Parcelize
-enum class ButtonComponent(val displayName: String) : Parcelable {
-    LEFT_ANALOG_STICK("Left Analog Stick"),
-    RIGHT_ANALOG_STICK("Right Analog Stick"),
-    DPAD("D-Pad"),
-    FACE_BUTTONS("Face Buttons (A/B/X/Y)"),
-    LEFT_TRIGGER("Left Trigger (LT)"),
-    RIGHT_TRIGGER("Right Trigger (RT)"),
-    LEFT_SHOULDER("Left Shoulder (LB)"),
-    RIGHT_SHOULDER("Right Shoulder (RB)"),
-    SELECT_BUTTON("Select Button"),
-    START_BUTTON("Start Button");
+enum class ButtonComponent(val displayName: String, val defaultAnchor: ButtonAnchor) : Parcelable {
+    LEFT_ANALOG_STICK("Left Analog Stick", ButtonAnchor.TOP_LEFT),
+    RIGHT_ANALOG_STICK("Right Analog Stick", ButtonAnchor.BOTTOM_RIGHT),
+    DPAD("D-Pad", ButtonAnchor.BOTTOM_LEFT),
+    FACE_BUTTONS("Face Buttons (A/B/X/Y)", ButtonAnchor.TOP_RIGHT),
+    LEFT_TRIGGER("Left Trigger (LT)", ButtonAnchor.BOTTOM_LEFT),
+    RIGHT_TRIGGER("Right Trigger (RT)", ButtonAnchor.BOTTOM_RIGHT),
+    LEFT_SHOULDER("Left Shoulder (LB)", ButtonAnchor.TOP_CENTER),
+    RIGHT_SHOULDER("Right Shoulder (RB)", ButtonAnchor.TOP_CENTER),
+    SELECT_BUTTON("Select Button", ButtonAnchor.TOP_CENTER),
+    START_BUTTON("Start Button", ButtonAnchor.TOP_CENTER);
 
     override fun toString(): String = displayName
 }
@@ -34,7 +53,8 @@ data class ButtonConfig(
     val visible: Boolean = true,
     val scale: Float = 1.0f,
     val offsetX: Float = 0f,
-    val offsetY: Float = 0f
+    val offsetY: Float = 0f,
+    val anchor: ButtonAnchor = component.defaultAnchor
 ) : Parcelable {
     companion object {
         fun default(component: ButtonComponent) = ButtonConfig(component)
