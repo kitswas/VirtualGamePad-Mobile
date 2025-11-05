@@ -10,7 +10,6 @@ import androidx.datastore.preferences.preferencesDataStore
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 
-// At the top level of your kotlin file:
 val Context.settingsDataStore: DataStore<Preferences> by preferencesDataStore(name = "settings")
 
 class SettingsRepository(context: Context) {
@@ -30,6 +29,10 @@ class SettingsRepository(context: Context) {
 
     val hapticFeedbackEnabled: Flow<Boolean> = dataStore.data.map { preferences ->
         preferences[HAPTIC_FEEDBACK_ENABLED] ?: defaultHapticFeedbackEnabled
+    }
+
+    val buttonSize: Flow<ButtonSize> = dataStore.data.map { preferences ->
+        ButtonSize.fromInt(preferences[BUTTON_SIZE] ?: defaultButtonSize.ordinal)
     }
 
     suspend fun setBaseColor(baseColor: BaseColor) {
@@ -56,6 +59,12 @@ class SettingsRepository(context: Context) {
         }
     }
 
+    suspend fun setButtonSize(buttonSize: ButtonSize) {
+        dataStore.edit { preferences ->
+            preferences[BUTTON_SIZE] = buttonSize.ordinal
+        }
+    }
+
     suspend fun resetAllSettings() {
         dataStore.edit { preferences ->
             preferences.clear()
@@ -67,5 +76,6 @@ class SettingsRepository(context: Context) {
         private val BASE_COLOR = intPreferencesKey("base_color")
         private val POLLING_DELAY = intPreferencesKey("polling_delay")
         private val HAPTIC_FEEDBACK_ENABLED = booleanPreferencesKey("haptic_feedback_enabled")
+        private val BUTTON_SIZE = intPreferencesKey("button_size")
     }
 }

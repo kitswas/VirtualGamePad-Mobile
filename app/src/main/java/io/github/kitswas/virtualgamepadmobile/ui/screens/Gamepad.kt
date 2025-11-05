@@ -20,6 +20,7 @@ import io.github.kitswas.virtualgamepadmobile.data.PreviewBase
 import io.github.kitswas.virtualgamepadmobile.data.PreviewHeightDp
 import io.github.kitswas.virtualgamepadmobile.data.PreviewWidthDp
 import io.github.kitswas.virtualgamepadmobile.data.SettingsRepository
+import io.github.kitswas.virtualgamepadmobile.data.defaultButtonSize
 import io.github.kitswas.virtualgamepadmobile.data.defaultPollingDelay
 import io.github.kitswas.virtualgamepadmobile.network.ConnectionViewModel
 import io.github.kitswas.virtualgamepadmobile.ui.composables.DrawGamepad
@@ -42,15 +43,17 @@ fun GamePad(
     val settingsRepository = remember { SettingsRepository(context) }
     val pollingDelay =
         settingsRepository.pollingDelay.collectAsState(defaultPollingDelay).value.toLong()
+    val buttonSize =
+        settingsRepository.buttonSize.collectAsState(defaultButtonSize).value
 
     val configuration = LocalConfiguration.current
 
     val screenHeight = configuration.screenHeightDp
     val screenWidth = configuration.screenWidthDp
 
-    var isStopping = remember { mutableStateOf(false) }
+    val isStopping = remember { mutableStateOf(false) }
 
-    DrawGamepad(screenWidth, screenHeight, gamepadState)
+    DrawGamepad(screenWidth, screenHeight, gamepadState, buttonSize.scaleFactor)
 
     val activity = LocalContext.current.findActivity()
     // disconnect on back press

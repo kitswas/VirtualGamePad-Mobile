@@ -159,6 +159,7 @@ fun CentralButtons(
     modifier: Modifier = Modifier,
     baseDp: Int,
     gamepadState: GamepadReading,
+    scaleFactor: Float = 1.0f,
 ) {
     Box(
         modifier = modifier.fillMaxSize(),
@@ -170,7 +171,7 @@ fun CentralButtons(
             modifier = Modifier.offset(
                 x = -(baseDp / 4).dp, y = 0.dp
             ),
-            size = (baseDp / 8).dp,
+            size = (baseDp / 8 * scaleFactor).dp,
             gamepadState = gamepadState,
         )
 
@@ -179,7 +180,7 @@ fun CentralButtons(
             modifier = Modifier.offset(
                 x = (baseDp / 4).dp, y = 0.dp
             ),
-            size = (baseDp / 8).dp,
+            size = (baseDp / 8 * scaleFactor).dp,
             gamepadState = gamepadState,
         )
 
@@ -190,7 +191,7 @@ fun CentralButtons(
                 .offset(
                     x = -(baseDp / 4).dp, y = (baseDp / 4).dp
                 ),
-            size = (baseDp / 8).dp,
+            size = (baseDp / 8 * scaleFactor).dp,
             gamepadState = gamepadState,
         )
 
@@ -200,7 +201,7 @@ fun CentralButtons(
                 .offset(
                     x = (baseDp / 4).dp, y = (baseDp / 4).dp
                 ),
-            size = (baseDp / 8).dp,
+            size = (baseDp / 8 * scaleFactor).dp,
             gamepadState = gamepadState,
         )
     }

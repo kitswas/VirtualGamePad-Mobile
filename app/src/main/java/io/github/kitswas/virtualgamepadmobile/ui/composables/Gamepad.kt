@@ -16,6 +16,7 @@ fun DrawGamepad(
     widthDp: Int,
     heightDp: Int,
     gamepadState: GamepadReading,
+    buttonScaleFactor: Float = 1.0f,
 ) {
     // Assuming Landscape orientation
     val baseDp = heightDp
@@ -37,8 +38,8 @@ fun DrawGamepad(
                 contentAlignment = Alignment.TopStart // Origin is top left
             ) {
                 AnalogStick(
-                    outerCircleWidth = (baseDp / 8).dp,
-                    innerCircleRadius = (baseDp / 12).dp,
+                    outerCircleWidth = (baseDp / 8 * buttonScaleFactor).dp,
+                    innerCircleRadius = (baseDp / 12 * buttonScaleFactor).dp,
                     gamepadState = gamepadState,
                     type = AnalogStickType.LEFT,
                 )
@@ -51,12 +52,12 @@ fun DrawGamepad(
                     modifier = Modifier.offset(
                         x = (baseDp / 3).dp, y = 0.dp
                     ),
-                    size = (0.45 * baseDp).dp,
+                    size = (0.45 * baseDp * buttonScaleFactor).dp,
                     gamepadState = gamepadState,
                 )
                 Trigger(
                     type = TriggerType.LEFT,
-                    size = (baseDp / 6).dp,
+                    size = (baseDp / 6 * buttonScaleFactor).dp,
                     gamepadState = gamepadState,
                 )
             }
@@ -65,7 +66,7 @@ fun DrawGamepad(
                 contentAlignment = Alignment.TopEnd // Origin is top right
             ) {
                 FaceButtons(
-                    size = (0.45 * baseDp).dp,
+                    size = (0.45 * baseDp * buttonScaleFactor).dp,
                     gamepadState = gamepadState,
                 )
             }
@@ -77,20 +78,21 @@ fun DrawGamepad(
                     modifier = Modifier.offset(
                         x = -(baseDp / 4).dp, y = 0.dp
                     ),
-                    outerCircleWidth = (baseDp / 8).dp,
-                    innerCircleRadius = (baseDp / 12).dp,
+                    outerCircleWidth = (baseDp / 8 * buttonScaleFactor).dp,
+                    innerCircleRadius = (baseDp / 12 * buttonScaleFactor).dp,
                     gamepadState = gamepadState,
                     type = AnalogStickType.RIGHT,
                 )
                 Trigger(
                     type = TriggerType.RIGHT,
-                    size = (baseDp / 6).dp,
+                    size = (baseDp / 6 * buttonScaleFactor).dp,
                     gamepadState = gamepadState,
                 )
             }
             CentralButtons(
                 baseDp = baseDp,
                 gamepadState = gamepadState,
+                scaleFactor = buttonScaleFactor,
             )
         }
     }
