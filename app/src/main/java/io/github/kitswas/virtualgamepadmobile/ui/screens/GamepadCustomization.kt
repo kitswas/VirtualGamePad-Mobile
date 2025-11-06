@@ -1,6 +1,8 @@
 package io.github.kitswas.virtualgamepadmobile.ui.screens
 
 import android.annotation.SuppressLint
+import android.content.ClipboardManager
+import android.content.Context.CLIPBOARD_SERVICE
 import android.util.Log
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.layout.Arrangement
@@ -12,10 +14,12 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -40,6 +44,7 @@ import io.github.kitswas.virtualgamepadmobile.ui.composables.ButtonConfigEditor
 import io.github.kitswas.virtualgamepadmobile.ui.composables.DrawGamepad
 import io.github.kitswas.virtualgamepadmobile.ui.composables.ResponsiveGrid
 import kotlinx.coroutines.runBlocking
+import kotlinx.serialization.json.Json
 
 private const val logTag = "GamepadCustomizationScreen"
 
@@ -51,7 +56,9 @@ fun GamepadCustomizationScreen(
     val buttonConfigs by settingsRepository.buttonConfigs.collectAsState(initial = defaultButtonConfigs)
     var modifiedConfigs by remember { mutableStateOf<Map<ButtonComponent, ButtonConfig>?>(null) }
     var showPreview by remember { mutableStateOf(false) }
-
+    var showExportDialog by remember { mutableStateOf(false) }
+    var showImportDialog by remember { mutableStateOf(false) }
+    var importJsonText by remember { mutableStateOf("") }
 
     // Get the current configs to preview (modified or saved)
     val currentConfigs = modifiedConfigs ?: buttonConfigs
@@ -65,6 +72,30 @@ fun GamepadCustomizationScreen(
         // Full-screen preview overlay
         GamepadPreview(buttonConfigs = currentConfigs)
         return
+    }
+
+    if (showExportDialog) {
+        ExportConfigDialog(
+            configsToExport = currentConfigs,
+            onDismiss = { showExportDialog = false }
+        )
+    }
+
+    if (showImportDialog) {
+        ImportConfigDialog(
+            importedJsonText = importJsonText,
+            onJsonTextChange = { importJsonText = it },
+            onImport = { configs ->
+                modifiedConfigs = configs
+                showImportDialog = false
+                importJsonText = ""
+                Log.i(logTag, "Button configs imported")
+            },
+            onDismiss = {
+                showImportDialog = false
+                importJsonText = ""
+            }
+        )
     }
 
     Scaffold { paddingValues ->
@@ -135,11 +166,22 @@ fun GamepadCustomizationScreen(
                 verticalArrangement = Arrangement.spacedBy(8.dp),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                // Preview button
-                Button(
-                    onClick = { showPreview = true },
+                // Import/Export and Preview buttons
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceEvenly
                 ) {
-                    Text("Preview Gamepad")
+                    Button(onClick = { showExportDialog = true }) {
+                        Text("Export")
+                    }
+                    Button(
+                        onClick = { showPreview = true },
+                    ) {
+                        Text("Preview Gamepad")
+                    }
+                    Button(onClick = { showImportDialog = true }) {
+                        Text("Import")
+                    }
                 }
 
                 // Action buttons
@@ -182,6 +224,137 @@ fun GamepadCustomizationScreen(
             }
         }
     }
+}
+
+/**
+ * Dialog for exporting button configurations as JSON
+ */
+@Composable
+fun ExportConfigDialog(
+    configsToExport: Map<ButtonComponent, ButtonConfig>,
+    onDismiss: () -> Unit
+) {
+    val clipboard = LocalContext.current.getSystemService(CLIPBOARD_SERVICE) as ClipboardManager
+    val jsonString = remember(configsToExport) {
+        Json.encodeToString(configsToExport)
+    }
+
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = { Text("Export Configuration") },
+        text = {
+            Log.i(logTag, "Exporting button configs: $jsonString")
+            Column(
+                modifier = Modifier.fillMaxWidth(),
+                verticalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                Text(
+                    "Copy this JSON to share or backup your configuration:",
+                    style = MaterialTheme.typography.bodySmall
+                )
+                TextField(
+                    value = jsonString,
+                    onValueChange = {},
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .verticalScroll(rememberScrollState()),
+                    readOnly = true,
+                    singleLine = false,
+                    maxLines = 5,
+                    textStyle = MaterialTheme.typography.bodySmall,
+                    trailingIcon = {
+                        Button(onClick = {
+                            // Copy to clipboard
+                            val clip = android.content.ClipData.newPlainText(
+                                "Gamepad Layout JSON", jsonString
+                            )
+                            clipboard.setPrimaryClip(clip)
+                            Log.i(logTag, "Exported JSON copied to clipboard")
+                        }) {
+                            Text("Copy")
+                        }
+                    }
+                )
+            }
+        },
+        confirmButton = {
+            Button(onClick = onDismiss) {
+                Text("Done")
+            }
+        }
+    )
+}
+
+/**
+ * Dialog for importing button configurations from JSON
+ */
+@Composable
+fun ImportConfigDialog(
+    importedJsonText: String,
+    onJsonTextChange: (String) -> Unit,
+    onImport: (Map<ButtonComponent, ButtonConfig>) -> Unit,
+    onDismiss: () -> Unit
+) {
+    var hasError by remember { mutableStateOf(false) }
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = { Text("Import Configuration") },
+        text = {
+            Column(
+                modifier = Modifier.fillMaxWidth(),
+                verticalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                Text(
+                    "Paste the JSON configuration to import:",
+                    style = MaterialTheme.typography.bodySmall
+                )
+                val errorMessage = if (hasError) {
+                    "Error: Invalid JSON format"
+                } else {
+                    ""
+                }
+                Text(
+                    errorMessage,
+                    color = MaterialTheme.colorScheme.error,
+                    style = MaterialTheme.typography.labelSmall,
+                    modifier = Modifier.padding(top = 4.dp)
+                )
+                TextField(
+                    value = importedJsonText,
+                    onValueChange = onJsonTextChange,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .verticalScroll(rememberScrollState()),
+                    placeholder = { Text("Paste JSON here...") },
+                    singleLine = false,
+                    maxLines = 5
+                )
+            }
+        },
+        confirmButton = {
+            Button(
+                onClick = {
+                    try {
+                        val configs: Map<ButtonComponent, ButtonConfig> =
+                            Json.decodeFromString(importedJsonText)
+                        hasError = false
+                        Log.i(logTag, "Imported button configs: $configs")
+                        onImport(configs)
+                    } catch (e: Exception) {
+                        hasError = true
+                        Log.e(logTag, "Error parsing JSON", e)
+                    }
+                }
+            ) {
+                Text("Import")
+            }
+        },
+        dismissButton = {
+            Button(onClick = onDismiss) {
+                Text("Cancel")
+            }
+        }
+    )
 }
 
 /**
