@@ -53,7 +53,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import kotlinx.parcelize.Parcelize
 
-const val logTag = "SettingsScreen"
+private const val logTag = "SettingsScreen"
 
 @Parcelize
 private data class SettingsChanges(

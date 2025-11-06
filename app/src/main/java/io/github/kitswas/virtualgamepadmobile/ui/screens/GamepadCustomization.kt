@@ -41,9 +41,8 @@ import io.github.kitswas.virtualgamepadmobile.ui.composables.DrawGamepad
 import io.github.kitswas.virtualgamepadmobile.ui.composables.ResponsiveGrid
 import kotlinx.coroutines.runBlocking
 
-const val gamepadCustomizationLogTag = "GamepadCustomizationScreen"
+private const val logTag = "GamepadCustomizationScreen"
 
-@SuppressLint("ConfigurationScreenWidthHeight")
 @Composable
 fun GamepadCustomizationScreen(
     onNavigateBack: () -> Unit,
@@ -53,9 +52,6 @@ fun GamepadCustomizationScreen(
     var modifiedConfigs by remember { mutableStateOf<Map<ButtonComponent, ButtonConfig>?>(null) }
     var showPreview by remember { mutableStateOf(false) }
 
-    val configuration = LocalConfiguration.current
-    val screenHeight = configuration.screenHeightDp
-    val screenWidth = configuration.screenWidthDp
 
     // Get the current configs to preview (modified or saved)
     val currentConfigs = modifiedConfigs ?: buttonConfigs
@@ -67,11 +63,7 @@ fun GamepadCustomizationScreen(
 
     if (showPreview) {
         // Full-screen preview overlay
-        GamepadPreview(
-            screenWidth = screenWidth,
-            screenHeight = screenHeight,
-            buttonConfigs = currentConfigs,
-        )
+        GamepadPreview(buttonConfigs = currentConfigs)
         return
     }
 
@@ -160,7 +152,7 @@ fun GamepadCustomizationScreen(
                         runBlocking {
                             settingsRepository.setAllButtonConfigs(defaultButtonConfigs)
                         }
-                        Log.i(gamepadCustomizationLogTag, "Button configs reset to defaults")
+                        Log.i(logTag, "Button configs reset to defaults")
                     }) {
                         Text("Reset")
                     }
@@ -170,12 +162,10 @@ fun GamepadCustomizationScreen(
                             runBlocking {
                                 try {
                                     settingsRepository.setAllButtonConfigs(configs)
-                                    Log.i(gamepadCustomizationLogTag, "Button configs saved")
+                                    Log.i(logTag, "Button configs saved")
                                 } catch (e: Exception) {
                                     Log.e(
-                                        gamepadCustomizationLogTag,
-                                        "Error saving button configs",
-                                        e
+                                        logTag, "Error saving button configs", e
                                     )
                                 }
                             }
@@ -197,12 +187,15 @@ fun GamepadCustomizationScreen(
 /**
  * Full-screen gamepad preview overlay
  */
+@SuppressLint("ConfigurationScreenWidthHeight")
 @Composable
 fun GamepadPreview(
-    screenWidth: Int,
-    screenHeight: Int,
     buttonConfigs: Map<ButtonComponent, ButtonConfig>,
 ) {
+    val configuration = LocalConfiguration.current
+    val screenHeight = configuration.screenHeightDp
+    val screenWidth = configuration.screenWidthDp
+
     val gamepadState = remember { GamepadReading() }
 
     // Draw the gamepad with current configuration

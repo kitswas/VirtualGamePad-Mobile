@@ -18,7 +18,7 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.times
 
-const val LogTag = "ResponsiveGrid"
+private const val LogTag = "ResponsiveGrid"
 
 /**
  * A responsive grid composable that automatically calculates the number of columns
