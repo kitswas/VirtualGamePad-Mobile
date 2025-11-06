@@ -18,16 +18,19 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import io.github.kitswas.virtualgamepadmobile.data.ButtonAnchor
 import io.github.kitswas.virtualgamepadmobile.data.ButtonComponent
 import io.github.kitswas.virtualgamepadmobile.data.ButtonConfig
+import io.github.kitswas.virtualgamepadmobile.data.PreviewBase
 
 @Composable
 fun ButtonConfigEditor(
     component: ButtonComponent,
     config: ButtonConfig,
-    onConfigChange: (ButtonConfig) -> Unit
+    onConfigChange: (ButtonConfig) -> Unit,
+    modifier: Modifier = Modifier
 ) {
     var visible by remember(config) { mutableStateOf(config.visible) }
     var scale by remember(config) { mutableFloatStateOf(config.scale) }
@@ -36,8 +39,7 @@ fun ButtonConfigEditor(
     var anchor by remember(config) { mutableStateOf(config.anchor) }
 
     Card(
-        modifier = Modifier
-            .fillMaxWidth()
+        modifier = modifier
             .padding(vertical = 4.dp),
         elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
     ) {
@@ -77,9 +79,11 @@ fun ButtonConfigEditor(
 
             // Anchor picker
             ListItemPicker(
+                modifier = Modifier.fillMaxWidth(),
                 list = ButtonAnchor.entries.asIterable(),
                 default = anchor,
                 label = "Anchor Position",
+                isHorizontal = true,
                 onItemSelected = {
                     anchor = it
                     onConfigChange(config.copy(anchor = it))
@@ -89,12 +93,13 @@ fun ButtonConfigEditor(
             // Scale slider
             Row(
                 modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween,
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(
                     text = "Scale: ${String.format("%.2f", scale)}x",
-                    style = MaterialTheme.typography.bodyMedium
+                    style = MaterialTheme.typography.bodyMedium,
+                    modifier = Modifier.weight(2f)
                 )
                 androidx.compose.material3.Slider(
                     value = scale,
@@ -103,21 +108,20 @@ fun ButtonConfigEditor(
                         onConfigChange(config.copy(scale = scale))
                     },
                     valueRange = 0.5f..1.5f,
-                    modifier = Modifier
-                        .weight(1f)
-                        .padding(horizontal = 8.dp)
+                    modifier = Modifier.weight(3f)
                 )
             }
 
             // Offset X slider
             Row(
                 modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween,
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(
                     text = "Offset X: ${String.format("%.2f", offsetX)}× baseDp",
-                    style = MaterialTheme.typography.bodyMedium
+                    style = MaterialTheme.typography.bodyMedium,
+                    modifier = Modifier.weight(2f)
                 )
                 androidx.compose.material3.Slider(
                     value = offsetX,
@@ -126,21 +130,20 @@ fun ButtonConfigEditor(
                         onConfigChange(config.copy(offsetX = offsetX))
                     },
                     valueRange = -0.5f..0.5f,
-                    modifier = Modifier
-                        .weight(1f)
-                        .padding(horizontal = 8.dp)
+                    modifier = Modifier.weight(3f)
                 )
             }
 
             // Offset Y slider
             Row(
                 modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween,
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(
                     text = "Offset Y: ${String.format("%.2f", offsetY)}× baseDp",
-                    style = MaterialTheme.typography.bodyMedium
+                    style = MaterialTheme.typography.bodyMedium,
+                    modifier = Modifier.weight(2f)
                 )
                 androidx.compose.material3.Slider(
                     value = offsetY,
@@ -149,11 +152,21 @@ fun ButtonConfigEditor(
                         onConfigChange(config.copy(offsetY = offsetY))
                     },
                     valueRange = -0.5f..0.5f,
-                    modifier = Modifier
-                        .weight(1f)
-                        .padding(horizontal = 8.dp)
+                    modifier = Modifier.weight(3f)
                 )
             }
         }
+    }
+}
+
+@Preview
+@Composable
+fun ButtonConfigEditorPreview() {
+    PreviewBase {
+        ButtonConfigEditor(
+            component = ButtonComponent.FACE_BUTTONS,
+            config = ButtonConfig.default(ButtonComponent.FACE_BUTTONS),
+            onConfigChange = {}
+        )
     }
 }

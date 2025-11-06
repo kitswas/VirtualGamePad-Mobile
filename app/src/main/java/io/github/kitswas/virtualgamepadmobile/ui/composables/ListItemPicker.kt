@@ -1,5 +1,6 @@
 package io.github.kitswas.virtualgamepadmobile.ui.composables
 
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.Row
@@ -26,6 +27,7 @@ import io.github.kitswas.virtualgamepadmobile.R
  * @param list List of items to choose from.
  * @param default Default item to display.
  * @param label Label to display above the picker.
+ * @param isHorizontal If true, arranges label left of button (Row). If false, arranges label above button (Column).
  * @param formattedDisplay A composable function to format and display the item.
  */
 @Composable
@@ -35,6 +37,7 @@ fun <T> ListItemPicker(
     list: Iterable<T>,
     default: T,
     label: String,
+    isHorizontal: Boolean = false,
     formattedDisplay: @Composable (T) -> Unit = { item ->
         Text(
             item.toString(), modifier = Modifier.width(IntrinsicSize.Max)
@@ -46,8 +49,12 @@ fun <T> ListItemPicker(
     var expanded by remember { mutableStateOf(false) }
 
     var selectedItem = default
-    Column(modifier, horizontalAlignment = Alignment.CenterHorizontally) {
+
+    val labelContent = @Composable {
         Text(text = label, style = MaterialTheme.typography.labelMedium)
+    }
+
+    val buttonContent = @Composable {
         OutlinedButton(onClick = { expanded = true }) {
             Row {
                 formattedDisplay(selectedItem)
@@ -70,6 +77,26 @@ fun <T> ListItemPicker(
             }
         }
     }
+
+    if (isHorizontal) {
+        Row(
+            modifier,
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.SpaceBetween
+        ) {
+            labelContent()
+            buttonContent()
+        }
+    } else {
+        Column(
+            modifier,
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.SpaceBetween
+        ) {
+            labelContent()
+            buttonContent()
+        }
+    }
 }
 
 /**
@@ -83,6 +110,7 @@ fun <T> ListItemPicker(
     list: Iterable<T>,
     defaultIndex: Int = 0,
     label: String,
+    isHorizontal: Boolean = false,
     formattedDisplay: @Composable (T) -> Unit = { item -> Text(item.toString()) },
     onItemSelected: (T) -> Unit = { _ -> }
 ) {
@@ -91,6 +119,7 @@ fun <T> ListItemPicker(
         list = list,
         default = list.elementAt(defaultIndex),
         label = label,
+        isHorizontal = isHorizontal,
         formattedDisplay = formattedDisplay,
         onItemSelected = onItemSelected
     )

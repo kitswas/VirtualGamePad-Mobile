@@ -1,12 +1,15 @@
 package io.github.kitswas.virtualgamepadmobile.data
 
 import android.os.Parcelable
+import androidx.compose.runtime.Immutable
+import androidx.compose.runtime.Stable
 import kotlinx.parcelize.Parcelize
 import kotlinx.serialization.Serializable
 
 /**
  * Anchor point for button positioning
  */
+@Immutable
 @Serializable
 @Parcelize
 enum class ButtonAnchor(val displayName: String) : Parcelable {
@@ -26,6 +29,7 @@ enum class ButtonAnchor(val displayName: String) : Parcelable {
 /**
  * Represents all customizable button components in the gamepad
  */
+@Immutable
 @Serializable
 @Parcelize
 enum class ButtonComponent(val displayName: String, val defaultAnchor: ButtonAnchor) : Parcelable {
@@ -37,8 +41,8 @@ enum class ButtonComponent(val displayName: String, val defaultAnchor: ButtonAnc
     RIGHT_TRIGGER("Right Trigger (RT)", ButtonAnchor.BOTTOM_RIGHT),
     LEFT_SHOULDER("Left Shoulder (LB)", ButtonAnchor.TOP_CENTER),
     RIGHT_SHOULDER("Right Shoulder (RB)", ButtonAnchor.TOP_CENTER),
-    SELECT_BUTTON("Select Button", ButtonAnchor.TOP_CENTER),
-    START_BUTTON("Start Button", ButtonAnchor.TOP_CENTER);
+    SELECT_BUTTON("Select (View)", ButtonAnchor.TOP_CENTER),
+    START_BUTTON("Start (Menu)", ButtonAnchor.TOP_CENTER);
 
     override fun toString(): String = displayName
 }
@@ -46,6 +50,7 @@ enum class ButtonComponent(val displayName: String, val defaultAnchor: ButtonAnc
 /**
  * Configuration for a single button component
  */
+@Stable
 @Serializable
 @Parcelize
 data class ButtonConfig(

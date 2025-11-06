@@ -5,10 +5,12 @@ import android.util.Log
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
@@ -16,6 +18,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -51,6 +54,21 @@ fun GamepadCustomizationScreen(
     var modifiedConfigs by remember { mutableStateOf<Map<ButtonComponent, ButtonConfig>?>(null) }
     var showPreview by remember { mutableStateOf(false) }
 
+    // Manually add 2 items at a time every 200ms to prevent UI freeze
+    var renderableItems by remember { mutableStateOf<List<ButtonComponent>>(emptyList()) }
+
+    LaunchedEffect(Unit) {
+        val allItems = ButtonComponent.entries.toList()
+        var index = 0
+        while (index < allItems.size) {
+            kotlinx.coroutines.delay(200) // Wait 200ms before adding next batch
+            // Add 2 items at a time
+            val batchEnd = (index + 2).coerceAtMost(allItems.size)
+            renderableItems = allItems.take(batchEnd)
+            index = batchEnd
+        }
+    }
+
     val configuration = LocalConfiguration.current
     val screenHeight = configuration.screenHeightDp
     val screenWidth = configuration.screenWidthDp
@@ -69,7 +87,6 @@ fun GamepadCustomizationScreen(
             screenWidth = screenWidth,
             screenHeight = screenHeight,
             buttonConfigs = currentConfigs,
-            onDismiss = { showPreview = false }
         )
         return
     }
@@ -89,15 +106,14 @@ fun GamepadCustomizationScreen(
                 modifier = Modifier.padding(vertical = 8.dp)
             )
 
-            // Scrollable button configuration content
+            // Scrollable button configuration content with responsive grid
             val scrollState = rememberScrollState()
             Column(
                 modifier = Modifier
                     .weight(1f)
                     .verticalScroll(scrollState)
                     .padding(horizontal = 8.dp),
-                verticalArrangement = Arrangement.spacedBy(8.dp),
-                horizontalAlignment = Alignment.CenterHorizontally
+                verticalArrangement = Arrangement.spacedBy(8.dp)
             ) {
                 Text(
                     "Customize individual button visibility, size, and position",
@@ -105,21 +121,36 @@ fun GamepadCustomizationScreen(
                     modifier = Modifier.padding(vertical = 4.dp)
                 )
 
-                ButtonComponent.entries.forEach { component ->
-                    val config = if (modifiedConfigs != null) {
-                        modifiedConfigs!![component] ?: ButtonConfig.default(component)
-                    } else {
-                        buttonConfigs[component] ?: ButtonConfig.default(component)
-                    }
-
-                    ButtonConfigEditor(
-                        component = component,
-                        config = config,
-                        onConfigChange = { newConfig ->
-                            val currentConfigs = modifiedConfigs ?: buttonConfigs
-                            modifiedConfigs = currentConfigs + (component to newConfig)
+                // Manual grid using FlowRow for responsive layout
+                FlowRow(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                    verticalArrangement = Arrangement.spacedBy(8.dp),
+                    maxItemsInEachRow = Int.MAX_VALUE
+                ) {
+                    renderableItems.forEach { component ->
+                        val config = if (modifiedConfigs != null) {
+                            modifiedConfigs!![component] ?: ButtonConfig.default(component)
+                        } else {
+                            buttonConfigs[component] ?: ButtonConfig.default(component)
                         }
-                    )
+
+                        val onConfigChange = remember(component) {
+                            { newConfig: ButtonConfig ->
+                                val currentConfigs = modifiedConfigs ?: buttonConfigs
+                                modifiedConfigs = currentConfigs + (component to newConfig)
+                            }
+                        }
+
+                        ButtonConfigEditor(
+                            component = component,
+                            config = config,
+                            onConfigChange = onConfigChange,
+                            modifier = Modifier
+                                .weight(1f, fill = false)
+                                .widthIn(min = 320.dp)
+                        )
+                    }
                 }
             }
 
@@ -128,12 +159,12 @@ fun GamepadCustomizationScreen(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(vertical = 8.dp, horizontal = 4.dp),
-                verticalArrangement = Arrangement.spacedBy(8.dp)
+                verticalArrangement = Arrangement.spacedBy(8.dp),
+                horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 // Preview button (full width)
                 Button(
                     onClick = { showPreview = true },
-                    modifier = Modifier.fillMaxWidth()
                 ) {
                     Text("Preview Gamepad")
                 }
@@ -190,7 +221,6 @@ fun GamepadPreview(
     screenWidth: Int,
     screenHeight: Int,
     buttonConfigs: Map<ButtonComponent, ButtonConfig>,
-    onDismiss: () -> Unit
 ) {
     val gamepadState = remember { GamepadReading() }
 
