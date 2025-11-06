@@ -103,7 +103,9 @@ fun ButtonConfigEditor(
                         onConfigChange(config.copy(scale = scale))
                     },
                     valueRange = 0.5f..1.5f,
-                    modifier = Modifier.weight(1f).padding(horizontal = 8.dp)
+                    modifier = Modifier
+                        .weight(1f)
+                        .padding(horizontal = 8.dp)
                 )
             }
 
@@ -124,7 +126,9 @@ fun ButtonConfigEditor(
                         onConfigChange(config.copy(offsetX = offsetX))
                     },
                     valueRange = -0.5f..0.5f,
-                    modifier = Modifier.weight(1f).padding(horizontal = 8.dp)
+                    modifier = Modifier
+                        .weight(1f)
+                        .padding(horizontal = 8.dp)
                 )
             }
 
@@ -145,7 +149,9 @@ fun ButtonConfigEditor(
                         onConfigChange(config.copy(offsetY = offsetY))
                     },
                     valueRange = -0.5f..0.5f,
-                    modifier = Modifier.weight(1f).padding(horizontal = 8.dp)
+                    modifier = Modifier
+                        .weight(1f)
+                        .padding(horizontal = 8.dp)
                 )
             }
         }

@@ -43,8 +43,9 @@ fun DrawGamepad(
     val deadZonePadding = baseDp / 18
 
     // Helper function to get config for a component
-    fun getConfig(component: ButtonComponent) = buttonConfigs[component] ?: ButtonConfig.default(component)
-    
+    fun getConfig(component: ButtonComponent) =
+        buttonConfigs[component] ?: ButtonConfig.default(component)
+
     // Helper function to render a button component
     @Composable
     fun RenderComponent(component: ButtonComponent, content: @Composable (ButtonConfig) -> Unit) {

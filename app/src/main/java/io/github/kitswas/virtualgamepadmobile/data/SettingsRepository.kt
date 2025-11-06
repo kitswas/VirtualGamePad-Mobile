@@ -10,9 +10,7 @@ import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
-import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
-import kotlinx.serialization.Serializable
 
 val Context.settingsDataStore: DataStore<Preferences> by preferencesDataStore(name = "settings")
 
@@ -35,18 +33,19 @@ class SettingsRepository(context: Context) {
         preferences[HAPTIC_FEEDBACK_ENABLED] ?: defaultHapticFeedbackEnabled
     }
 
-    val buttonConfigs: Flow<Map<ButtonComponent, ButtonConfig>> = dataStore.data.map { preferences ->
-        val jsonString = preferences[BUTTON_CONFIGS]
-        if (jsonString != null) {
-            try {
-                Json.decodeFromString<Map<ButtonComponent, ButtonConfig>>(jsonString)
-            } catch (e: Exception) {
+    val buttonConfigs: Flow<Map<ButtonComponent, ButtonConfig>> =
+        dataStore.data.map { preferences ->
+            val jsonString = preferences[BUTTON_CONFIGS]
+            if (jsonString != null) {
+                try {
+                    Json.decodeFromString<Map<ButtonComponent, ButtonConfig>>(jsonString)
+                } catch (e: Exception) {
+                    defaultButtonConfigs
+                }
+            } else {
                 defaultButtonConfigs
             }
-        } else {
-            defaultButtonConfigs
         }
-    }
 
     suspend fun setBaseColor(baseColor: BaseColor) {
         dataStore.edit { preferences ->
@@ -77,7 +76,8 @@ class SettingsRepository(context: Context) {
             val currentJson = preferences[BUTTON_CONFIGS]
             val currentConfigs = if (currentJson != null) {
                 try {
-                    Json.decodeFromString<Map<ButtonComponent, ButtonConfig>>(currentJson).toMutableMap()
+                    Json.decodeFromString<Map<ButtonComponent, ButtonConfig>>(currentJson)
+                        .toMutableMap()
                 } catch (e: Exception) {
                     defaultButtonConfigs.toMutableMap()
                 }
