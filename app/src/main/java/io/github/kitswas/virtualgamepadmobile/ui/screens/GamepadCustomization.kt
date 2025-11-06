@@ -4,7 +4,6 @@ import android.annotation.SuppressLint
 import android.util.Log
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
@@ -18,7 +17,6 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -40,6 +38,7 @@ import io.github.kitswas.virtualgamepadmobile.data.SettingsRepository
 import io.github.kitswas.virtualgamepadmobile.data.defaultButtonConfigs
 import io.github.kitswas.virtualgamepadmobile.ui.composables.ButtonConfigEditor
 import io.github.kitswas.virtualgamepadmobile.ui.composables.DrawGamepad
+import io.github.kitswas.virtualgamepadmobile.ui.composables.ResponsiveGrid
 import kotlinx.coroutines.runBlocking
 
 const val gamepadCustomizationLogTag = "GamepadCustomizationScreen"
@@ -53,21 +52,6 @@ fun GamepadCustomizationScreen(
     val buttonConfigs by settingsRepository.buttonConfigs.collectAsState(initial = defaultButtonConfigs)
     var modifiedConfigs by remember { mutableStateOf<Map<ButtonComponent, ButtonConfig>?>(null) }
     var showPreview by remember { mutableStateOf(false) }
-
-    // Manually add 2 items at a time every 200ms to prevent UI freeze
-    var renderableItems by remember { mutableStateOf<List<ButtonComponent>>(emptyList()) }
-
-    LaunchedEffect(Unit) {
-        val allItems = ButtonComponent.entries.toList()
-        var index = 0
-        while (index < allItems.size) {
-            kotlinx.coroutines.delay(200) // Wait 200ms before adding next batch
-            // Add 2 items at a time
-            val batchEnd = (index + 2).coerceAtMost(allItems.size)
-            renderableItems = allItems.take(batchEnd)
-            index = batchEnd
-        }
-    }
 
     val configuration = LocalConfiguration.current
     val screenHeight = configuration.screenHeightDp
@@ -121,44 +105,33 @@ fun GamepadCustomizationScreen(
                     modifier = Modifier.padding(vertical = 4.dp)
                 )
 
-                // Manual grid - chunked into 2-item rows to minimize layout recalculation
-                val rows = renderableItems.chunked(2)
-                rows.forEach { rowItems ->
-                    Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(vertical = 8.dp),
-                        horizontalArrangement = Arrangement.spacedBy(8.dp)
-                    ) {
-                        rowItems.forEach { component ->
-                            val config = if (modifiedConfigs != null) {
-                                modifiedConfigs!![component] ?: ButtonConfig.default(component)
-                            } else {
-                                buttonConfigs[component] ?: ButtonConfig.default(component)
-                            }
+                val minCardWidth = 420.dp
+                // Responsive grid that dynamically calculates columns and batches items
+                ResponsiveGrid(
+                    items = ButtonComponent.entries.toList(),
+                    minItemWidth = minCardWidth,
+                    horizontalSpacing = 8.dp,
+                    verticalSpacing = 8.dp,
+                ) { component ->
+                    val config = if (modifiedConfigs != null) {
+                        modifiedConfigs!![component] ?: ButtonConfig.default(component)
+                    } else {
+                        buttonConfigs[component] ?: ButtonConfig.default(component)
+                    }
 
-                            val onConfigChange = remember(component) {
-                                { newConfig: ButtonConfig ->
-                                    val currentConfigs = modifiedConfigs ?: buttonConfigs
-                                    modifiedConfigs = currentConfigs + (component to newConfig)
-                                }
-                            }
-
-                            Box(modifier = Modifier.weight(1f)) {
-                                ButtonConfigEditor(
-                                    component = component,
-                                    config = config,
-                                    onConfigChange = onConfigChange,
-                                    modifier = Modifier.widthIn(min = 320.dp)
-                                )
-                            }
-                        }
-
-                        // Add spacer for odd number of items in last row
-                        if (rowItems.size == 1) {
-                            Box(modifier = Modifier.weight(1f))
+                    val onConfigChange = remember(component) {
+                        { newConfig: ButtonConfig ->
+                            val currentConfigs = modifiedConfigs ?: buttonConfigs
+                            modifiedConfigs = currentConfigs + (component to newConfig)
                         }
                     }
+
+                    ButtonConfigEditor(
+                        component = component,
+                        config = config,
+                        onConfigChange = onConfigChange,
+                        modifier = Modifier.widthIn(min = minCardWidth)
+                    )
                 }
             }
 
@@ -170,7 +143,7 @@ fun GamepadCustomizationScreen(
                 verticalArrangement = Arrangement.spacedBy(8.dp),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                // Preview button (full width)
+                // Preview button
                 Button(
                     onClick = { showPreview = true },
                 ) {
@@ -245,6 +218,7 @@ fun GamepadPreview(
     widthDp = PreviewWidthDp,
     heightDp = PreviewHeightDp,
 )
+@MultiDevicePreview
 @Composable
 fun GamepadCustomizationScreenPreview() {
     PreviewBase {
