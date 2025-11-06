@@ -4,8 +4,8 @@ import android.annotation.SuppressLint
 import android.util.Log
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -121,35 +121,43 @@ fun GamepadCustomizationScreen(
                     modifier = Modifier.padding(vertical = 4.dp)
                 )
 
-                // Manual grid using FlowRow for responsive layout
-                FlowRow(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.spacedBy(8.dp),
-                    verticalArrangement = Arrangement.spacedBy(8.dp),
-                    maxItemsInEachRow = Int.MAX_VALUE
-                ) {
-                    renderableItems.forEach { component ->
-                        val config = if (modifiedConfigs != null) {
-                            modifiedConfigs!![component] ?: ButtonConfig.default(component)
-                        } else {
-                            buttonConfigs[component] ?: ButtonConfig.default(component)
-                        }
+                // Manual grid - chunked into 2-item rows to minimize layout recalculation
+                val rows = renderableItems.chunked(2)
+                rows.forEach { rowItems ->
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(vertical = 8.dp),
+                        horizontalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
+                        rowItems.forEach { component ->
+                            val config = if (modifiedConfigs != null) {
+                                modifiedConfigs!![component] ?: ButtonConfig.default(component)
+                            } else {
+                                buttonConfigs[component] ?: ButtonConfig.default(component)
+                            }
 
-                        val onConfigChange = remember(component) {
-                            { newConfig: ButtonConfig ->
-                                val currentConfigs = modifiedConfigs ?: buttonConfigs
-                                modifiedConfigs = currentConfigs + (component to newConfig)
+                            val onConfigChange = remember(component) {
+                                { newConfig: ButtonConfig ->
+                                    val currentConfigs = modifiedConfigs ?: buttonConfigs
+                                    modifiedConfigs = currentConfigs + (component to newConfig)
+                                }
+                            }
+
+                            Box(modifier = Modifier.weight(1f)) {
+                                ButtonConfigEditor(
+                                    component = component,
+                                    config = config,
+                                    onConfigChange = onConfigChange,
+                                    modifier = Modifier.widthIn(min = 320.dp)
+                                )
                             }
                         }
 
-                        ButtonConfigEditor(
-                            component = component,
-                            config = config,
-                            onConfigChange = onConfigChange,
-                            modifier = Modifier
-                                .weight(1f, fill = false)
-                                .widthIn(min = 320.dp)
-                        )
+                        // Add spacer for odd number of items in last row
+                        if (rowItems.size == 1) {
+                            Box(modifier = Modifier.weight(1f))
+                        }
                     }
                 }
             }
