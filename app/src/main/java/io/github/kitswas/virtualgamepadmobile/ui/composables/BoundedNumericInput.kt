@@ -9,14 +9,14 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 
-
+@Suppress("UNUSED")
 @Composable
 fun <T : Number> BoundedNumericInput(
     value: T,
@@ -25,14 +25,14 @@ fun <T : Number> BoundedNumericInput(
     minValue: T,
     maxValue: T,
     parseValue: (String) -> T?,
+    modifier: Modifier = Modifier,
     formatValue: (T) -> String = { it.toString() },
     keyboardType: KeyboardType = KeyboardType.Number,
     compareValues: (T, T) -> Int = { a, b -> a.toDouble().compareTo(b.toDouble()) },
-    modifier: Modifier = Modifier
 ) {
-    var textValue by remember { mutableStateOf(formatValue(value)) }
-    var isError by remember { mutableStateOf(false) }
-    var errorMessage by remember { mutableStateOf("") }
+    var textValue by rememberSaveable { mutableStateOf(formatValue(value)) }
+    var isError by rememberSaveable { mutableStateOf(false) }
+    var errorMessage by rememberSaveable { mutableStateOf("") }
 
     Column(
         modifier = modifier,

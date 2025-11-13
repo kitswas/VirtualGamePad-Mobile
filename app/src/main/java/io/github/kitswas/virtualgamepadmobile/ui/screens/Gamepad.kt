@@ -10,6 +10,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Devices.DESKTOP
@@ -38,7 +39,7 @@ fun GamePad(
     connectionViewModel: ConnectionViewModel?,
     onNavigateBack: () -> Unit,
 ) {
-    val gamepadState by remember { mutableStateOf(GamepadReading()) }
+    val gamepadState by rememberSaveable { mutableStateOf(GamepadReading()) }
     val context = LocalContext.current
     val settingsRepository = remember { SettingsRepository(context) }
     val pollingDelay =

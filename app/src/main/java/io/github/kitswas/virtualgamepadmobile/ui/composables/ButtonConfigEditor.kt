@@ -14,7 +14,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -32,11 +32,11 @@ fun ButtonConfigEditor(
     onConfigChange: (ButtonConfig) -> Unit,
     modifier: Modifier = Modifier
 ) {
-    var visible by remember(config) { mutableStateOf(config.visible) }
-    var scale by remember(config) { mutableFloatStateOf(config.scale) }
-    var offsetX by remember(config) { mutableFloatStateOf(config.offsetX) }
-    var offsetY by remember(config) { mutableFloatStateOf(config.offsetY) }
-    var anchor by remember(config) { mutableStateOf(config.anchor) }
+    var visible by rememberSaveable(config) { mutableStateOf(config.visible) }
+    var scale by rememberSaveable(config) { mutableFloatStateOf(config.scale) }
+    var offsetX by rememberSaveable(config) { mutableFloatStateOf(config.offsetX) }
+    var offsetY by rememberSaveable(config) { mutableFloatStateOf(config.offsetY) }
+    var anchor by rememberSaveable(config) { mutableStateOf(config.anchor) }
 
     Card(
         modifier = modifier

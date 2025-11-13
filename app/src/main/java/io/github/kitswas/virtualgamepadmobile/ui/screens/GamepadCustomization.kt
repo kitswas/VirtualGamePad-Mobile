@@ -25,6 +25,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -54,11 +55,15 @@ fun GamepadCustomizationScreen(
     settingsRepository: SettingsRepository
 ) {
     val buttonConfigs by settingsRepository.buttonConfigs.collectAsState(initial = defaultButtonConfigs)
-    var modifiedConfigs by remember { mutableStateOf<Map<ButtonComponent, ButtonConfig>?>(null) }
-    var showPreview by remember { mutableStateOf(false) }
-    var showExportDialog by remember { mutableStateOf(false) }
-    var showImportDialog by remember { mutableStateOf(false) }
-    var importJsonText by remember { mutableStateOf("") }
+    var modifiedConfigs by rememberSaveable {
+        mutableStateOf<Map<ButtonComponent, ButtonConfig>?>(
+            null
+        )
+    }
+    var showPreview by rememberSaveable { mutableStateOf(false) }
+    var showExportDialog by rememberSaveable { mutableStateOf(false) }
+    var showImportDialog by rememberSaveable { mutableStateOf(false) }
+    var importJsonText by rememberSaveable { mutableStateOf("") }
 
     // Get the current configs to preview (modified or saved)
     val currentConfigs = modifiedConfigs ?: buttonConfigs
@@ -295,7 +300,7 @@ fun ImportConfigDialog(
     onImport: (Map<ButtonComponent, ButtonConfig>) -> Unit,
     onDismiss: () -> Unit
 ) {
-    var hasError by remember { mutableStateOf(false) }
+    var hasError by rememberSaveable { mutableStateOf(false) }
     AlertDialog(
         onDismissRequest = onDismiss,
         title = { Text("Import Configuration") },
