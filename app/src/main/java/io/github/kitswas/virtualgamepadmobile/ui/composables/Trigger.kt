@@ -25,6 +25,7 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import io.github.kitswas.VGP_Data_Exchange.GamepadReading
 import io.github.kitswas.virtualgamepadmobile.ui.utils.HapticUtils
+import io.github.kitswas.virtualgamepadmobile.ui.utils.SoundUtils
 
 enum class TriggerType {
     LEFT, RIGHT
@@ -50,6 +51,7 @@ fun Trigger(
                 TriggerType.RIGHT -> gamepadState.RightTrigger = 1f
             }
             HapticUtils.performButtonPressFeedback(view)
+            SoundUtils.performButtonPressSound(view)
         }
         onDispose {
             Log.d("TriggerButton", "Trigger ${type.name} released")
@@ -58,6 +60,7 @@ fun Trigger(
                 TriggerType.RIGHT -> gamepadState.RightTrigger = 0f
             }
             HapticUtils.performButtonReleaseFeedback(view)
+            SoundUtils.performButtonReleaseSound(view)
         }
     }
     val text = when (type) {

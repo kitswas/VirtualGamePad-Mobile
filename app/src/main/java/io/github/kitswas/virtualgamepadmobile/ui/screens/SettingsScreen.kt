@@ -46,6 +46,7 @@ import io.github.kitswas.virtualgamepadmobile.data.SettingsRepository
 import io.github.kitswas.virtualgamepadmobile.data.defaultBaseColor
 import io.github.kitswas.virtualgamepadmobile.data.defaultColorScheme
 import io.github.kitswas.virtualgamepadmobile.data.defaultHapticFeedbackEnabled
+import io.github.kitswas.virtualgamepadmobile.data.defaultButtonClickSoundEnabled
 import io.github.kitswas.virtualgamepadmobile.data.defaultPollingDelay
 import io.github.kitswas.virtualgamepadmobile.ui.composables.ColorSchemePicker
 import io.github.kitswas.virtualgamepadmobile.ui.composables.ListItemPicker
@@ -62,6 +63,7 @@ private data class SettingsChanges(
     var baseColor: BaseColor? = null,
     var pollingDelay: Int? = null,
     var hapticFeedbackEnabled: Boolean? = null
+    , var soundFeedbackEnabled: Boolean? = null
 ) : Parcelable
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -78,6 +80,7 @@ fun SettingsScreen(
         val baseColor by settingsRepository.baseColor.collectAsState(initial = defaultBaseColor)
         val pollingDelay by settingsRepository.pollingDelay.collectAsState(initial = defaultPollingDelay)
         val hapticEnabled by settingsRepository.hapticFeedbackEnabled.collectAsState(initial = defaultHapticFeedbackEnabled)
+        val soundEnabled by settingsRepository.soundFeedbackEnabled.collectAsState(initial = defaultButtonClickSoundEnabled)
 
         Column(
             modifier = Modifier
@@ -182,6 +185,31 @@ fun SettingsScreen(
                     )
                 }
 
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.SpaceEvenly
+                ) {
+                    var soundSwitchState by rememberSaveable(soundEnabled) {
+                        mutableStateOf(
+                            soundEnabled
+                        )
+                    }
+                    Text(
+                        "Sound Effects (Clicks)",
+                        style = MaterialTheme.typography.labelMedium
+                    )
+                    Switch(
+                        checked = soundSwitchState,
+                        onCheckedChange = {
+                            settingsChanges.soundFeedbackEnabled = it
+                            soundSwitchState = it
+                        }
+                    )
+                }
+
+                
+
                 Button(
                     onClick = onNavigateToGamepadCustomization,
                     modifier = Modifier
@@ -228,6 +256,11 @@ fun SettingsScreen(
                             }
                             settingsChanges.hapticFeedbackEnabled?.let {
                                 settingsRepository.setHapticFeedbackEnabled(
+                                    it
+                                ); ++changesSaved
+                            }
+                            settingsChanges.soundFeedbackEnabled?.let {
+                                settingsRepository.setSoundFeedbackEnabled(
                                     it
                                 ); ++changesSaved
                             }

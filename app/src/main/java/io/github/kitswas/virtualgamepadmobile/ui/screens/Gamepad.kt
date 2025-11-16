@@ -25,6 +25,7 @@ import io.github.kitswas.virtualgamepadmobile.data.defaultButtonConfigs
 import io.github.kitswas.virtualgamepadmobile.data.defaultPollingDelay
 import io.github.kitswas.virtualgamepadmobile.network.ConnectionViewModel
 import io.github.kitswas.virtualgamepadmobile.ui.composables.DrawGamepad
+import io.github.kitswas.virtualgamepadmobile.ui.utils.SoundUtils
 import io.github.kitswas.virtualgamepadmobile.ui.utils.findActivity
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -55,6 +56,13 @@ fun GamePad(
     val isStopping = remember { mutableStateOf(false) }
 
     DrawGamepad(screenWidth, screenHeight, gamepadState, buttonConfigs)
+
+    // Pre-initialize the sound pool on gamepad start for lower latency
+    LaunchedEffect(Unit) {
+        if (SoundUtils.isEnabled) {
+            SoundUtils.preload(context)
+        }
+    }
 
     val activity = LocalContext.current.findActivity()
     // disconnect on back press

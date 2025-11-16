@@ -7,6 +7,7 @@ import androidx.activity.viewModels
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
+import androidx.compose.ui.platform.LocalContext
 import androidx.navigation.NavHostController
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
@@ -15,6 +16,7 @@ import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import io.github.kitswas.virtualgamepadmobile.data.SettingsRepository
 import io.github.kitswas.virtualgamepadmobile.data.defaultBaseColor
+import io.github.kitswas.virtualgamepadmobile.data.defaultButtonClickSoundEnabled
 import io.github.kitswas.virtualgamepadmobile.data.defaultColorScheme
 import io.github.kitswas.virtualgamepadmobile.data.defaultHapticFeedbackEnabled
 import io.github.kitswas.virtualgamepadmobile.network.ConnectionViewModel
@@ -27,6 +29,7 @@ import io.github.kitswas.virtualgamepadmobile.ui.screens.MainMenu
 import io.github.kitswas.virtualgamepadmobile.ui.screens.SettingsScreen
 import io.github.kitswas.virtualgamepadmobile.ui.theme.VirtualGamePadMobileTheme
 import io.github.kitswas.virtualgamepadmobile.ui.utils.HapticUtils
+import io.github.kitswas.virtualgamepadmobile.ui.utils.SoundUtils
 import kotlin.system.exitProcess
 
 
@@ -57,9 +60,22 @@ class MainActivity : ComponentActivity() {
         val hapticEnabled = settingsRepository.hapticFeedbackEnabled.collectAsState(
             initial = defaultHapticFeedbackEnabled
         )
+        val soundEnabled = settingsRepository.soundFeedbackEnabled.collectAsState(
+            initial = defaultButtonClickSoundEnabled
+        )
 
         LaunchedEffect(hapticEnabled.value) {
             HapticUtils.isEnabled = hapticEnabled.value
+        }
+
+        val context = LocalContext.current
+
+        LaunchedEffect(soundEnabled.value) {
+            SoundUtils.isEnabled = soundEnabled.value
+            if (soundEnabled.value) {
+                // Preload sounds so first press feels snappy
+                SoundUtils.preload(context)
+            }
         }
 
         VirtualGamePadMobileTheme(
@@ -145,5 +161,11 @@ class MainActivity : ComponentActivity() {
                 )
             }
         }
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        // Release any sound resources used by the app
+        SoundUtils.release()
     }
 }
