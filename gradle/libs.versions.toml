@@ -1,20 +1,20 @@
 [versions]
 # Android
-android-gradle-plugin = "8.11.1"
+android-gradle-plugin = "8.13.2"
 
 # Kotlin
-kotlin = "2.2.21"
+kotlin = "2.3.0"
 kotlinx-serialization-json = "1.9.0"
 
 # AndroidX Core
 androidx-core-ktx = "1.17.0"
-androidx-lifecycle = "2.9.4"
-androidx-activity-compose = "1.11.0"
-androidx-window = "1.5.0"
-androidx-datastore = "1.1.7"
+androidx-lifecycle = "2.10.0"
+androidx-activity-compose = "1.12.2"
+androidx-window = "1.5.1"
+androidx-datastore = "1.2.0"
 
 # Compose
-compose-bom = "2025.11.00"
+compose-bom = "2025.12.01"
 compose-navigation = "2.9.6"
 
 # QR Code Scanner
