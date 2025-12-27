@@ -25,6 +25,10 @@ import io.github.kitswas.virtualgamepadmobile.data.ButtonComponent
 import io.github.kitswas.virtualgamepadmobile.data.ButtonConfig
 import io.github.kitswas.virtualgamepadmobile.data.PreviewBase
 
+// Centralized slider ranges
+private val SCALE_VALUE_RANGE = 0.5f..2f
+private val OFFSET_VALUE_RANGE = -0.5f..0.5f
+
 @Composable
 fun ButtonConfigEditor(
     component: ButtonComponent,
@@ -107,7 +111,7 @@ fun ButtonConfigEditor(
                     onValueChangeFinished = {
                         onConfigChange(config.copy(scale = scale))
                     },
-                    valueRange = 0.5f..1.5f,
+                    valueRange = SCALE_VALUE_RANGE,
                     modifier = Modifier.weight(3f)
                 )
             }
@@ -129,7 +133,7 @@ fun ButtonConfigEditor(
                     onValueChangeFinished = {
                         onConfigChange(config.copy(offsetX = offsetX))
                     },
-                    valueRange = -0.5f..0.5f,
+                    valueRange = OFFSET_VALUE_RANGE,
                     modifier = Modifier.weight(3f)
                 )
             }
@@ -151,7 +155,7 @@ fun ButtonConfigEditor(
                     onValueChangeFinished = {
                         onConfigChange(config.copy(offsetY = offsetY))
                     },
-                    valueRange = -0.5f..0.5f,
+                    valueRange = OFFSET_VALUE_RANGE,
                     modifier = Modifier.weight(3f)
                 )
             }
