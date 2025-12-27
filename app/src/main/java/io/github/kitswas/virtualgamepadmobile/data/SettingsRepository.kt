@@ -33,10 +33,6 @@ class SettingsRepository(context: Context) {
         preferences[HAPTIC_FEEDBACK_ENABLED] ?: defaultHapticFeedbackEnabled
     }
 
-    val soundFeedbackEnabled: Flow<Boolean> = dataStore.data.map { preferences ->
-        preferences[SOUND_FEEDBACK_ENABLED] ?: defaultButtonClickSoundEnabled
-    }
-
     val buttonConfigs: Flow<Map<ButtonComponent, ButtonConfig>> =
         dataStore.data.map { preferences ->
             val jsonString = preferences[BUTTON_CONFIGS]
@@ -75,12 +71,6 @@ class SettingsRepository(context: Context) {
         }
     }
 
-    suspend fun setSoundFeedbackEnabled(enabled: Boolean) {
-        dataStore.edit { preferences ->
-            preferences[SOUND_FEEDBACK_ENABLED] = enabled
-        }
-    }
-
     suspend fun setButtonConfig(component: ButtonComponent, config: ButtonConfig) {
         dataStore.edit { preferences ->
             val currentJson = preferences[BUTTON_CONFIGS]
@@ -116,7 +106,6 @@ class SettingsRepository(context: Context) {
         private val BASE_COLOR = intPreferencesKey("base_color")
         private val POLLING_DELAY = intPreferencesKey("polling_delay")
         private val HAPTIC_FEEDBACK_ENABLED = booleanPreferencesKey("haptic_feedback_enabled")
-        private val SOUND_FEEDBACK_ENABLED = booleanPreferencesKey("sound_feedback_enabled")
         private val BUTTON_CONFIGS = stringPreferencesKey("button_configs")
     }
 }

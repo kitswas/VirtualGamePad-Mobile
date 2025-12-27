@@ -31,7 +31,6 @@ import io.github.kitswas.virtualgamepadmobile.ui.theme.darken
 import io.github.kitswas.virtualgamepadmobile.ui.theme.faceButtonTextStyle
 import io.github.kitswas.virtualgamepadmobile.ui.theme.lighten
 import io.github.kitswas.virtualgamepadmobile.ui.utils.HapticUtils
-import io.github.kitswas.virtualgamepadmobile.ui.utils.SoundUtils
 
 
 enum class FaceButtonType {
@@ -67,14 +66,12 @@ fun FaceButton(
     if (isPressed) {
         Log.d("FaceButton ${type.name}", "Pressed")
         HapticUtils.performButtonPressFeedback(view)
-            SoundUtils.performButtonPressSound(view)
         gamepadState.ButtonsDown = gamepadState.ButtonsDown or gameButton.value
         //Use if + DisposableEffect to wait for the press action is completed
         DisposableEffect(Unit) {
             onDispose {
                 Log.d("FaceButton ${type.name}", "Released")
                 HapticUtils.performButtonReleaseFeedback(view)
-                    SoundUtils.performButtonReleaseSound(view)
                 gamepadState.ButtonsDown = gamepadState.ButtonsDown and gameButton.value.inv()
                 gamepadState.ButtonsUp = gamepadState.ButtonsUp or gameButton.value
             }

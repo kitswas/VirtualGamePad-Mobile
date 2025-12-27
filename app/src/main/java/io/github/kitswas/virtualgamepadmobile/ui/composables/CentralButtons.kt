@@ -35,7 +35,6 @@ import io.github.kitswas.virtualgamepadmobile.data.ButtonAnchor
 import io.github.kitswas.virtualgamepadmobile.data.ButtonComponent
 import io.github.kitswas.virtualgamepadmobile.data.ButtonConfig
 import io.github.kitswas.virtualgamepadmobile.ui.utils.HapticUtils
-import io.github.kitswas.virtualgamepadmobile.ui.utils.SoundUtils
 
 /**
  * Convert ButtonAnchor to Compose Alignment
@@ -84,14 +83,12 @@ fun ShoulderButton(
     if (isPressed) {
         Log.d(gameButton.name, "Pressed")
         HapticUtils.performButtonPressFeedback(view)
-            SoundUtils.performButtonPressSound(view)
         gamepadState.ButtonsDown = gamepadState.ButtonsDown or gameButton.value
         //Use if + DisposableEffect to wait for the press action is completed
         DisposableEffect(Unit) {
             onDispose {
                 Log.d(gameButton.name, "Released")
                 HapticUtils.performButtonReleaseFeedback(view)
-                SoundUtils.performButtonReleaseSound(view)
                 gamepadState.ButtonsDown =
                     gamepadState.ButtonsDown and gameButton.value.inv()
                 gamepadState.ButtonsUp = gamepadState.ButtonsUp or gameButton.value
@@ -135,14 +132,12 @@ fun MenuButton(
     if (isPressed) {
         Log.d(gameButton.name, "Pressed")
         HapticUtils.performButtonPressFeedback(view)
-          SoundUtils.performButtonPressSound(view)
         gamepadState.ButtonsDown = gamepadState.ButtonsDown or gameButton.value
         //Use if + DisposableEffect to wait for the press action is completed
         DisposableEffect(Unit) {
             onDispose {
                 Log.d(gameButton.name, "Released")
                 HapticUtils.performButtonReleaseFeedback(view)
-                SoundUtils.performButtonReleaseSound(view)
                 gamepadState.ButtonsDown =
                     gamepadState.ButtonsDown and gameButton.value.inv()
                 gamepadState.ButtonsUp = gamepadState.ButtonsUp or gameButton.value

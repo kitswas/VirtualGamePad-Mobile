@@ -27,7 +27,6 @@ import io.github.kitswas.VGP_Data_Exchange.GamepadReading
 import io.github.kitswas.virtualgamepadmobile.ui.theme.darken
 import io.github.kitswas.virtualgamepadmobile.ui.theme.lighten
 import io.github.kitswas.virtualgamepadmobile.ui.utils.HapticUtils
-import io.github.kitswas.virtualgamepadmobile.ui.utils.SoundUtils
 import kotlin.math.roundToInt
 import kotlin.math.sqrt
 
@@ -174,7 +173,6 @@ fun AnalogStick(
                                             AnalogStickType.RIGHT -> gamepadState.ButtonsDown or GameButtons.RightThumbstick.value
                                         }
                                         HapticUtils.performButtonPressFeedback(view)
-                                        SoundUtils.performButtonPressSound(view)
                                     } else {
                                         isPressed = false
                                         gamepadState.ButtonsDown = when (type) {
@@ -186,7 +184,6 @@ fun AnalogStick(
                                             AnalogStickType.RIGHT -> gamepadState.ButtonsUp or GameButtons.RightThumbstick.value
                                         }
                                         HapticUtils.performGestureEndFeedback(view)
-                                        SoundUtils.performButtonReleaseSound(view)
                                     }
                                 }
                             )
