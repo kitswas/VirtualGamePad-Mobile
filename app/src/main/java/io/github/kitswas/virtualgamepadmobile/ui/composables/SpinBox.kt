@@ -7,8 +7,6 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.ui.res.painterResource
-import io.github.kitswas.virtualgamepadmobile.R
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -21,8 +19,10 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import io.github.kitswas.virtualgamepadmobile.R
 
 @Composable
 fun <T : Number> SpinBox(
@@ -94,10 +94,10 @@ fun <T : Number> SpinBox(
                 },
                 modifier = Modifier.size(40.dp)
             ) {
-                    Icon(
-                        painter = painterResource(R.drawable.ic_keyboard_arrow_down),
-                        contentDescription = "Decrease",
-                    )
+                Icon(
+                    painter = painterResource(R.drawable.ic_keyboard_arrow_down),
+                    contentDescription = "Decrease",
+                )
             }
 
             Spacer(modifier = Modifier.width(4.dp))

@@ -1,24 +1,25 @@
 [versions]
 # Android
-android-gradle-plugin = "8.11.1"
+android-gradle-plugin = "8.13.2"
 
 # Kotlin
-kotlin = "2.2.21"
+kotlin = "2.3.0"
+kotlinx-serialization-json = "1.9.0"
 
 # AndroidX Core
 androidx-core-ktx = "1.17.0"
-androidx-lifecycle = "2.9.4"
-androidx-activity-compose = "1.11.0"
-androidx-window = "1.5.0"
-androidx-datastore = "1.1.7"
+androidx-lifecycle = "2.10.0"
+androidx-activity-compose = "1.12.2"
+androidx-window = "1.5.1"
+androidx-datastore = "1.2.0"
 
 # Compose
-compose-bom = "2025.10.01"
-compose-navigation = "2.9.5"
+compose-bom = "2025.12.01"
+compose-navigation = "2.9.6"
 
 # QR Code Scanner
 zxing-android-embedded = "4.3.0"
-zxing-core = "3.5.3"
+zxing-core = "3.5.4"
 
 # Testing
 junit = "4.13.2"
@@ -66,6 +67,9 @@ androidx-datastore-preferences = { group = "androidx.datastore", name = "datasto
 # Tools
 desugar-jdk-libs = { group = "com.android.tools", name = "desugar_jdk_libs", version.ref = "desugar-jdk-libs" }
 
+# Serialization
+kotlinx-serialization-json = { group = "org.jetbrains.kotlinx", name = "kotlinx-serialization-json", version.ref = "kotlinx-serialization-json" }
+
 # Testing
 junit = { group = "junit", name = "junit", version.ref = "junit" }
 kotlinx-coroutines-test = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-test", version.ref = "kotlinx-coroutines-test" }
@@ -78,4 +82,5 @@ kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
 kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
 kotlin-compose = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
 kotlin-parcelize = { id = "org.jetbrains.kotlin.plugin.parcelize", version.ref = "kotlin" }
+kotlin-serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }
 dokka = { id = "org.jetbrains.dokka", version.ref = "dokka" }

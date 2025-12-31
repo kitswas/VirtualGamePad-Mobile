@@ -31,7 +31,25 @@ import androidx.compose.ui.unit.dp
 import io.github.kitswas.VGP_Data_Exchange.GameButtons
 import io.github.kitswas.VGP_Data_Exchange.GamepadReading
 import io.github.kitswas.virtualgamepadmobile.R
+import io.github.kitswas.virtualgamepadmobile.data.ButtonAnchor
+import io.github.kitswas.virtualgamepadmobile.data.ButtonComponent
+import io.github.kitswas.virtualgamepadmobile.data.ButtonConfig
 import io.github.kitswas.virtualgamepadmobile.ui.utils.HapticUtils
+
+/**
+ * Convert ButtonAnchor to Compose Alignment
+ */
+private fun ButtonAnchor.toAlignment(): Alignment = when (this) {
+    ButtonAnchor.TOP_LEFT -> Alignment.TopStart
+    ButtonAnchor.TOP_CENTER -> Alignment.TopCenter
+    ButtonAnchor.TOP_RIGHT -> Alignment.TopEnd
+    ButtonAnchor.CENTER_LEFT -> Alignment.CenterStart
+    ButtonAnchor.CENTER -> Alignment.Center
+    ButtonAnchor.CENTER_RIGHT -> Alignment.CenterEnd
+    ButtonAnchor.BOTTOM_LEFT -> Alignment.BottomStart
+    ButtonAnchor.BOTTOM_CENTER -> Alignment.BottomCenter
+    ButtonAnchor.BOTTOM_RIGHT -> Alignment.BottomEnd
+}
 
 enum class ShoulderButtonType {
     LEFT, RIGHT
@@ -159,48 +177,74 @@ fun CentralButtons(
     modifier: Modifier = Modifier,
     baseDp: Int,
     gamepadState: GamepadReading,
+    buttonConfigs: Map<ButtonComponent, ButtonConfig>,
 ) {
-    Box(
-        modifier = modifier.fillMaxSize(),
-        contentAlignment = Alignment.TopCenter
-    ) {
-        // Shoulder buttons
+    // Helper function to get config for a component
+    fun getConfig(component: ButtonComponent) =
+        buttonConfigs[component] ?: ButtonConfig.default(component)
+
+    // Helper function to render a button component with its anchor
+    @Composable
+    fun RenderButton(component: ButtonComponent, content: @Composable (ButtonConfig) -> Unit) {
+        val config = getConfig(component)
+        if (config.visible) {
+            Box(
+                modifier = modifier.fillMaxSize(),
+                contentAlignment = config.anchor.toAlignment()
+            ) {
+                content(config)
+            }
+        }
+    }
+
+    // Left Shoulder button
+    RenderButton(ButtonComponent.LEFT_SHOULDER) { config ->
         ShoulderButton(
             type = ShoulderButtonType.LEFT,
             modifier = Modifier.offset(
-                x = -(baseDp / 4).dp, y = 0.dp
+                x = (config.offsetX * baseDp).dp,
+                y = (config.offsetY * baseDp).dp
             ),
-            size = (baseDp / 8).dp,
+            size = (baseDp / 8 * config.scale).dp,
             gamepadState = gamepadState,
         )
+    }
 
+    // Right Shoulder button
+    RenderButton(ButtonComponent.RIGHT_SHOULDER) { config ->
         ShoulderButton(
             type = ShoulderButtonType.RIGHT,
             modifier = Modifier.offset(
-                x = (baseDp / 4).dp, y = 0.dp
+                x = (config.offsetX * baseDp).dp,
+                y = (config.offsetY * baseDp).dp
             ),
-            size = (baseDp / 8).dp,
+            size = (baseDp / 8 * config.scale).dp,
             gamepadState = gamepadState,
         )
+    }
 
-        // Menu buttons
+    // Select button (View)
+    RenderButton(ButtonComponent.SELECT_BUTTON) { config ->
         MenuButton(
             type = MenuButtonType.VIEW,
-            modifier = Modifier
-                .offset(
-                    x = -(baseDp / 4).dp, y = (baseDp / 4).dp
-                ),
-            size = (baseDp / 8).dp,
+            modifier = Modifier.offset(
+                x = (config.offsetX * baseDp).dp,
+                y = (config.offsetY * baseDp).dp
+            ),
+            size = (baseDp / 8 * config.scale).dp,
             gamepadState = gamepadState,
         )
+    }
 
+    // Start button (Menu)
+    RenderButton(ButtonComponent.START_BUTTON) { config ->
         MenuButton(
             type = MenuButtonType.MENU,
-            modifier = Modifier
-                .offset(
-                    x = (baseDp / 4).dp, y = (baseDp / 4).dp
-                ),
-            size = (baseDp / 8).dp,
+            modifier = Modifier.offset(
+                x = (config.offsetX * baseDp).dp,
+                y = (config.offsetY * baseDp).dp
+            ),
+            size = (baseDp / 8 * config.scale).dp,
             gamepadState = gamepadState,
         )
     }
@@ -212,5 +256,6 @@ fun CentralButtonsPreview() {
     CentralButtons(
         baseDp = 400,
         gamepadState = GamepadReading(),
+        buttonConfigs = io.github.kitswas.virtualgamepadmobile.data.defaultButtonConfigs,
     )
 }

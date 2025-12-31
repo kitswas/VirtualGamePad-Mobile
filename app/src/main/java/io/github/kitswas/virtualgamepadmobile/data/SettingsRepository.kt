@@ -6,11 +6,12 @@ import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.intPreferencesKey
+import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
+import kotlinx.serialization.json.Json
 
-// At the top level of your kotlin file:
 val Context.settingsDataStore: DataStore<Preferences> by preferencesDataStore(name = "settings")
 
 class SettingsRepository(context: Context) {
@@ -31,6 +32,20 @@ class SettingsRepository(context: Context) {
     val hapticFeedbackEnabled: Flow<Boolean> = dataStore.data.map { preferences ->
         preferences[HAPTIC_FEEDBACK_ENABLED] ?: defaultHapticFeedbackEnabled
     }
+
+    val buttonConfigs: Flow<Map<ButtonComponent, ButtonConfig>> =
+        dataStore.data.map { preferences ->
+            val jsonString = preferences[BUTTON_CONFIGS]
+            if (jsonString != null) {
+                try {
+                    Json.decodeFromString<Map<ButtonComponent, ButtonConfig>>(jsonString)
+                } catch (e: Exception) {
+                    defaultButtonConfigs
+                }
+            } else {
+                defaultButtonConfigs
+            }
+        }
 
     suspend fun setBaseColor(baseColor: BaseColor) {
         dataStore.edit { preferences ->
@@ -56,6 +71,30 @@ class SettingsRepository(context: Context) {
         }
     }
 
+    suspend fun setButtonConfig(component: ButtonComponent, config: ButtonConfig) {
+        dataStore.edit { preferences ->
+            val currentJson = preferences[BUTTON_CONFIGS]
+            val currentConfigs = if (currentJson != null) {
+                try {
+                    Json.decodeFromString<Map<ButtonComponent, ButtonConfig>>(currentJson)
+                        .toMutableMap()
+                } catch (e: Exception) {
+                    defaultButtonConfigs.toMutableMap()
+                }
+            } else {
+                defaultButtonConfigs.toMutableMap()
+            }
+            currentConfigs[component] = config
+            preferences[BUTTON_CONFIGS] = Json.encodeToString(currentConfigs)
+        }
+    }
+
+    suspend fun setAllButtonConfigs(configs: Map<ButtonComponent, ButtonConfig>) {
+        dataStore.edit { preferences ->
+            preferences[BUTTON_CONFIGS] = Json.encodeToString(configs)
+        }
+    }
+
     suspend fun resetAllSettings() {
         dataStore.edit { preferences ->
             preferences.clear()
@@ -67,5 +106,6 @@ class SettingsRepository(context: Context) {
         private val BASE_COLOR = intPreferencesKey("base_color")
         private val POLLING_DELAY = intPreferencesKey("polling_delay")
         private val HAPTIC_FEEDBACK_ENABLED = booleanPreferencesKey("haptic_feedback_enabled")
+        private val BUTTON_CONFIGS = stringPreferencesKey("button_configs")
     }
 }

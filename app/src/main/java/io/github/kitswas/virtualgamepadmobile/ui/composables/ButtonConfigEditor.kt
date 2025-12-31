@@ -1,0 +1,174 @@
+package io.github.kitswas.virtualgamepadmobile.ui.composables
+
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Switch
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableFloatStateOf
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
+import io.github.kitswas.virtualgamepadmobile.data.ButtonAnchor
+import io.github.kitswas.virtualgamepadmobile.data.ButtonComponent
+import io.github.kitswas.virtualgamepadmobile.data.ButtonConfig
+import io.github.kitswas.virtualgamepadmobile.data.OFFSET_VALUE_RANGE
+import io.github.kitswas.virtualgamepadmobile.data.PreviewBase
+import io.github.kitswas.virtualgamepadmobile.data.SCALE_VALUE_RANGE
+
+@Composable
+fun ButtonConfigEditor(
+    component: ButtonComponent,
+    config: ButtonConfig,
+    onConfigChange: (ButtonConfig) -> Unit,
+    modifier: Modifier = Modifier
+) {
+    var visible by rememberSaveable(config) { mutableStateOf(config.visible) }
+    var scale by rememberSaveable(config) { mutableFloatStateOf(config.scale) }
+    var offsetX by rememberSaveable(config) { mutableFloatStateOf(config.offsetX) }
+    var offsetY by rememberSaveable(config) { mutableFloatStateOf(config.offsetY) }
+    var anchor by rememberSaveable(config) { mutableStateOf(config.anchor) }
+
+    Card(
+        modifier = modifier
+            .padding(vertical = 4.dp),
+        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(12.dp),
+            verticalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
+            // Component name and visibility toggle
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    text = component.displayName,
+                    style = MaterialTheme.typography.titleSmall
+                )
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    Text(
+                        text = if (visible) "Visible" else "Hidden",
+                        style = MaterialTheme.typography.bodySmall
+                    )
+                    Switch(
+                        checked = visible,
+                        onCheckedChange = {
+                            visible = it
+                            onConfigChange(config.copy(visible = it))
+                        }
+                    )
+                }
+            }
+
+            // Anchor picker
+            ListItemPicker(
+                modifier = Modifier.fillMaxWidth(),
+                list = ButtonAnchor.entries.asIterable(),
+                default = anchor,
+                label = "Anchor Position",
+                isHorizontal = true,
+                onItemSelected = {
+                    anchor = it
+                    onConfigChange(config.copy(anchor = it))
+                }
+            )
+
+            // Scale slider
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    text = "Scale: ${String.format("%.2f", scale)}x",
+                    style = MaterialTheme.typography.bodyMedium,
+                    modifier = Modifier.weight(2f)
+                )
+                androidx.compose.material3.Slider(
+                    value = scale,
+                    onValueChange = { scale = it },
+                    onValueChangeFinished = {
+                        onConfigChange(config.copy(scale = scale))
+                    },
+                    valueRange = SCALE_VALUE_RANGE,
+                    modifier = Modifier.weight(3f)
+                )
+            }
+
+            // Offset X slider
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    text = "Offset X: ${String.format("%.2f", offsetX)}× baseDp",
+                    style = MaterialTheme.typography.bodyMedium,
+                    modifier = Modifier.weight(2f)
+                )
+                androidx.compose.material3.Slider(
+                    value = offsetX,
+                    onValueChange = { offsetX = it },
+                    onValueChangeFinished = {
+                        onConfigChange(config.copy(offsetX = offsetX))
+                    },
+                    valueRange = OFFSET_VALUE_RANGE,
+                    modifier = Modifier.weight(3f)
+                )
+            }
+
+            // Offset Y slider
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    text = "Offset Y: ${String.format("%.2f", offsetY)}× baseDp",
+                    style = MaterialTheme.typography.bodyMedium,
+                    modifier = Modifier.weight(2f)
+                )
+                androidx.compose.material3.Slider(
+                    value = offsetY,
+                    onValueChange = { offsetY = it },
+                    onValueChangeFinished = {
+                        onConfigChange(config.copy(offsetY = offsetY))
+                    },
+                    valueRange = OFFSET_VALUE_RANGE,
+                    modifier = Modifier.weight(3f)
+                )
+            }
+        }
+    }
+}
+
+@Preview
+@Composable
+fun ButtonConfigEditorPreview() {
+    PreviewBase {
+        ButtonConfigEditor(
+            component = ButtonComponent.FACE_BUTTONS,
+            config = ButtonConfig.default(ButtonComponent.FACE_BUTTONS),
+            onConfigChange = {}
+        )
+    }
+}

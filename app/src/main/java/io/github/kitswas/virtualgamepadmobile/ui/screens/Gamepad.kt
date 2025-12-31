@@ -10,6 +10,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Devices.DESKTOP
@@ -20,6 +21,7 @@ import io.github.kitswas.virtualgamepadmobile.data.PreviewBase
 import io.github.kitswas.virtualgamepadmobile.data.PreviewHeightDp
 import io.github.kitswas.virtualgamepadmobile.data.PreviewWidthDp
 import io.github.kitswas.virtualgamepadmobile.data.SettingsRepository
+import io.github.kitswas.virtualgamepadmobile.data.defaultButtonConfigs
 import io.github.kitswas.virtualgamepadmobile.data.defaultPollingDelay
 import io.github.kitswas.virtualgamepadmobile.network.ConnectionViewModel
 import io.github.kitswas.virtualgamepadmobile.ui.composables.DrawGamepad
@@ -37,20 +39,22 @@ fun GamePad(
     connectionViewModel: ConnectionViewModel?,
     onNavigateBack: () -> Unit,
 ) {
-    val gamepadState by remember { mutableStateOf(GamepadReading()) }
+    val gamepadState by rememberSaveable { mutableStateOf(GamepadReading()) }
     val context = LocalContext.current
     val settingsRepository = remember { SettingsRepository(context) }
     val pollingDelay =
         settingsRepository.pollingDelay.collectAsState(defaultPollingDelay).value.toLong()
+    val buttonConfigs =
+        settingsRepository.buttonConfigs.collectAsState(defaultButtonConfigs).value
 
     val configuration = LocalConfiguration.current
 
     val screenHeight = configuration.screenHeightDp
     val screenWidth = configuration.screenWidthDp
 
-    var isStopping = remember { mutableStateOf(false) }
+    val isStopping = remember { mutableStateOf(false) }
 
-    DrawGamepad(screenWidth, screenHeight, gamepadState)
+    DrawGamepad(screenWidth, screenHeight, gamepadState, buttonConfigs)
 
     val activity = LocalContext.current.findActivity()
     // disconnect on back press
