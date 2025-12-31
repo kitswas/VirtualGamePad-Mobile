@@ -6,6 +6,10 @@ import androidx.compose.runtime.Stable
 import kotlinx.parcelize.Parcelize
 import kotlinx.serialization.Serializable
 
+// Centralized value ranges for button configuration
+val SCALE_VALUE_RANGE = 0.5f..2f
+val OFFSET_VALUE_RANGE = -0.5f..0.5f
+
 /**
  * Anchor point for button positioning
  */

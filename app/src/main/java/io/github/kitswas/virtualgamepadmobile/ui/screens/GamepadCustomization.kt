@@ -36,7 +36,9 @@ import androidx.compose.ui.unit.dp
 import io.github.kitswas.VGP_Data_Exchange.GamepadReading
 import io.github.kitswas.virtualgamepadmobile.data.ButtonComponent
 import io.github.kitswas.virtualgamepadmobile.data.ButtonConfig
+import io.github.kitswas.virtualgamepadmobile.data.OFFSET_VALUE_RANGE
 import io.github.kitswas.virtualgamepadmobile.data.PreviewBase
+import io.github.kitswas.virtualgamepadmobile.data.SCALE_VALUE_RANGE
 import io.github.kitswas.virtualgamepadmobile.data.PreviewHeightDp
 import io.github.kitswas.virtualgamepadmobile.data.PreviewWidthDp
 import io.github.kitswas.virtualgamepadmobile.data.SettingsRepository
@@ -48,6 +50,33 @@ import kotlinx.coroutines.runBlocking
 import kotlinx.serialization.json.Json
 
 private const val logTag = "GamepadCustomizationScreen"
+
+/**
+ * Sanitizes imported button configurations to ensure all values are within valid ranges
+ * and all required components are present.
+ */
+private fun sanitizeButtonConfigs(configs: Map<ButtonComponent, ButtonConfig>): Map<ButtonComponent, ButtonConfig> {
+    val sanitized = mutableMapOf<ButtonComponent, ButtonConfig>()
+    
+    // Ensure all button components have a configuration
+    ButtonComponent.entries.forEach { component ->
+        val config = configs[component] ?: ButtonConfig.default(component)
+        
+        // Sanitize values to valid ranges
+        val sanitizedConfig = config.copy(
+            visible = config.visible, // Boolean, always valid
+            scale = config.scale.coerceIn(SCALE_VALUE_RANGE),
+            offsetX = config.offsetX.coerceIn(OFFSET_VALUE_RANGE),
+            offsetY = config.offsetY.coerceIn(OFFSET_VALUE_RANGE),
+            anchor = config.anchor // Enum, always valid if deserialized
+        )
+        
+        sanitized[component] = sanitizedConfig
+    }
+    
+    Log.i(logTag, "Sanitized ${sanitized.size} button configurations")
+    return sanitized
+}
 
 @Composable
 fun GamepadCustomizationScreen(
@@ -342,9 +371,13 @@ fun ImportConfigDialog(
                     try {
                         val configs: Map<ButtonComponent, ButtonConfig> =
                             Json.decodeFromString(importedJsonText)
+                        
+                        // Sanitize the imported configs
+                        val sanitizedConfigs = sanitizeButtonConfigs(configs)
+                        
                         hasError = false
-                        Log.i(logTag, "Imported button configs: $configs")
-                        onImport(configs)
+                        Log.i(logTag, "Imported and sanitized button configs: $sanitizedConfigs")
+                        onImport(sanitizedConfigs)
                     } catch (e: Exception) {
                         hasError = true
                         Log.e(logTag, "Error parsing JSON", e)

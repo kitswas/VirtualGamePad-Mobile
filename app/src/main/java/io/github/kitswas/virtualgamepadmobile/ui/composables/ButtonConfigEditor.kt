@@ -23,11 +23,9 @@ import androidx.compose.ui.unit.dp
 import io.github.kitswas.virtualgamepadmobile.data.ButtonAnchor
 import io.github.kitswas.virtualgamepadmobile.data.ButtonComponent
 import io.github.kitswas.virtualgamepadmobile.data.ButtonConfig
+import io.github.kitswas.virtualgamepadmobile.data.OFFSET_VALUE_RANGE
 import io.github.kitswas.virtualgamepadmobile.data.PreviewBase
-
-// Centralized slider ranges
-private val SCALE_VALUE_RANGE = 0.5f..2f
-private val OFFSET_VALUE_RANGE = -0.5f..0.5f
+import io.github.kitswas.virtualgamepadmobile.data.SCALE_VALUE_RANGE
 
 @Composable
 fun ButtonConfigEditor(
