@@ -23,18 +23,15 @@ class NavigationE2ETest {
         composeTestRule.onNodeWithText("Start").performClick()
         composeTestRule.onNodeWithText("Connect").assertIsDisplayed()
         composeTestRule.onNodeWithText("Scan QR Code").assertIsDisplayed()
-        
-        // Go back (simulating system back or UI back if available, here we don't have UI back on Connect screen, using system back)
-        // Wait, ConnectMenu doesn't have a back button. I'll use Espresso to press back if needed, or just restart activity for simplicity in this test.
-        // Actually, let's just test one path at a time or use pressBack()
     }
 
     @Test
     fun testNavigationToSettings() {
         composeTestRule.onNodeWithText("Settings").performClick()
         composeTestRule.onNodeWithText("Settings").assertIsDisplayed() // Title
-        composeTestRule.onNodeWithText("Customize Gamepad Layout").performScrollTo().assertIsDisplayed()
-        
+        composeTestRule.onNodeWithText("Customize Gamepad Layout").performScrollTo()
+            .assertIsDisplayed()
+
         composeTestRule.onNodeWithText("Cancel").performClick()
         composeTestRule.onNodeWithText("Start").assertIsDisplayed()
     }
@@ -43,8 +40,8 @@ class NavigationE2ETest {
     fun testNavigationToAbout() {
         composeTestRule.onNodeWithText("About").performClick()
         composeTestRule.onNodeWithText("🎮 Virtual GamePad Mobile").assertIsDisplayed()
-        
-        composeTestRule.onNodeWithText("Back").performClick()
+
+        composeTestRule.onNodeWithText("Back").performScrollTo().performClick()
         composeTestRule.onNodeWithText("Start").assertIsDisplayed()
     }
 
@@ -52,13 +49,13 @@ class NavigationE2ETest {
     fun testNavigationToGamepadCustomization() {
         composeTestRule.onNodeWithText("Settings").performClick()
         composeTestRule.onNodeWithText("Customize Gamepad Layout").performScrollTo().performClick()
-        
+
         // Verify we are on customization screen
         composeTestRule.onNodeWithText("Gamepad Customization").assertIsDisplayed()
-        
+
         composeTestRule.onNodeWithText("Cancel").performClick()
         composeTestRule.onNodeWithText("Settings").assertIsDisplayed()
-        
+
         composeTestRule.onNodeWithText("Cancel").performClick()
         composeTestRule.onNodeWithText("Start").assertIsDisplayed()
     }

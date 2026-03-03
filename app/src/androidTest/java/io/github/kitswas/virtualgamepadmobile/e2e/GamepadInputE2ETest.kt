@@ -40,13 +40,13 @@ class GamepadInputE2ETest {
     fun testButtonInputs() {
         val port = TestGamepadServer.getPort().toString()
         println("Connecting to port: $port")
-        
+
         // Connect to server
         composeTestRule.onNodeWithText("Start").performClick()
         composeTestRule.onNodeWithText("IP Address").performTextInput("127.0.0.1")
         composeTestRule.onNodeWithText("Port").performTextInput(port)
         composeTestRule.onNodeWithText("Connect").performClick()
-        
+
         println("Waiting for Gamepad screen...")
         // Wait for Gamepad screen
         composeTestRule.waitUntil(10000) {
@@ -58,10 +58,10 @@ class GamepadInputE2ETest {
             }
         }
         println("Gamepad screen displayed.")
-        
+
         // Clear any readings from the connection process
         TestGamepadServer.clearReadings()
-        
+
         println("Pressing Face Button A")
         // Press Face Button A
         composeTestRule.onNodeWithText("A").performTouchInput {
@@ -69,17 +69,19 @@ class GamepadInputE2ETest {
             advanceEventTime(1000)
             up()
         }
-        
+
         println("Waiting for A button press reading...")
         composeTestRule.waitUntil(10000) {
-            TestGamepadServer.getReadings().any { 
+            TestGamepadServer.getReadings().any {
                 (it.ButtonsDown and GameButtons.A.value) != 0
             }
         }
         println("A button press received.")
-        
-        assertTrue("Server should have received A button press", TestGamepadServer.getReadings().any { (it.ButtonsDown and GameButtons.A.value) != 0 })
-        
+
+        assertTrue(
+            "Server should have received A button press",
+            TestGamepadServer.getReadings().any { (it.ButtonsDown and GameButtons.A.value) != 0 })
+
         // Press Dpad Up
         TestGamepadServer.clearReadings()
         println("Pressing Dpad UP")
@@ -88,13 +90,14 @@ class GamepadInputE2ETest {
             advanceEventTime(1000)
             up()
         }
-        
+
         println("Waiting for Dpad UP reading...")
         composeTestRule.waitUntil(10000) {
-            TestGamepadServer.getReadings().any { (it.ButtonsDown and GameButtons.DPadUp.value) != 0 }
+            TestGamepadServer.getReadings()
+                .any { (it.ButtonsDown and GameButtons.DPadUp.value) != 0 }
         }
         println("Dpad UP received.")
-        
+
         // Press LT
         TestGamepadServer.clearReadings()
         println("Pressing LT")
@@ -103,33 +106,33 @@ class GamepadInputE2ETest {
             advanceEventTime(1000)
             up()
         }
-        
+
         println("Waiting for LT reading...")
         composeTestRule.waitUntil(10000) {
             TestGamepadServer.getReadings().any { it.LeftTrigger > 0.5f }
         }
         println("LT received.")
-        
+
         // Move Left Analog Stick
         TestGamepadServer.clearReadings()
         println("Moving Analog Stick RIGHT")
         composeTestRule.onNodeWithTag("AnalogStick_LEFT_Handle").performTouchInput {
             swipeRight()
         }
-        
+
         println("Waiting for Analog Stick reading...")
         composeTestRule.waitUntil(10000) {
             TestGamepadServer.getReadings().any { it.LeftThumbstickX > 0.1f }
         }
         println("Analog Stick received.")
-        
+
         // Move Right Analog Stick
         TestGamepadServer.clearReadings()
         println("Moving Right Analog Stick RIGHT")
         composeTestRule.onNodeWithTag("AnalogStick_RIGHT_Handle").performTouchInput {
             swipeRight()
         }
-        
+
         println("Waiting for Right Analog Stick reading...")
         composeTestRule.waitUntil(10000) {
             TestGamepadServer.getReadings().any { it.RightThumbstickX > 0.1f }

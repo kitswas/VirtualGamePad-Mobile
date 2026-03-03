@@ -33,14 +33,14 @@ class ConnectionE2ETest {
     @Test
     fun testSuccessfulConnection() {
         val port = TestGamepadServer.getPort().toString()
-        
+
         composeTestRule.onNodeWithText("Start").performClick()
-        
+
         composeTestRule.onNodeWithText("IP Address").performTextInput("127.0.0.1")
         composeTestRule.onNodeWithText("Port").performTextInput(port)
-        
+
         composeTestRule.onNodeWithText("Connect").performClick()
-        
+
         // Should navigate to ConnectingScreen then to GamePad
         // We might need to wait for connection
         composeTestRule.waitUntil(10000) {
