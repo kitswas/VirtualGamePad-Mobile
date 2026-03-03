@@ -8,10 +8,8 @@ import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.rememberScrollState
@@ -47,7 +45,6 @@ import io.github.kitswas.virtualgamepadmobile.ui.composables.ButtonConfigEditor
 import io.github.kitswas.virtualgamepadmobile.ui.composables.DrawGamepad
 import io.github.kitswas.virtualgamepadmobile.ui.composables.ResponsiveGrid
 import kotlinx.coroutines.runBlocking
-import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 
 private const val logTag = "GamepadCustomization"
@@ -305,7 +302,7 @@ fun ExportConfigDialog(
                     singleLine = false,
                     maxLines = 5,
                     textStyle = MaterialTheme.typography.bodySmall,
-                            trailingIcon = {
+                    trailingIcon = {
                         Button(onClick = {
                             // Copy to clipboard
                             val clip = android.content.ClipData.newPlainText(
@@ -380,10 +377,10 @@ fun ImportConfigDialog(
                     try {
                         val configs: Map<ButtonComponent, ButtonConfig> =
                             Json.decodeFromString(importedJsonText)
-                        
+
                         // Sanitize the imported configs
                         val sanitizedConfigs = sanitizeButtonConfigs(configs)
-                        
+
                         hasError = false
                         Log.i(logTag, "Imported and sanitized button configs: $sanitizedConfigs")
                         onImport(sanitizedConfigs)

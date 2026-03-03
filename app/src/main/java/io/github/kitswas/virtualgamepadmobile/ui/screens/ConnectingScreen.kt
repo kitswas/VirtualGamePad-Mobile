@@ -27,12 +27,11 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import io.github.kitswas.virtualgamepadmobile.R
 import io.github.kitswas.virtualgamepadmobile.network.ConnectionViewModel
 import kotlinx.coroutines.launch
-
-import androidx.compose.ui.res.stringResource
-import io.github.kitswas.virtualgamepadmobile.R
 
 @Composable
 fun ConnectingScreen(
@@ -42,7 +41,7 @@ fun ConnectingScreen(
     ipAddress: String,
     port: String
 ) {
-    val context = LocalContext.current
+    LocalContext.current
     val snackbarHostState = remember { SnackbarHostState() }
     val scope = rememberCoroutineScope()
 
@@ -51,14 +50,15 @@ fun ConnectingScreen(
         ?: remember { mutableStateOf(null) }
 
     val connectErrorParamsStr = stringResource(R.string.connect_error_params)
-    val connectingFailedMsg = connectionState?.error?.let { stringResource(R.string.connecting_failed, it) }
+    val connectingFailedMsg =
+        connectionState?.error?.let { stringResource(R.string.connecting_failed, it) }
 
     // Initiate connection when entering screen
     LaunchedEffect(ipAddress, port) {
         try {
             Log.d("ConnectingScreen", "Initiating connection to $ipAddress:$port")
             connectionViewModel?.connect(ipAddress, port.toInt())
-            } catch (e: Exception) {
+        } catch (e: Exception) {
             Log.e("ConnectingScreen", "Failed to initiate connection: ${e.message}")
             snackbarHostState.showSnackbar(
                 message = connectErrorParamsStr + ": ${e.message}",
@@ -79,7 +79,7 @@ fun ConnectingScreen(
                 // Connection successful, navigate to gamepad
                 Log.d("ConnectingScreen", "Connection successful, navigating to gamepad")
                 onNavigateToGamepad()
-                } else if (!state.isConnecting && state.error != null) {
+            } else if (!state.isConnecting && state.error != null) {
                 // Connection failed, show error and stay on screen
                 Log.d("ConnectingScreen", "Connection failed: ${state.error}")
                 scope.launch {

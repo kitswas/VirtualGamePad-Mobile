@@ -14,7 +14,7 @@ import io.github.kitswas.virtualgamepadmobile.data.PreviewBase
 @Composable
 fun ColorSchemePicker(
     default: ColorScheme,
-    modifier: Modifier = Modifier, 
+    modifier: Modifier = Modifier,
     onColorSchemeSelected: (ColorScheme) -> Unit = { _ -> }
 ) {
     ListItemPicker(

@@ -68,7 +68,9 @@ fun ButtonConfigEditor(
                     horizontalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
                     Text(
-                        text = if (visible) stringResource(R.string.button_visible) else stringResource(R.string.button_hidden),
+                        text = if (visible) stringResource(R.string.button_visible) else stringResource(
+                            R.string.button_hidden
+                        ),
                         style = MaterialTheme.typography.bodySmall
                     )
                     Switch(

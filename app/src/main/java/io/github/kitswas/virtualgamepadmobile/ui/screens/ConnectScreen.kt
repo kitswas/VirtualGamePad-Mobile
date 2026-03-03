@@ -106,7 +106,10 @@ private fun processQRScanResult(
             } catch (e: Exception) {
                 scope.launch {
                     snackbarHostState.showSnackbar(
-                        message = context.getString(R.string.connect_qr_error_processing, e.message ?: e.toString()),
+                        message = context.getString(
+                            R.string.connect_qr_error_processing,
+                            e.message ?: e.toString()
+                        ),
                     )
                 }
             }
@@ -255,7 +258,10 @@ fun ConnectMenu(
                     val intent = Intent(Intent.ACTION_VIEW, downloadsUrl.toUri())
                     context.startActivity(intent)
                 }) {
-                Text(text = stringResource(R.string.connect_download_server), style = MaterialTheme.typography.labelSmall)
+                Text(
+                    text = stringResource(R.string.connect_download_server),
+                    style = MaterialTheme.typography.labelSmall
+                )
             }
         }
     }

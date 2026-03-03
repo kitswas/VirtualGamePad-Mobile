@@ -38,15 +38,31 @@ enum class ButtonAnchor(@StringRes val nameRes: Int, val displayName: String) : 
 @Immutable
 @Serializable
 @Parcelize
-enum class ButtonComponent(@StringRes val nameRes: Int, val displayName: String, val defaultAnchor: ButtonAnchor) : Parcelable {
+enum class ButtonComponent(
+    @StringRes val nameRes: Int,
+    val displayName: String,
+    val defaultAnchor: ButtonAnchor
+) : Parcelable {
     LEFT_ANALOG_STICK(R.string.component_left_analog, "Left Analog Stick", ButtonAnchor.TOP_LEFT),
-    RIGHT_ANALOG_STICK(R.string.component_right_analog, "Right Analog Stick", ButtonAnchor.BOTTOM_RIGHT),
+    RIGHT_ANALOG_STICK(
+        R.string.component_right_analog,
+        "Right Analog Stick",
+        ButtonAnchor.BOTTOM_RIGHT
+    ),
     DPAD(R.string.component_dpad, "D-Pad", ButtonAnchor.BOTTOM_LEFT),
     FACE_BUTTONS(R.string.component_face_buttons, "Face Buttons (A/B/X/Y)", ButtonAnchor.TOP_RIGHT),
     LEFT_TRIGGER(R.string.component_left_trigger, "Left Trigger (LT)", ButtonAnchor.BOTTOM_LEFT),
-    RIGHT_TRIGGER(R.string.component_right_trigger, "Right Trigger (RT)", ButtonAnchor.BOTTOM_RIGHT),
+    RIGHT_TRIGGER(
+        R.string.component_right_trigger,
+        "Right Trigger (RT)",
+        ButtonAnchor.BOTTOM_RIGHT
+    ),
     LEFT_SHOULDER(R.string.component_left_shoulder, "Left Shoulder (LB)", ButtonAnchor.TOP_CENTER),
-    RIGHT_SHOULDER(R.string.component_right_shoulder, "Right Shoulder (RB)", ButtonAnchor.TOP_CENTER),
+    RIGHT_SHOULDER(
+        R.string.component_right_shoulder,
+        "Right Shoulder (RB)",
+        ButtonAnchor.TOP_CENTER
+    ),
     SELECT_BUTTON(R.string.component_select, "Select (View)", ButtonAnchor.TOP_CENTER),
     START_BUTTON(R.string.component_start, "Start (Menu)", ButtonAnchor.TOP_CENTER);
 

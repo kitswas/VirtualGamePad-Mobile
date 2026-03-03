@@ -38,7 +38,6 @@ fun DrawGamepad(
 ) {
     // Assuming Landscape orientation
     val baseDp = heightDp
-    val altDp = widthDp
 
     val deadZonePadding = baseDp / 18
 

@@ -118,10 +118,8 @@ class ConnectionViewModel : ViewModel() {
             while (isActive) {
                 try {
                     // This will block until a command is available
-                    val command = commandQueue.take()
-
                     // Process based on command type
-                    when (command) {
+                    when (val command = commandQueue.take()) {
                         is NetworkCommand.Connect -> processConnectCommand(command)
                         is NetworkCommand.SendGamepadState -> processSendGamepadStateCommand(command)
                         is NetworkCommand.SendString -> processSendStringCommand(command)
@@ -172,7 +170,7 @@ class ConnectionViewModel : ViewModel() {
             val socket = Socket()
             socket.tcpNoDelay = true
             socket.setPerformancePreferences(1, 2, 0)
-            socket.setTrafficClass(0x10) // IPTOS_LOWDELAY
+            socket.trafficClass = 0x10 // IPTOS_LOWDELAY
             // Use OS Timeout to get actual error, not just TimeoutException
             val timeout = 0 // in milliseconds, 0 means infinite
 

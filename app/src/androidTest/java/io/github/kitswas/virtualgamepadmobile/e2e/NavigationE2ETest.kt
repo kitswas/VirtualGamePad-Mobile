@@ -7,11 +7,10 @@ import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performScrollTo
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import io.github.kitswas.virtualgamepadmobile.MainActivity
+import io.github.kitswas.virtualgamepadmobile.R
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
-
-import io.github.kitswas.virtualgamepadmobile.R
 
 @RunWith(AndroidJUnit4::class)
 class NavigationE2ETest {
@@ -34,8 +33,10 @@ class NavigationE2ETest {
     @Test
     fun testNavigationToSettings() {
         composeTestRule.onNodeWithText(getString(R.string.menu_settings)).performClick()
-        composeTestRule.onNodeWithText(getString(R.string.settings_title)).assertIsDisplayed() // Title
-        composeTestRule.onNodeWithText(getString(R.string.settings_customize_layout)).performScrollTo()
+        composeTestRule.onNodeWithText(getString(R.string.settings_title))
+            .assertIsDisplayed() // Title
+        composeTestRule.onNodeWithText(getString(R.string.settings_customize_layout))
+            .performScrollTo()
             .assertIsDisplayed()
 
         composeTestRule.onNodeWithText(getString(R.string.cancel)).performClick()
@@ -54,7 +55,8 @@ class NavigationE2ETest {
     @Test
     fun testNavigationToGamepadCustomization() {
         composeTestRule.onNodeWithText(getString(R.string.menu_settings)).performClick()
-        composeTestRule.onNodeWithText(getString(R.string.settings_customize_layout)).performScrollTo().performClick()
+        composeTestRule.onNodeWithText(getString(R.string.settings_customize_layout))
+            .performScrollTo().performClick()
 
         // Verify we are on customization screen
         composeTestRule.onNodeWithText(getString(R.string.customization_title)).assertIsDisplayed()

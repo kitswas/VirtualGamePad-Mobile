@@ -9,7 +9,6 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -37,7 +36,6 @@ fun <T : Number> BoundedNumericInput(
     var textValue by rememberSaveable { mutableStateOf(formatValue(value)) }
     var isError by rememberSaveable { mutableStateOf(false) }
     var errorMessage by rememberSaveable { mutableStateOf("") }
-    val context = LocalContext.current
     val errMin = stringResource(R.string.error_min_value, formatValue(minValue))
     val errMax = stringResource(R.string.error_max_value, formatValue(maxValue))
     val errInvalid = stringResource(R.string.error_invalid_number)
@@ -55,13 +53,13 @@ fun <T : Number> BoundedNumericInput(
                     if (parsedValue != null) {
                         when {
                             compareValues(parsedValue, minValue) < 0 -> {
-                                    isError = true
-                                    errorMessage = errMin
+                                isError = true
+                                errorMessage = errMin
                             }
 
                             compareValues(parsedValue, maxValue) > 0 -> {
                                 isError = true
-                                    errorMessage = errMax
+                                errorMessage = errMax
                             }
 
                             else -> {

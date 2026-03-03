@@ -18,6 +18,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalView
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.IntOffset
@@ -29,8 +30,6 @@ import io.github.kitswas.virtualgamepadmobile.ui.theme.lighten
 import io.github.kitswas.virtualgamepadmobile.ui.utils.HapticUtils
 import kotlin.math.roundToInt
 import kotlin.math.sqrt
-
-import androidx.compose.ui.platform.testTag
 
 enum class AnalogStickType {
     LEFT, RIGHT
