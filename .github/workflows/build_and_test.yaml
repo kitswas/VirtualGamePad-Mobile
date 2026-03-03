@@ -62,7 +62,7 @@ jobs:
           target: ${{ matrix.api-level >= 31 && 'google_apis' || 'default' }}
           arch: x86_64
           disable-animations: true
-          script: ./gradlew connectedCheck
+          script: ./gradlew connectedCheck --stacktrace
 
       - name: Upload Test Report (API ${{ matrix.api-level }})
         if: always()
