@@ -4,7 +4,6 @@ import java.util.Properties
 
 plugins {
     alias(libs.plugins.android.application)
-    alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.compose)
     alias(libs.plugins.dokka)
     alias(libs.plugins.kotlin.parcelize)
@@ -58,6 +57,7 @@ android {
 
     buildFeatures {
         compose = true
+        resValues = true
     }
 
     composeOptions {
@@ -85,7 +85,7 @@ kotlin {
 }
 
 val props = Properties()
-val propFile = File("signing.properties")
+val propFile = rootProject.file("signing.properties")
 
 if (propFile.canRead()) {
     props.load(FileInputStream(propFile))
