@@ -9,10 +9,10 @@ jobs:
       packages: write
 
     steps:
-      - uses: actions/checkout@latest
+      - uses: actions/checkout@v6
 
       - name: set up JDK
-        uses: actions/setup-java@latest
+        uses: actions/setup-java@v5
         with:
           java-version: "21"
           distribution: "temurin"
