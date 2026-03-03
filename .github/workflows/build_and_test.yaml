@@ -10,6 +10,8 @@ jobs:
 
     steps:
       - uses: actions/checkout@v6
+        with:
+          submodules: true
 
       - name: set up JDK
         uses: actions/setup-java@v5
@@ -21,8 +23,14 @@ jobs:
       - name: Grant execute permission for gradlew
         run: chmod +x gradlew
 
-      - name: Build and Local Tests
-        run: ./gradlew build test lint
+      - name: Build
+        run: ./gradlew build
+
+      - name: Run Unit Tests
+        run: ./gradlew test
+
+      - name: Run Lint
+        run: ./gradlew lint
 
       - name: Enable KVM
         run: |
