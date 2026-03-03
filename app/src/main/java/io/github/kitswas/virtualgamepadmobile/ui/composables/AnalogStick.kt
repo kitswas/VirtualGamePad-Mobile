@@ -30,6 +30,8 @@ import io.github.kitswas.virtualgamepadmobile.ui.utils.HapticUtils
 import kotlin.math.roundToInt
 import kotlin.math.sqrt
 
+import androidx.compose.ui.platform.testTag
+
 enum class AnalogStickType {
     LEFT, RIGHT
 }
@@ -50,7 +52,7 @@ fun AnalogStick(
     val view = LocalView.current
 
     Box(
-        modifier = modifier,
+        modifier = modifier.testTag("AnalogStick_${type.name}"),
         contentAlignment = Alignment.Center
     ) {
         // First draw the glow ring
@@ -86,6 +88,7 @@ fun AnalogStick(
                 Circle(
                     colour = innerCircleColor,
                     modifier = Modifier
+                        .testTag("AnalogStick_${type.name}_Handle")
                         .size(innerCircleRadius * 2)
                         .offset {
                             IntOffset(
