@@ -4,8 +4,10 @@ import android.Manifest
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.res.stringResource
 import com.journeyapps.barcodescanner.ScanContract
 import com.journeyapps.barcodescanner.ScanOptions
+import io.github.kitswas.virtualgamepadmobile.R
 
 sealed class QRScanResult {
     data class Success(val content: String) : QRScanResult()
@@ -32,6 +34,7 @@ fun rememberQRCodeScanner(
         }
     }
 
+    val promptText = stringResource(R.string.qr_scan_prompt)
     val permissionLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.RequestPermission()
     ) { isGranted ->
@@ -39,7 +42,7 @@ fun rememberQRCodeScanner(
             // Permission granted, start scanning
             val scanOptions = ScanOptions()
             scanOptions.setDesiredBarcodeFormats(ScanOptions.QR_CODE)
-            scanOptions.setPrompt("Scan QR Code shown on the server")
+            scanOptions.setPrompt(promptText)
             scanOptions.setCameraId(0)
             scanOptions.setBeepEnabled(false)
             scanOptions.setBarcodeImageEnabled(false)

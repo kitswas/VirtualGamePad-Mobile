@@ -20,6 +20,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import io.github.kitswas.virtualgamepadmobile.R
@@ -96,7 +97,7 @@ fun <T : Number> SpinBox(
             ) {
                 Icon(
                     painter = painterResource(R.drawable.ic_keyboard_arrow_down),
-                    contentDescription = "Decrease",
+                    contentDescription = stringResource(R.string.content_desc_decrease),
                 )
             }
 
@@ -136,7 +137,7 @@ fun <T : Number> SpinBox(
             ) {
                 Icon(
                     painter = painterResource(R.drawable.ic_keyboard_arrow_up),
-                    contentDescription = "Increase",
+                    contentDescription = stringResource(R.string.content_desc_increase),
                 )
             }
         }

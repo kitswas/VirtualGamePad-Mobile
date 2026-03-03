@@ -31,6 +31,9 @@ import androidx.compose.ui.unit.dp
 import io.github.kitswas.virtualgamepadmobile.network.ConnectionViewModel
 import kotlinx.coroutines.launch
 
+import androidx.compose.ui.res.stringResource
+import io.github.kitswas.virtualgamepadmobile.R
+
 @Composable
 fun ConnectingScreen(
     onNavigateToGamepad: () -> Unit,
@@ -47,15 +50,18 @@ fun ConnectingScreen(
     val connectionState by connectionViewModel?.uiState?.collectAsState()
         ?: remember { mutableStateOf(null) }
 
+    val connectErrorParamsStr = stringResource(R.string.connect_error_params)
+    val connectingFailedMsg = connectionState?.error?.let { stringResource(R.string.connecting_failed, it) }
+
     // Initiate connection when entering screen
     LaunchedEffect(ipAddress, port) {
         try {
             Log.d("ConnectingScreen", "Initiating connection to $ipAddress:$port")
             connectionViewModel?.connect(ipAddress, port.toInt())
-        } catch (e: Exception) {
+            } catch (e: Exception) {
             Log.e("ConnectingScreen", "Failed to initiate connection: ${e.message}")
             snackbarHostState.showSnackbar(
-                message = "Invalid connection parameters: ${e.message}",
+                message = connectErrorParamsStr + ": ${e.message}",
                 duration = SnackbarDuration.Short
             )
             onNavigateBack()
@@ -73,12 +79,12 @@ fun ConnectingScreen(
                 // Connection successful, navigate to gamepad
                 Log.d("ConnectingScreen", "Connection successful, navigating to gamepad")
                 onNavigateToGamepad()
-            } else if (!state.isConnecting && state.error != null) {
+                } else if (!state.isConnecting && state.error != null) {
                 // Connection failed, show error and stay on screen
                 Log.d("ConnectingScreen", "Connection failed: ${state.error}")
                 scope.launch {
                     snackbarHostState.showSnackbar(
-                        message = "Connection failed: ${state.error}",
+                        message = connectingFailedMsg ?: "",
                         duration = SnackbarDuration.Short
                     )
                 }
@@ -108,16 +114,16 @@ fun ConnectingScreen(
             verticalArrangement = Arrangement.Center
         ) {
             if (connectionState?.connected == true) {
-                Text("Connected! Redirecting...")
+                Text(stringResource(R.string.connecting_success))
             } else if (connectionState?.isConnecting == true) {
                 CircularProgressIndicator()
                 Spacer(modifier = Modifier.height(16.dp))
-                Text("Connecting to $ipAddress:$port...")
+                Text(stringResource(R.string.connecting_status, ipAddress, port))
             } else {
                 // Show error message if there is one
                 connectionState?.error?.let { error ->
                     Text(
-                        text = "Connection Error",
+                        text = stringResource(R.string.connecting_error_title),
                         style = MaterialTheme.typography.headlineMedium,
                         color = MaterialTheme.colorScheme.error
                     )
@@ -131,17 +137,17 @@ fun ConnectingScreen(
                         // Retry connection
                         connectionViewModel?.connect(ipAddress, port.toInt())
                     }) {
-                        Text("Retry")
+                        Text(stringResource(R.string.connecting_retry))
                     }
                     Spacer(modifier = Modifier.height(8.dp))
                     TextButton(onClick = onNavigateBack) {
-                        Text("Back")
+                        Text(stringResource(R.string.back))
                     }
                 } ?: run {
                     // No error but also not connecting - initial state
                     CircularProgressIndicator()
                     Spacer(modifier = Modifier.height(16.dp))
-                    Text("Preparing connection...")
+                    Text(stringResource(R.string.connecting_preparing))
                 }
             }
         }

@@ -10,15 +10,21 @@ import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 
+import io.github.kitswas.virtualgamepadmobile.R
+
 @RunWith(AndroidJUnit4::class)
 class SettingsE2ETest {
 
     @get:Rule
     val composeTestRule = createAndroidComposeRule<MainActivity>()
 
+    private fun getString(id: Int, vararg formatArgs: Any): String {
+        return composeTestRule.activity.getString(id, *formatArgs)
+    }
+
     @Test
     fun testSettingsChangeAndPersistence() {
-        composeTestRule.onNodeWithText("Settings").performClick()
+        composeTestRule.onNodeWithText(getString(R.string.menu_settings)).performClick()
 
         // Find Haptic Feedback switch. 
         // In SettingsScreen.kt, it's a Switch with Text label.
@@ -26,7 +32,7 @@ class SettingsE2ETest {
         // Since there's only one Switch in SettingsScreen, we can find by role or use a more specific search.
 
         // Check initial state (default should be on based on defaultHapticFeedbackEnabled=true)
-        // composeTestRule.onNodeWithText("Haptic Feedback (Vibrations)").assertIsDisplayed()
+        // composeTestRule.onNodeWithText(getString(R.string.settings_haptic_feedback)).assertIsDisplayed()
 
         // Actually, let's just toggle it and save.
         // Note: The Switch itself might not have the text as its content.
@@ -35,19 +41,19 @@ class SettingsE2ETest {
         // For simplicity, I'll just test that we can click 'Save' and it goes back to Main Menu.
         // And that we can click 'Reset' and then 'Save'.
 
-        composeTestRule.onNodeWithText("Reset").performClick()
-        composeTestRule.onNodeWithText("Save").performClick()
+        composeTestRule.onNodeWithText(getString(R.string.reset)).performClick()
+        composeTestRule.onNodeWithText(getString(R.string.save)).performClick()
 
-        composeTestRule.onNodeWithText("Start").assertIsDisplayed()
+        composeTestRule.onNodeWithText(getString(R.string.menu_start)).assertIsDisplayed()
     }
 
     @Test
     fun testSettingsCancelDoesNotSave() {
-        composeTestRule.onNodeWithText("Settings").performClick()
+        composeTestRule.onNodeWithText(getString(R.string.menu_settings)).performClick()
 
         // Just click cancel
-        composeTestRule.onNodeWithText("Cancel").performClick()
+        composeTestRule.onNodeWithText(getString(R.string.cancel)).performClick()
 
-        composeTestRule.onNodeWithText("Start").assertIsDisplayed()
+        composeTestRule.onNodeWithText(getString(R.string.menu_start)).assertIsDisplayed()
     }
 }

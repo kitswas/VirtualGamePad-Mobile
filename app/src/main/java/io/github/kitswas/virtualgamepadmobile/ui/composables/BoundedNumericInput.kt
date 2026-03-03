@@ -9,12 +9,16 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
+import io.github.kitswas.virtualgamepadmobile.R
 
 @Suppress("UNUSED")
 @Composable
@@ -33,6 +37,10 @@ fun <T : Number> BoundedNumericInput(
     var textValue by rememberSaveable { mutableStateOf(formatValue(value)) }
     var isError by rememberSaveable { mutableStateOf(false) }
     var errorMessage by rememberSaveable { mutableStateOf("") }
+    val context = LocalContext.current
+    val errMin = stringResource(R.string.error_min_value, formatValue(minValue))
+    val errMax = stringResource(R.string.error_max_value, formatValue(maxValue))
+    val errInvalid = stringResource(R.string.error_invalid_number)
 
     Column(
         modifier = modifier,
@@ -47,13 +55,13 @@ fun <T : Number> BoundedNumericInput(
                     if (parsedValue != null) {
                         when {
                             compareValues(parsedValue, minValue) < 0 -> {
-                                isError = true
-                                errorMessage = "Value must be at least ${formatValue(minValue)}"
+                                    isError = true
+                                    errorMessage = errMin
                             }
 
                             compareValues(parsedValue, maxValue) > 0 -> {
                                 isError = true
-                                errorMessage = "Value must be at most ${formatValue(maxValue)}"
+                                    errorMessage = errMax
                             }
 
                             else -> {
@@ -64,11 +72,11 @@ fun <T : Number> BoundedNumericInput(
                         }
                     } else {
                         isError = true
-                        errorMessage = "Please enter a valid number"
+                        errorMessage = errInvalid
                     }
                 } catch (_: Exception) {
                     isError = true
-                    errorMessage = "Please enter a valid number"
+                    errorMessage = errInvalid
                 }
             },
             label = { Text(label, style = MaterialTheme.typography.labelMedium) },

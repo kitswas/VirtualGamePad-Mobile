@@ -31,6 +31,9 @@ import io.github.kitswas.virtualgamepadmobile.data.PreviewBase
 import io.github.kitswas.virtualgamepadmobile.data.PreviewHeightDp
 import io.github.kitswas.virtualgamepadmobile.data.PreviewWidthDp
 
+import androidx.compose.ui.res.stringResource
+import io.github.kitswas.virtualgamepadmobile.R
+
 @Composable
 fun AboutScreen(
     versionName: String? = LocalContext.current.packageManager.getPackageInfo(
@@ -58,11 +61,14 @@ fun AboutScreen(
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Top
         ) {
-            Text(text = "🎮 Virtual GamePad Mobile", style = MaterialTheme.typography.titleLarge)
+            Text(text = stringResource(R.string.about_title), style = MaterialTheme.typography.titleLarge)
 
             Spacer(modifier = Modifier.height(8.dp))
 
-            Text(text = "Version $versionName", style = MaterialTheme.typography.bodyMedium)
+            Text(
+                text = stringResource(R.string.about_version, versionName ?: ""),
+                style = MaterialTheme.typography.bodyMedium
+            )
 
             Spacer(modifier = Modifier.height(16.dp))
 
@@ -77,7 +83,7 @@ fun AboutScreen(
                         val intent = Intent(Intent.ACTION_VIEW, mobileLicenseUrl.toUri())
                         context.startActivity(intent)
                     }) {
-                    Text("View Licence", style = MaterialTheme.typography.labelSmall)
+                    Text(stringResource(R.string.about_view_license), style = MaterialTheme.typography.labelSmall)
                 }
 
                 OutlinedButton(
@@ -88,14 +94,14 @@ fun AboutScreen(
                         val intent = Intent(Intent.ACTION_VIEW, releaseUrl.toUri())
                         context.startActivity(intent)
                     }) {
-                    Text("Latest Release", style = MaterialTheme.typography.labelSmall)
+                    Text(stringResource(R.string.about_latest_release), style = MaterialTheme.typography.labelSmall)
                 }
             }
 
             Spacer(modifier = Modifier.height(24.dp))
 
             Text(
-                text = "A mobile application that lets your phone work as a gamepad for PC games.",
+                text = stringResource(R.string.about_description),
                 style = MaterialTheme.typography.bodyMedium,
                 textAlign = TextAlign.Center
             )
@@ -109,28 +115,28 @@ fun AboutScreen(
                     val intent = Intent(Intent.ACTION_VIEW, mobileRepoUrl.toUri())
                     context.startActivity(intent)
                 }) {
-                    Text("Source Code", style = MaterialTheme.typography.labelMedium)
+                    Text(stringResource(R.string.about_source_code), style = MaterialTheme.typography.labelMedium)
                 }
 
                 FilledTonalButton(onClick = {
                     val intent = Intent(Intent.ACTION_VIEW, projectUrl.toUri())
                     context.startActivity(intent)
                 }) {
-                    Text("Project Website", style = MaterialTheme.typography.labelMedium)
+                    Text(stringResource(R.string.about_project_website), style = MaterialTheme.typography.labelMedium)
                 }
 
                 FilledTonalButton(onClick = {
                     val intent = Intent(Intent.ACTION_VIEW, issuesUrl.toUri())
                     context.startActivity(intent)
                 }) {
-                    Text("Report Issues", style = MaterialTheme.typography.labelMedium)
+                    Text(stringResource(R.string.about_report_issues), style = MaterialTheme.typography.labelMedium)
                 }
             }
 
             Spacer(modifier = Modifier.height(32.dp))
 
             Button(onClick = onNavigateBack) {
-                Text("Back")
+                Text(stringResource(R.string.back))
             }
         }
     }
@@ -143,6 +149,6 @@ fun AboutScreen(
 @Composable
 fun AboutScreenPreview() {
     PreviewBase {
-        AboutScreen(onNavigateBack = {}, versionName = "Development")
+        AboutScreen(onNavigateBack = {}, versionName = stringResource(R.string.about_dev_version))
     }
 }

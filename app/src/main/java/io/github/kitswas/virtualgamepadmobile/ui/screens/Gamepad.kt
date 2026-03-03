@@ -13,10 +13,12 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Devices.DESKTOP
 import androidx.compose.ui.tooling.preview.Devices.TABLET
 import androidx.compose.ui.tooling.preview.Preview
 import io.github.kitswas.VGP_Data_Exchange.GamepadReading
+import io.github.kitswas.virtualgamepadmobile.R
 import io.github.kitswas.virtualgamepadmobile.data.PreviewBase
 import io.github.kitswas.virtualgamepadmobile.data.PreviewHeightDp
 import io.github.kitswas.virtualgamepadmobile.data.PreviewWidthDp
@@ -97,9 +99,9 @@ fun GamePad(
             if (!state.connected) {
                 // Show toast with error if available, otherwise generic message
                 val message = if (state.error != null) {
-                    "Connection lost: ${state.error}"
+                    context.getString(R.string.gamepad_connection_lost_error, state.error)
                 } else {
-                    "Connection lost"
+                    context.getString(R.string.gamepad_connection_lost)
                 }
 
                 Log.d(tag, message)

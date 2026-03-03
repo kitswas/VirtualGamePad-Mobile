@@ -20,11 +20,17 @@ import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 
+import io.github.kitswas.virtualgamepadmobile.R
+
 @RunWith(AndroidJUnit4::class)
 class GamepadInputE2ETest {
 
     @get:Rule
     val composeTestRule = createAndroidComposeRule<MainActivity>()
+
+    private fun getString(id: Int, vararg formatArgs: Any): String {
+        return composeTestRule.activity.getString(id, *formatArgs)
+    }
 
     @Before
     fun setup() {
@@ -42,16 +48,16 @@ class GamepadInputE2ETest {
         println("Connecting to port: $port")
 
         // Connect to server
-        composeTestRule.onNodeWithText("Start").performClick()
-        composeTestRule.onNodeWithText("IP Address").performTextInput("127.0.0.1")
-        composeTestRule.onNodeWithText("Port").performTextInput(port)
-        composeTestRule.onNodeWithText("Connect").performClick()
+        composeTestRule.onNodeWithText(getString(R.string.menu_start)).performClick()
+        composeTestRule.onNodeWithText(getString(R.string.connect_ip_label)).performTextInput("127.0.0.1")
+        composeTestRule.onNodeWithText(getString(R.string.connect_port_label)).performTextInput(port)
+        composeTestRule.onNodeWithText(getString(R.string.connect_button)).performClick()
 
         println("Waiting for Gamepad screen...")
         // Wait for Gamepad screen
         composeTestRule.waitUntil(10000) {
             try {
-                composeTestRule.onNodeWithText("LSHLDR").assertIsDisplayed()
+                composeTestRule.onNodeWithText(getString(R.string.button_l_shoulder)).assertIsDisplayed()
                 true
             } catch (e: AssertionError) {
                 false
@@ -64,7 +70,8 @@ class GamepadInputE2ETest {
 
         println("Pressing Face Button A")
         // Press Face Button A
-        composeTestRule.onNodeWithText("A").performTouchInput {
+        // Note: A, B, X, Y labels are now from string resources
+        composeTestRule.onNodeWithText(getString(R.string.button_a)).performTouchInput {
             down(center)
             advanceEventTime(1000)
             up()
@@ -85,7 +92,7 @@ class GamepadInputE2ETest {
         // Press Dpad Up
         TestGamepadServer.clearReadings()
         println("Pressing Dpad UP")
-        composeTestRule.onNodeWithContentDescription("Dpad Button UP").performTouchInput {
+        composeTestRule.onNodeWithContentDescription(getString(R.string.content_desc_dpad_button, "UP")).performTouchInput {
             down(center)
             advanceEventTime(1000)
             up()
@@ -101,7 +108,7 @@ class GamepadInputE2ETest {
         // Press LT
         TestGamepadServer.clearReadings()
         println("Pressing LT")
-        composeTestRule.onNodeWithText("LT").performTouchInput {
+        composeTestRule.onNodeWithText(getString(R.string.button_lt)).performTouchInput {
             down(center)
             advanceEventTime(1000)
             up()

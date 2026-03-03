@@ -34,6 +34,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import io.github.kitswas.virtualgamepadmobile.R
@@ -88,7 +89,7 @@ fun SettingsScreen(
         ) {
             // Fixed title at the top
             Text(
-                "Settings",
+                stringResource(R.string.settings_title),
                 style = MaterialTheme.typography.titleLarge,
                 modifier = Modifier.padding(vertical = 8.dp)
             )
@@ -111,7 +112,10 @@ fun SettingsScreen(
                 ListItemPicker(
                     list = BaseColor.entries.asIterable(),
                     default = baseColor,
-                    label = "Theme Color",
+                    label = stringResource(R.string.settings_theme_color),
+                    formattedDisplay = { item ->
+                        Text(text = stringResource(item.nameRes))
+                    },
                     onItemSelected = {
                         settingsChanges.baseColor = it
                     })
@@ -125,7 +129,7 @@ fun SettingsScreen(
                         onValueChange = {
                             settingsChanges.pollingDelay = it
                         },
-                        label = "Polling Interval (ms)",
+                        label = stringResource(R.string.settings_polling_interval),
                         minValue = 20,
                         maxValue = 200,
                         step = 10
@@ -140,7 +144,7 @@ fun SettingsScreen(
                         tooltip = {
                             PlainTooltip(shadowElevation = 10.dp) {
                                 Text(
-                                    "Adjust according to your reflexes\nLower is faster",
+                                    stringResource(R.string.settings_polling_interval_desc),
                                     style = MaterialTheme.typography.bodyLarge
                                 )
                             }
@@ -152,7 +156,7 @@ fun SettingsScreen(
                         }) {
                             Icon(
                                 painter = painterResource(R.drawable.ic_info),
-                                contentDescription = "Information about polling interval",
+                                contentDescription = stringResource(R.string.settings_polling_interval_info),
                                 tint = MaterialTheme.colorScheme.secondary,
                             )
                         }
@@ -170,7 +174,7 @@ fun SettingsScreen(
                         )
                     }
                     Text(
-                        "Haptic Feedback (Vibrations)",
+                        stringResource(R.string.settings_haptic_feedback),
                         style = MaterialTheme.typography.labelMedium
                     )
                     Switch(
@@ -188,7 +192,7 @@ fun SettingsScreen(
                         .fillMaxWidth(0.6f)
                         .padding(vertical = 8.dp)
                 ) {
-                    Text("Customize Gamepad Layout")
+                    Text(stringResource(R.string.settings_customize_layout))
                 }
 
             }
@@ -208,7 +212,7 @@ fun SettingsScreen(
                     runBlocking { settingsRepository.resetAllSettings() }
                     Log.i(logTag, "Settings reset to defaults")
                 }) {
-                    Text("Reset")
+                    Text(stringResource(R.string.reset))
                 }
 
                 Button(onClick = {
@@ -238,10 +242,10 @@ fun SettingsScreen(
                     Log.i(logTag, "Saved settings: $changesSaved")
                     onNavigateBack()
                 }) {
-                    Text("Save")
+                    Text(stringResource(R.string.save))
                 }
                 Button(onClick = onNavigateBack) {
-                    Text("Cancel")
+                    Text(stringResource(R.string.cancel))
                 }
             }
         }

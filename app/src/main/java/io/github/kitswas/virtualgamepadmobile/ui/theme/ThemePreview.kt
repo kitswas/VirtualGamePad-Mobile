@@ -20,10 +20,12 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.PreviewLightDark
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import io.github.kitswas.virtualgamepadmobile.R
 import io.github.kitswas.virtualgamepadmobile.data.BaseColor
 import io.github.kitswas.virtualgamepadmobile.data.ColorScheme
 
@@ -44,7 +46,7 @@ private fun VirtualGamePadMobileThemePreview(
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
             Text(
-                text = "Theme Color Palette",
+                text = stringResource(R.string.theme_preview_title),
                 style = MaterialTheme.typography.headlineMedium,
                 color = MaterialTheme.colorScheme.onBackground,
                 fontWeight = FontWeight.Bold
@@ -52,7 +54,7 @@ private fun VirtualGamePadMobileThemePreview(
 
             // Primary Colors Section
             ColorSection(
-                title = "Primary Colors",
+                title = stringResource(R.string.theme_preview_primary),
                 colors = listOf(
                     ColorInfo("Primary", MaterialTheme.colorScheme.primary),
                     ColorInfo("On Primary", MaterialTheme.colorScheme.onPrimary),
@@ -63,7 +65,7 @@ private fun VirtualGamePadMobileThemePreview(
 
             // Secondary Colors Section
             ColorSection(
-                title = "Secondary Colors",
+                title = stringResource(R.string.theme_preview_secondary),
                 colors = listOf(
                     ColorInfo("Secondary", MaterialTheme.colorScheme.secondary),
                     ColorInfo("On Secondary", MaterialTheme.colorScheme.onSecondary),
@@ -77,7 +79,7 @@ private fun VirtualGamePadMobileThemePreview(
 
             // Tertiary Colors Section
             ColorSection(
-                title = "Tertiary Colors",
+                title = stringResource(R.string.theme_preview_tertiary),
                 colors = listOf(
                     ColorInfo("Tertiary", MaterialTheme.colorScheme.tertiary),
                     ColorInfo("On Tertiary", MaterialTheme.colorScheme.onTertiary),
@@ -91,7 +93,7 @@ private fun VirtualGamePadMobileThemePreview(
 
             // Other Colors Section
             ColorSection(
-                title = "Other Colors",
+                title = stringResource(R.string.theme_preview_other),
                 colors = listOf(
                     ColorInfo("Outline", MaterialTheme.colorScheme.outline),
                     ColorInfo("Outline Variant", MaterialTheme.colorScheme.outlineVariant),
@@ -104,7 +106,7 @@ private fun VirtualGamePadMobileThemePreview(
 
             // Surface Colors Section
             ColorSection(
-                title = "Surface Colors",
+                title = stringResource(R.string.theme_preview_surface),
                 colors = listOf(
                     ColorInfo("Surface", MaterialTheme.colorScheme.surface),
                     ColorInfo("On Surface", MaterialTheme.colorScheme.onSurface),
@@ -115,7 +117,7 @@ private fun VirtualGamePadMobileThemePreview(
 
             // Background Colors Section
             ColorSection(
-                title = "Background Colors",
+                title = stringResource(R.string.theme_preview_background),
                 colors = listOf(
                     ColorInfo("Background", MaterialTheme.colorScheme.background),
                     ColorInfo("On Background", MaterialTheme.colorScheme.onBackground)
@@ -124,7 +126,7 @@ private fun VirtualGamePadMobileThemePreview(
 
             // Error Colors Section
             ColorSection(
-                title = "Error Colors",
+                title = stringResource(R.string.theme_preview_error),
                 colors = listOf(
                     ColorInfo("Error", MaterialTheme.colorScheme.error),
                     ColorInfo("On Error", MaterialTheme.colorScheme.onError),

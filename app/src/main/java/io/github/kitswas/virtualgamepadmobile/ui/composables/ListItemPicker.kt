@@ -19,6 +19,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import io.github.kitswas.virtualgamepadmobile.R
 
 /**
@@ -58,9 +59,10 @@ fun <T> ListItemPicker(
         OutlinedButton(onClick = { expanded = true }) {
             Row {
                 formattedDisplay(selectedItem)
+
                 Icon(
                     painter = painterResource(R.drawable.ic_arrow_drop_down),
-                    contentDescription = "Expand"
+                    contentDescription = stringResource(R.string.content_desc_expand)
                 )
             }
             DropdownMenu(

@@ -1,7 +1,12 @@
 package io.github.kitswas.virtualgamepadmobile.data
 
-enum class ColorScheme {
-    LIGHT, DARK, SYSTEM;
+import androidx.annotation.StringRes
+import io.github.kitswas.virtualgamepadmobile.R
+
+enum class ColorScheme(@StringRes val nameRes: Int) {
+    LIGHT(R.string.scheme_light),
+    DARK(R.string.scheme_dark),
+    SYSTEM(R.string.scheme_system);
 
     companion object {
         fun fromInt(i: Int): ColorScheme {
