@@ -8,8 +8,17 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.CheckCircle
+import androidx.compose.material.icons.filled.Error
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarDuration
@@ -24,10 +33,13 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import io.github.kitswas.virtualgamepadmobile.R
 import io.github.kitswas.virtualgamepadmobile.network.ConnectionViewModel
@@ -41,9 +53,10 @@ fun ConnectingScreen(
     ipAddress: String,
     port: String
 ) {
-    LocalContext.current
+    val context = LocalContext.current
     val snackbarHostState = remember { SnackbarHostState() }
     val scope = rememberCoroutineScope()
+    var showDiagnosticsDialog by remember { mutableStateOf(false) }
 
     // Get the current connection state
     val connectionState by connectionViewModel?.uiState?.collectAsState()
@@ -133,11 +146,23 @@ fun ConnectingScreen(
                         color = MaterialTheme.colorScheme.error
                     )
                     Spacer(modifier = Modifier.height(16.dp))
-                    Button(onClick = {
-                        // Retry connection
-                        connectionViewModel?.connect(ipAddress, port.toInt())
-                    }) {
-                        Text(stringResource(R.string.connecting_retry))
+                    Row(
+                        horizontalArrangement = Arrangement.spacedBy(8.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Button(onClick = {
+                            // Retry connection
+                            connectionViewModel?.connect(ipAddress, port.toInt())
+                        }) {
+                            Text(stringResource(R.string.connecting_retry))
+                        }
+                        
+                        Button(onClick = {
+                            connectionViewModel?.runDiagnostics(context)
+                            showDiagnosticsDialog = true
+                        }) {
+                            Text(stringResource(R.string.connecting_diagnostics))
+                        }
                     }
                     Spacer(modifier = Modifier.height(8.dp))
                     TextButton(onClick = onNavigateBack) {
@@ -151,5 +176,74 @@ fun ConnectingScreen(
                 }
             }
         }
+
+        if (showDiagnosticsDialog) {
+            DiagnosticsDialog(
+                connectionState = connectionState,
+                onDismiss = {
+                    showDiagnosticsDialog = false
+                    connectionViewModel?.clearDiagnostics()
+                }
+            )
+        }
     }
+}
+
+@Composable
+fun DiagnosticsDialog(
+    connectionState: io.github.kitswas.virtualgamepadmobile.network.ConnectionState?,
+    onDismiss: () -> Unit
+) {
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = {
+            Text(stringResource(R.string.diagnostics_title))
+        },
+        text = {
+            Column(
+                modifier = Modifier.fillMaxWidth(),
+                verticalArrangement = Arrangement.spacedBy(12.dp)
+            ) {
+                if (connectionState?.isRunningDiagnostics == true) {
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
+                        CircularProgressIndicator(modifier = Modifier.height(20.dp))
+                        Text(stringResource(R.string.diagnostics_running))
+                    }
+                }
+
+                LazyColumn(
+                    verticalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    items(connectionState?.diagnosticResults ?: emptyList()) { result ->
+                        Row(
+                            horizontalArrangement = Arrangement.spacedBy(8.dp),
+                            verticalAlignment = Alignment.Top
+                        ) {
+                            Icon(
+                                imageVector = if (result.isPassed) Icons.Default.CheckCircle else Icons.Default.Error,
+                                contentDescription = null,
+                                tint = if (result.isPassed) Color(0xFF4CAF50) else MaterialTheme.colorScheme.error,
+                                modifier = Modifier.padding(top = 2.dp)
+                            )
+                            Column {
+                                Text(
+                                    text = result.message,
+                                    fontWeight = FontWeight.Bold,
+                                    style = MaterialTheme.typography.bodyMedium
+                                )
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        confirmButton = {
+            TextButton(onClick = onDismiss) {
+                Text(stringResource(R.string.diagnostics_close))
+            }
+        }
+    )
 }

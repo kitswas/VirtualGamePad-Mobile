@@ -65,8 +65,35 @@
     <string name="connecting_status">Connecting to %1$s:%2$s…</string>
     <string name="connecting_error_title">Connection Error</string>
     <string name="connecting_retry">Retry</string>
+    <string name="connecting_diagnostics">Run Diagnostics</string>
     <string name="connecting_preparing">Preparing connection…</string>
     <string name="connecting_failed">Connection failed: %s</string>
+
+    <!-- Diagnostics -->
+    <string name="diagnostics_title">Connection Diagnostics</string>
+    <string name="diagnostics_running">Running diagnostics…</string>
+    <string name="diagnostics_step_wifi">Checking Wi-Fi connection…</string>
+    <string name="diagnostics_step_ip">Checking local IP address…</string>
+    <string name="diagnostics_step_subnet">Checking subnet compatibility…</string>
+    <string name="diagnostics_step_ping">Pinging server…</string>
+    <string name="diagnostics_step_port">Checking server port…</string>
+    
+    <string name="diagnostics_pass_wifi">Wi-Fi is enabled and connected.</string>
+    <string name="diagnostics_fail_wifi">Wi-Fi is disconnected. Please connect to your local network.</string>
+    
+    <string name="diagnostics_pass_ip">Local IP found: %s</string>
+    <string name="diagnostics_fail_ip">Could not determine local IP address.</string>
+    
+    <string name="diagnostics_pass_subnet">Device and server are on the same subnet.</string>
+    <string name="diagnostics_fail_subnet">Device (%1$s) and server (%2$s) appear to be on different subnets. They must be on the same local network.</string>
+    
+    <string name="diagnostics_pass_ping">Server responded to ping.</string>
+    <string name="diagnostics_fail_ping">Server did not respond to ping. Check if the PC is on and connected to the same network.</string>
+    
+    <string name="diagnostics_pass_port">Server port %d is reachable.</string>
+    <string name="diagnostics_fail_port">Could not connect to port %d. Check if the server app is running and Windows Firewall is allowing the connection.</string>
+    
+    <string name="diagnostics_close">Close</string>
 
     <!-- Gamepad Screen -->
     <string name="gamepad_connection_lost_error">Connection lost: %s</string>

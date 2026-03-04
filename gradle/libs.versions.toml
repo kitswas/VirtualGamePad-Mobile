@@ -36,8 +36,10 @@ androidx-lifecycle-runtime-ktx = { group = "androidx.lifecycle", name = "lifecyc
 androidx-activity-compose = { group = "androidx.activity", name = "activity-compose", version.ref = "androidx-activity-compose" }
 androidx-window = { group = "androidx.window", name = "window", version.ref = "androidx-window" }
 
-# Compose BOM
+# Compose
 compose-bom = { group = "androidx.compose", name = "compose-bom", version.ref = "compose-bom" }
+compose-material-icons-extended = { group = "androidx.compose.material", name = "material-icons-extended" }
+
 
 # Compose
 compose-ui = { group = "androidx.compose.ui", name = "ui" }

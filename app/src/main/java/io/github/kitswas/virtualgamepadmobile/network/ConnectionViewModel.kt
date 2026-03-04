@@ -1,8 +1,10 @@
 package io.github.kitswas.virtualgamepadmobile.network
 
+import android.content.Context
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import io.github.kitswas.virtualgamepadmobile.R
 import io.github.kitswas.VGP_Data_Exchange.GamepadReading
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
@@ -171,8 +173,8 @@ class ConnectionViewModel : ViewModel() {
             socket.tcpNoDelay = true
             socket.setPerformancePreferences(1, 2, 0)
             socket.trafficClass = 0x10 // IPTOS_LOWDELAY
-            // Use OS Timeout to get actual error, not just TimeoutException
-            val timeout = 0 // in milliseconds, 0 means infinite
+            // Set timeout to 5 seconds
+            val timeout = 5000 // in milliseconds
 
             try {
                 socket.connect(java.net.InetSocketAddress(command.ipAddress, command.port), timeout)
@@ -327,4 +329,103 @@ class ConnectionViewModel : ViewModel() {
             }
         }
     }
+
+    /**
+     * Runs a series of network diagnostics to troubleshoot connection issues.
+     * @param context Android context to access system services
+     */
+    fun runDiagnostics(context: Context) {
+        val currentState = _uiState.value
+        val ipAddress = currentState.ipAddress
+        val port = currentState.port
+
+        if (ipAddress.isBlank() || port == -1) {
+            Log.e(tag, "Cannot run diagnostics: IP or Port missing")
+            return
+        }
+
+        viewModelScope.launch {
+            _uiState.update { it.copy(isRunningDiagnostics = true, diagnosticResults = emptyList()) }
+
+            val diagnostics = NetworkDiagnostics(context)
+            val results = mutableListOf<NetworkDiagnostics.DiagnosticResult>()
+
+            // Step 1: Wi-Fi/Network
+            val isWifiConnected = diagnostics.checkNetworkConnectivity()
+            results.add(
+                NetworkDiagnostics.DiagnosticResult(
+                    NetworkDiagnostics.DiagnosticStep.WIFI,
+                    isWifiConnected,
+                    if (isWifiConnected) context.getString(R.string.diagnostics_pass_wifi)
+                    else context.getString(R.string.diagnostics_fail_wifi)
+                )
+            )
+            _uiState.update { it.copy(diagnosticResults = results.toList()) }
+            if (!isWifiConnected) {
+                _uiState.update { it.copy(isRunningDiagnostics = false) }
+                return@launch
+            }
+
+            // Step 2: Local IP
+            val localIp = diagnostics.getLocalIpAddress()
+            val hasLocalIp = localIp != null
+            results.add(
+                NetworkDiagnostics.DiagnosticResult(
+                    NetworkDiagnostics.DiagnosticStep.IP,
+                    hasLocalIp,
+                    if (hasLocalIp) context.getString(R.string.diagnostics_pass_ip, localIp)
+                    else context.getString(R.string.diagnostics_fail_ip)
+                )
+            )
+            _uiState.update { it.copy(diagnosticResults = results.toList()) }
+            if (!hasLocalIp) {
+                _uiState.update { it.copy(isRunningDiagnostics = false) }
+                return@launch
+            }
+
+            // Step 3: Subnet check
+            val sameSubnet = diagnostics.isSameSubnet(localIp, ipAddress)
+            results.add(
+                NetworkDiagnostics.DiagnosticResult(
+                    NetworkDiagnostics.DiagnosticStep.SUBNET,
+                    sameSubnet,
+                    if (sameSubnet) context.getString(R.string.diagnostics_pass_subnet)
+                    else context.getString(R.string.diagnostics_fail_subnet, localIp, ipAddress)
+                )
+            )
+            _uiState.update { it.copy(diagnosticResults = results.toList()) }
+
+            // Step 4: Ping
+            val canPing = diagnostics.pingHost(ipAddress)
+            results.add(
+                NetworkDiagnostics.DiagnosticResult(
+                    NetworkDiagnostics.DiagnosticStep.PING,
+                    canPing,
+                    if (canPing) context.getString(R.string.diagnostics_pass_ping)
+                    else context.getString(R.string.diagnostics_fail_ping)
+                )
+            )
+            _uiState.update { it.copy(diagnosticResults = results.toList()) }
+
+            // Step 5: Port check
+            val canConnectPort = diagnostics.checkPort(ipAddress, port)
+            results.add(
+                NetworkDiagnostics.DiagnosticResult(
+                    NetworkDiagnostics.DiagnosticStep.PORT,
+                    canConnectPort,
+                    if (canConnectPort) context.getString(R.string.diagnostics_pass_port, port)
+                    else context.getString(R.string.diagnostics_fail_port, port)
+                )
+            )
+            _uiState.update { it.copy(diagnosticResults = results.toList(), isRunningDiagnostics = false) }
+        }
+    }
+
+    /**
+     * Clears the current diagnostic results.
+     */
+    fun clearDiagnostics() {
+        _uiState.update { it.copy(diagnosticResults = emptyList(), isRunningDiagnostics = false) }
+    }
 }
+
