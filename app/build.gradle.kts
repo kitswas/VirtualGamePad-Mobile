@@ -76,6 +76,12 @@ android {
         includeInApk = false
         includeInBundle = false
     }
+
+    sourceSets {
+        getByName("main") {
+            java.directories.add("../VGP_Data_Exchange")
+        }
+    }
 }
 
 kotlin {
@@ -85,7 +91,7 @@ kotlin {
 }
 
 val props = Properties()
-val propFile = rootProject.file("signing.properties")
+val propFile: File = rootProject.file("signing.properties")
 
 if (propFile.canRead()) {
     props.load(FileInputStream(propFile))
@@ -143,16 +149,4 @@ dependencies {
     // Debug dependencies
     debugImplementation(libs.compose.ui.test.manifest)
     debugImplementation(libs.compose.ui.tooling)
-}
-
-val updateVGPDataExchangePackage by tasks.registering(ProcessResources::class) {
-    println("Updating VGP_Data_Exchange package...")
-    from(rootDir.toPath().resolve("VGP_Data_Exchange/io/github/kitswas/VGP_Data_Exchange"))
-    into(rootDir.toPath().resolve("app/src/main/java/io/github/kitswas/VGP_Data_Exchange"))
-}
-
-tasks.matching {
-    it != updateVGPDataExchangePackage.get()
-}.configureEach {
-    dependsOn(updateVGPDataExchangePackage)
 }

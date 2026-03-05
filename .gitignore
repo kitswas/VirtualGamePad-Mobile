@@ -45,8 +45,5 @@ replay_pid*
 # Kotlin Gradle plugin data, see https://kotlinlang.org/docs/whatsnew20.html#new-directory-for-kotlin-data-in-gradle-projects
 .kotlin/
 
-# Generated files
-/app/src/main/java/io/github/kitswas/VGP_Data_Exchange
-
 # Ignore the following file to keep keystore information private
 signing.properties
