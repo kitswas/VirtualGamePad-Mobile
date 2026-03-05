@@ -36,12 +36,13 @@ class NetworkDiagnostics(private val context: Context) {
      * Checks if the device has an active Wi-Fi or Ethernet connection.
      */
     fun checkNetworkConnectivity(): Boolean {
-        val connectivityManager = context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
+        val connectivityManager =
+            context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
         val activeNetwork = connectivityManager.activeNetwork ?: return false
         val capabilities = connectivityManager.getNetworkCapabilities(activeNetwork) ?: return false
-        
-        return capabilities.hasTransport(NetworkCapabilities.TRANSPORT_WIFI) || 
-               capabilities.hasTransport(NetworkCapabilities.TRANSPORT_ETHERNET)
+
+        return capabilities.hasTransport(NetworkCapabilities.TRANSPORT_WIFI) ||
+                capabilities.hasTransport(NetworkCapabilities.TRANSPORT_ETHERNET)
     }
 
     /**
@@ -124,8 +125,10 @@ class NetworkDiagnostics(private val context: Context) {
         fun isSameSubnet(b1: ByteArray, b2: ByteArray, prefix: Int): Boolean {
             if (b1.size != 4 || b2.size != 4) return false
             val mask = if (prefix == 0) 0 else -1 shl (32 - prefix)
-            val i1 = ((b1[0].toInt() and 0xFF) shl 24) or ((b1[1].toInt() and 0xFF) shl 16) or ((b1[2].toInt() and 0xFF) shl 8) or (b1[3].toInt() and 0xFF)
-            val i2 = ((b2[0].toInt() and 0xFF) shl 24) or ((b2[1].toInt() and 0xFF) shl 16) or ((b2[2].toInt() and 0xFF) shl 8) or (b2[3].toInt() and 0xFF)
+            val i1 =
+                ((b1[0].toInt() and 0xFF) shl 24) or ((b1[1].toInt() and 0xFF) shl 16) or ((b1[2].toInt() and 0xFF) shl 8) or (b1[3].toInt() and 0xFF)
+            val i2 =
+                ((b2[0].toInt() and 0xFF) shl 24) or ((b2[1].toInt() and 0xFF) shl 16) or ((b2[2].toInt() and 0xFF) shl 8) or (b2[3].toInt() and 0xFF)
             return (i1 and mask) == (i2 and mask)
         }
     }

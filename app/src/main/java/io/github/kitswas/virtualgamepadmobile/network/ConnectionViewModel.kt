@@ -4,8 +4,8 @@ import android.content.Context
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import io.github.kitswas.virtualgamepadmobile.R
 import io.github.kitswas.VGP_Data_Exchange.GamepadReading
+import io.github.kitswas.virtualgamepadmobile.R
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -345,7 +345,12 @@ class ConnectionViewModel : ViewModel() {
         }
 
         viewModelScope.launch {
-            _uiState.update { it.copy(isRunningDiagnostics = true, diagnosticResults = emptyList()) }
+            _uiState.update {
+                it.copy(
+                    isRunningDiagnostics = true,
+                    diagnosticResults = emptyList()
+                )
+            }
 
             val diagnostics = NetworkDiagnostics(context)
             val results = mutableListOf<NetworkDiagnostics.DiagnosticResult>()
@@ -417,7 +422,12 @@ class ConnectionViewModel : ViewModel() {
                     else context.getString(R.string.diagnostics_fail_port, port)
                 )
             )
-            _uiState.update { it.copy(diagnosticResults = results.toList(), isRunningDiagnostics = false) }
+            _uiState.update {
+                it.copy(
+                    diagnosticResults = results.toList(),
+                    isRunningDiagnostics = false
+                )
+            }
         }
     }
 
