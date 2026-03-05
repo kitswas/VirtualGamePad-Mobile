@@ -82,11 +82,7 @@ class NetworkDiagnostics(private val context: Context) {
                 ?.interfaceAddresses?.firstOrNull { it.address == addr1 }
                 ?.networkPrefixLength?.toInt() ?: return false
 
-            val mask = if (prefix == 0) 0 else -1 shl (32 - prefix)
-            val i1 = ((b1[0].toInt() and 0xFF) shl 24) or ((b1[1].toInt() and 0xFF) shl 16) or ((b1[2].toInt() and 0xFF) shl 8) or (b1[3].toInt() and 0xFF)
-            val i2 = ((b2[0].toInt() and 0xFF) shl 24) or ((b2[1].toInt() and 0xFF) shl 16) or ((b2[2].toInt() and 0xFF) shl 8) or (b2[3].toInt() and 0xFF)
-
-            (i1 and mask) == (i2 and mask)
+            isSameSubnet(b1, b2, prefix)
         } catch (e: Exception) {
             Log.e(tag, "Error checking subnet", e)
             false
@@ -118,6 +114,19 @@ class NetworkDiagnostics(private val context: Context) {
         } catch (e: IOException) {
             Log.e(tag, "Port check failed", e)
             false
+        }
+    }
+
+    companion object {
+        /**
+         * Pure bitwise check if two IPv4 byte arrays are on the same subnet.
+         */
+        fun isSameSubnet(b1: ByteArray, b2: ByteArray, prefix: Int): Boolean {
+            if (b1.size != 4 || b2.size != 4) return false
+            val mask = if (prefix == 0) 0 else -1 shl (32 - prefix)
+            val i1 = ((b1[0].toInt() and 0xFF) shl 24) or ((b1[1].toInt() and 0xFF) shl 16) or ((b1[2].toInt() and 0xFF) shl 8) or (b1[3].toInt() and 0xFF)
+            val i2 = ((b2[0].toInt() and 0xFF) shl 24) or ((b2[1].toInt() and 0xFF) shl 16) or ((b2[2].toInt() and 0xFF) shl 8) or (b2[3].toInt() and 0xFF)
+            return (i1 and mask) == (i2 and mask)
         }
     }
 }
