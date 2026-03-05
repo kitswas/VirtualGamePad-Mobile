@@ -13,14 +13,14 @@ import io.github.kitswas.virtualgamepadmobile.data.PreviewBase
 
 @Composable
 fun ColorSchemePicker(
-    default: ColorScheme,
+    selectedItem: ColorScheme,
     modifier: Modifier = Modifier,
     onColorSchemeSelected: (ColorScheme) -> Unit = { _ -> }
 ) {
     ListItemPicker(
         modifier = modifier,
         list = ColorScheme.entries.asIterable(),
-        default = default,
+        selectedItem = selectedItem,
         label = stringResource(R.string.settings_color_scheme),
         formattedDisplay = { item ->
             Text(text = stringResource(item.nameRes))

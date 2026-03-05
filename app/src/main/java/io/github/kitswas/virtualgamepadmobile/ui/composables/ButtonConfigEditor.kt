@@ -87,7 +87,7 @@ fun ButtonConfigEditor(
             ListItemPicker(
                 modifier = Modifier.fillMaxWidth(),
                 list = ButtonAnchor.entries.asIterable(),
-                default = anchor,
+                selectedItem = anchor,
                 label = stringResource(R.string.button_anchor_position),
                 isHorizontal = true,
                 formattedDisplay = { item ->

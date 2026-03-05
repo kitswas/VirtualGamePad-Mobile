@@ -59,10 +59,10 @@ private const val logTag = "SettingsScreen"
 
 @Parcelize
 private data class SettingsChanges(
-    var colorScheme: ColorScheme? = null,
-    var baseColor: BaseColor? = null,
-    var pollingDelay: Int? = null,
-    var hapticFeedbackEnabled: Boolean? = null
+    val colorScheme: ColorScheme? = null,
+    val baseColor: BaseColor? = null,
+    val pollingDelay: Int? = null,
+    val hapticFeedbackEnabled: Boolean? = null
 ) : Parcelable
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -72,7 +72,7 @@ fun SettingsScreen(
     onNavigateToGamepadCustomization: () -> Unit,
     settingsRepository: SettingsRepository
 ) {
-    val settingsChanges by rememberSaveable { mutableStateOf(SettingsChanges()) }
+    var settingsChanges by rememberSaveable { mutableStateOf(SettingsChanges()) }
 
     Scaffold { paddingValues ->
         val colorScheme by settingsRepository.colorScheme.collectAsState(initial = defaultColorScheme)
@@ -105,19 +105,19 @@ fun SettingsScreen(
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
 
-                ColorSchemePicker(default = colorScheme) {
-                    settingsChanges.colorScheme = it
+                ColorSchemePicker(selectedItem = settingsChanges.colorScheme ?: colorScheme) {
+                    settingsChanges = settingsChanges.copy(colorScheme = it)
                 }
 
                 ListItemPicker(
                     list = BaseColor.entries.asIterable(),
-                    default = baseColor,
+                    selectedItem = settingsChanges.baseColor ?: baseColor,
                     label = stringResource(R.string.settings_theme_color),
                     formattedDisplay = { item ->
                         Text(text = stringResource(item.nameRes))
                     },
                     onItemSelected = {
-                        settingsChanges.baseColor = it
+                        settingsChanges = settingsChanges.copy(baseColor = it)
                     })
 
                 Row(
@@ -125,9 +125,9 @@ fun SettingsScreen(
                     horizontalArrangement = Arrangement.SpaceAround
                 ) {
                     SpinBox(
-                        value = pollingDelay,
+                        value = settingsChanges.pollingDelay ?: pollingDelay,
                         onValueChange = {
-                            settingsChanges.pollingDelay = it
+                            settingsChanges = settingsChanges.copy(pollingDelay = it)
                         },
                         label = stringResource(R.string.settings_polling_interval),
                         minValue = 20,
@@ -168,20 +168,14 @@ fun SettingsScreen(
                     verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.SpaceEvenly
                 ) {
-                    var switchState by rememberSaveable(hapticEnabled) {
-                        mutableStateOf(
-                            hapticEnabled
-                        )
-                    }
                     Text(
                         stringResource(R.string.settings_haptic_feedback),
                         style = MaterialTheme.typography.labelMedium
                     )
                     Switch(
-                        checked = switchState,
+                        checked = settingsChanges.hapticFeedbackEnabled ?: hapticEnabled,
                         onCheckedChange = {
-                            settingsChanges.hapticFeedbackEnabled = it
-                            switchState = it
+                            settingsChanges = settingsChanges.copy(hapticFeedbackEnabled = it)
                         }
                     )
                 }
@@ -205,10 +199,7 @@ fun SettingsScreen(
                 horizontalArrangement = Arrangement.SpaceEvenly
             ) {
                 Button(onClick = {
-                    settingsChanges.pollingDelay = null
-                    settingsChanges.colorScheme = null
-                    settingsChanges.baseColor = null
-                    settingsChanges.hapticFeedbackEnabled = null
+                    settingsChanges = SettingsChanges()
                     runBlocking { settingsRepository.resetAllSettings() }
                     Log.i(logTag, "Settings reset to defaults")
                 }) {

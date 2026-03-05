@@ -36,7 +36,7 @@ import io.github.kitswas.virtualgamepadmobile.R
 fun <T> ListItemPicker(
     modifier: Modifier = Modifier,
     list: Iterable<T>,
-    default: T,
+    selectedItem: T,
     label: String,
     isHorizontal: Boolean = false,
     formattedDisplay: @Composable (T) -> Unit = { item ->
@@ -48,8 +48,6 @@ fun <T> ListItemPicker(
 ) {
 
     var expanded by rememberSaveable { mutableStateOf(false) }
-
-    var selectedItem = default
 
     val labelContent = @Composable {
         Text(text = label, style = MaterialTheme.typography.labelMedium)
@@ -71,7 +69,6 @@ fun <T> ListItemPicker(
             ) {
                 list.forEach { item ->
                     DropdownMenuItem(text = { formattedDisplay(item) }, onClick = {
-                        selectedItem = item
                         expanded = false
                         onItemSelected(item)
                     })
@@ -119,7 +116,7 @@ fun <T> ListItemPicker(
     ListItemPicker(
         modifier = modifier,
         list = list,
-        default = list.elementAt(defaultIndex),
+        selectedItem = list.elementAt(defaultIndex),
         label = label,
         isHorizontal = isHorizontal,
         formattedDisplay = formattedDisplay,
