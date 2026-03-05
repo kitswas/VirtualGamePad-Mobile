@@ -13,6 +13,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Devices.DESKTOP
 import androidx.compose.ui.tooling.preview.Devices.TABLET
 import androidx.compose.ui.tooling.preview.Preview
@@ -92,22 +93,17 @@ fun GamePad(
     val connectionState by connectionViewModel?.uiState?.collectAsState()
         ?: remember { mutableStateOf(null) }
 
-    // Use a more focused effect that reacts to the specific connection state properties
-    LaunchedEffect(connectionState?.connected, connectionState?.error) {
-        connectionState?.let { state ->
-            if (!state.connected) {
-                // Show toast with error if available, otherwise generic message
-                val message = if (state.error != null) {
-                    context.getString(R.string.gamepad_connection_lost_error, state.error)
-                } else {
-                    context.getString(R.string.gamepad_connection_lost)
-                }
+    val connectionLostMessage = connectionState?.takeIf { !it.connected }?.let { state ->
+        state.error?.let {
+            stringResource(R.string.gamepad_connection_lost_error, it)
+        } ?: stringResource(R.string.gamepad_connection_lost)
+    }
 
-                Log.d(tag, message)
-                Toast.makeText(context, message, Toast.LENGTH_LONG).show()
-
-                onNavigateBack()
-            }
+    LaunchedEffect(connectionLostMessage) {
+        if (connectionLostMessage != null) {
+            Log.d(tag, connectionLostMessage)
+            Toast.makeText(context, connectionLostMessage, Toast.LENGTH_LONG).show()
+            onNavigateBack()
         }
     }
 
