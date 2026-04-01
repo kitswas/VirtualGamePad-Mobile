@@ -1,0 +1,63 @@
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="640"
+    android:viewportHeight="360">
+    <group
+        android:scaleX="0.75"
+        android:scaleY="0.421875"
+        android:translateX="80"
+        android:translateY="104.0625">
+        <group>
+            <clip-path android:pathData="M0,360l0,-360l640,-0l0,360z" />
+            <!-- Action buttons (Y, B, A, X) -->
+            <path
+                android:fillColor="#000000"
+                android:pathData="M507.8,86.2m-25.2,0a25.2,25.2 0,1 1,50.39 0a25.2,25.2 0,1 1,-50.39 0" />
+            <path
+                android:fillColor="#000000"
+                android:pathData="M562.19,140.81m-25.2,0a25.2,25.2 0,1 1,50.39 0a25.2,25.2 0,1 1,-50.39 0" />
+            <path
+                android:fillColor="#000000"
+                android:pathData="M507.8,189.15m-25.2,0a25.2,25.2 0,1 1,50.39 0a25.2,25.2 0,1 1,-50.39 0" />
+            <path
+                android:fillColor="#000000"
+                android:pathData="M454.92,139.29m-25.2,0a25.2,25.2 0,1 1,50.39 0a25.2,25.2 0,1 1,-50.39 0" />
+            <!-- D-pad buttons -->
+            <path
+                android:fillColor="#000000"
+                android:pathData="M201.08,217.2m-27.2,0a27.2,27.2 0,1 1,54.39 0a27.2,27.2 0,1 1,-54.39 0" />
+            <path
+                android:fillColor="#000000"
+                android:pathData="M255.47,271.81m-27.2,0a27.2,27.2 0,1 1,54.39 0a27.2,27.2 0,1 1,-54.39 0" />
+            <path
+                android:fillColor="#000000"
+                android:pathData="M201.08,320.15m-27.2,0a27.2,27.2 0,1 1,54.39 0a27.2,27.2 0,1 1,-54.39 0" />
+            <path
+                android:fillColor="#000000"
+                android:pathData="M148.2,270.3m-27.2,0a27.2,27.2 0,1 1,54.39 0a27.2,27.2 0,1 1,-54.39 0" />
+            <!-- Start/Select buttons -->
+            <path
+                android:fillColor="#000000"
+                android:pathData="M362.76,137.79m-16.62,0a16.62,16.62 0,1 1,33.24 0a16.62,16.62 0,1 1,-33.24 0" />
+            <path
+                android:fillColor="#000000"
+                android:pathData="M249.44,137.79m-16.62,0a16.62,16.62 0,1 1,33.24 0a16.62,16.62 0,1 1,-33.24 0" />
+            <!-- Left joystick -->
+            <path
+                android:fillColor="#000000"
+                android:pathData="M105.9,136.27m-42.31,0a42.31,42.31 0,1 1,84.61 0a42.31,42.31 0,1 1,-84.61 0" />
+            <!-- Right joystick -->
+            <path
+                android:fillColor="#000000"
+                android:pathData="M410.3,256.3m-42.31,0a42.31,42.31 0,1 1,84.61 0a42.31,42.31 0,1 1,-84.61 0" />
+            <!-- Shoulder buttons -->
+            <path
+                android:fillColor="#000000"
+                android:pathData="M348,39L410,39A20,20 0,0 1,430 59L430,59A20,20 0,0 1,410 79L348,79A20,20 0,0 1,328 59L328,59A20,20 0,0 1,348 39z" />
+            <path
+                android:fillColor="#000000"
+                android:pathData="M203,39L264,39A20,20 0,0 1,284 59L284,59A20,20 0,0 1,264 79L203,79A20,20 0,0 1,183 59L183,59A20,20 0,0 1,203 39z" />
+        </group>
+    </group>
+</vector>
