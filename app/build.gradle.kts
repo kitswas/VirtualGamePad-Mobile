@@ -20,8 +20,8 @@ android {
         minSdk = 26
         // Specifies the API level used to test the app.
         targetSdk = 34
-        versionCode = 10
-        versionName = "0.4.1"
+        versionCode = 11
+        versionName = "0.4.2"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables {
