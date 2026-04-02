@@ -8,6 +8,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.core.view.WindowCompat
+import androidx.core.view.WindowInsetsCompat
+import androidx.core.view.WindowInsetsControllerCompat
 import androidx.navigation.NavHostController
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
@@ -17,6 +20,7 @@ import androidx.navigation.navArgument
 import io.github.kitswas.virtualgamepadmobile.data.SettingsRepository
 import io.github.kitswas.virtualgamepadmobile.data.defaultBaseColor
 import io.github.kitswas.virtualgamepadmobile.data.defaultColorScheme
+import io.github.kitswas.virtualgamepadmobile.data.defaultFullScreenEnabled
 import io.github.kitswas.virtualgamepadmobile.data.defaultHapticFeedbackEnabled
 import io.github.kitswas.virtualgamepadmobile.data.defaultSaveConnectionCredentials
 import io.github.kitswas.virtualgamepadmobile.network.ConnectionViewModel
@@ -70,6 +74,23 @@ class MainActivity : ComponentActivity() {
 
         LaunchedEffect(hapticEnabled.value) {
             HapticUtils.isEnabled = hapticEnabled.value
+        }
+
+        val fullScreenEnabled = settingsRepository.fullScreenEnabled.collectAsState(
+            initial = defaultFullScreenEnabled
+        )
+
+        LaunchedEffect(fullScreenEnabled.value) {
+            val insetsController = WindowCompat.getInsetsController(window, window.decorView)
+            if (fullScreenEnabled.value) {
+                WindowCompat.setDecorFitsSystemWindows(window, false)
+                insetsController.systemBarsBehavior =
+                    WindowInsetsControllerCompat.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
+                insetsController.hide(WindowInsetsCompat.Type.systemBars())
+            } else {
+                WindowCompat.setDecorFitsSystemWindows(window, true)
+                insetsController.show(WindowInsetsCompat.Type.systemBars())
+            }
         }
 
         VirtualGamePadMobileTheme(

@@ -46,6 +46,7 @@ import io.github.kitswas.virtualgamepadmobile.data.PreviewWidthDp
 import io.github.kitswas.virtualgamepadmobile.data.SettingsRepository
 import io.github.kitswas.virtualgamepadmobile.data.defaultBaseColor
 import io.github.kitswas.virtualgamepadmobile.data.defaultColorScheme
+import io.github.kitswas.virtualgamepadmobile.data.defaultFullScreenEnabled
 import io.github.kitswas.virtualgamepadmobile.data.defaultHapticFeedbackEnabled
 import io.github.kitswas.virtualgamepadmobile.data.defaultPollingDelay
 import io.github.kitswas.virtualgamepadmobile.data.defaultSaveConnectionCredentials
@@ -64,7 +65,8 @@ private data class SettingsChanges(
     val baseColor: BaseColor? = null,
     val pollingDelay: Int? = null,
     val hapticFeedbackEnabled: Boolean? = null,
-    val saveConnectionCredentials: Boolean? = null
+    val saveConnectionCredentials: Boolean? = null,
+    val fullScreenEnabled: Boolean? = null
 ) : Parcelable
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -82,6 +84,7 @@ fun SettingsScreen(
         val pollingDelay by settingsRepository.pollingDelay.collectAsState(initial = defaultPollingDelay)
         val hapticEnabled by settingsRepository.hapticFeedbackEnabled.collectAsState(initial = defaultHapticFeedbackEnabled)
         val saveCredentials by settingsRepository.saveConnectionCredentials.collectAsState(initial = defaultSaveConnectionCredentials)
+        val fullScreenEnabled by settingsRepository.fullScreenEnabled.collectAsState(initial = defaultFullScreenEnabled)
 
         Column(
             modifier = Modifier
@@ -189,6 +192,23 @@ fun SettingsScreen(
                     horizontalArrangement = Arrangement.SpaceEvenly
                 ) {
                     Text(
+                        stringResource(R.string.settings_full_screen),
+                        style = MaterialTheme.typography.labelMedium
+                    )
+                    Switch(
+                        checked = settingsChanges.fullScreenEnabled ?: fullScreenEnabled,
+                        onCheckedChange = {
+                            settingsChanges = settingsChanges.copy(fullScreenEnabled = it)
+                        }
+                    )
+                }
+
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.SpaceEvenly
+                ) {
+                    Text(
                         stringResource(R.string.settings_save_connection_credentials),
                         style = MaterialTheme.typography.labelMedium
                     )
@@ -248,6 +268,11 @@ fun SettingsScreen(
                             }
                             settingsChanges.saveConnectionCredentials?.let {
                                 settingsRepository.setSaveConnectionCredentials(
+                                    it
+                                ); ++changesSaved
+                            }
+                            settingsChanges.fullScreenEnabled?.let {
+                                settingsRepository.setFullScreenEnabled(
                                     it
                                 ); ++changesSaved
                             }

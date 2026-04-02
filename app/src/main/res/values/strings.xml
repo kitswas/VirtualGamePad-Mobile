@@ -16,6 +16,7 @@
     <string name="settings_polling_interval_info">Information about polling interval</string>
     <string name="settings_haptic_feedback">Haptic Feedback (Vibrations)</string>
     <string name="settings_save_connection_credentials">Remember IP Address and Port</string>
+    <string name="settings_full_screen">Full Screen</string>
     <string name="settings_customize_layout">Customize Gamepad Layout</string>
     <string name="settings_error_save">Error saving settings</string>
 
