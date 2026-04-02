@@ -17,6 +17,11 @@
     <string name="settings_haptic_feedback">Haptic Feedback (Vibrations)</string>
     <string name="settings_save_connection_credentials">Remember IP Address and Port</string>
     <string name="settings_full_screen">Full Screen</string>
+    <string name="settings_motion_stick_control">Phone Rotation Controls</string>
+    <string name="settings_motion_stick_off">Off</string>
+    <string name="settings_motion_stick_left">Left Analog Stick</string>
+    <string name="settings_motion_stick_right">Right Analog Stick</string>
+    <string name="settings_motion_sensitivity">Rotation Sensitivity: %.1fx</string>
     <string name="settings_customize_layout">Customize Gamepad Layout</string>
     <string name="settings_error_save">Error saving settings</string>
 
@@ -25,7 +30,8 @@
     <string name="about_version">Version %s</string>
     <string name="about_view_license">View Licence</string>
     <string name="about_latest_release">Latest Release</string>
-    <string name="about_description">A mobile application that lets your phone work as a gamepad for PC games.</string>
+    <string name="about_description">A mobile application that lets your phone work as a gamepad for
+        PC games.</string>
     <string name="about_source_code">Source Code</string>
     <string name="about_project_website">Project Website</string>
     <string name="about_report_issues">Report Issues</string>

@@ -6,6 +6,8 @@ const val defaultPollingDelay = 80 // in milliseconds
 const val defaultHapticFeedbackEnabled = false // vibrations
 const val defaultSaveConnectionCredentials = false
 const val defaultFullScreenEnabled = false
+val defaultMotionStickControl = MotionStickControl.OFF
+const val defaultMotionSensitivity = 1f
 
 // Default button configurations with offsets matching the original layout
 // Note: Offset values are multipliers of baseDp (heightDp in landscape)

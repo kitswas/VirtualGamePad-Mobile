@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.size
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
@@ -138,6 +139,9 @@ fun AnalogStick(
     innerCircleRadius: Dp = 32.dp,
     gamepadState: GamepadReading,
     type: AnalogStickType,
+    isExternallyControlled: Boolean = false,
+    externalX: Float = 0f,
+    externalY: Float = 0f,
 ) {
     val density = LocalDensity.current
     val view = LocalView.current
@@ -167,6 +171,18 @@ fun AnalogStick(
                     (innerCircleRadius + outerCircleWidth).toPx()
                 }
 
+                LaunchedEffect(isExternallyControlled, externalX, externalY, maxOffset) {
+                    if (isExternallyControlled) {
+                        val clampedX = externalX.coerceIn(-1f, 1f)
+                        val clampedY = externalY.coerceIn(-1f, 1f)
+                        state.offsetX = clampedX * maxOffset
+                        state.offsetY = clampedY * maxOffset
+                        state.visualX = state.offsetX
+                        state.visualY = state.offsetY
+                        updateThumbstickValues(type, gamepadState, clampedX, clampedY)
+                    }
+                }
+
                 // Then draw the inner circle
                 Circle(
                     colour = innerCircleColor,
@@ -179,7 +195,10 @@ fun AnalogStick(
                                 state.visualY.roundToInt()
                             )
                         }
-                        .pointerInput(Unit) {
+                        .pointerInput(isExternallyControlled) {
+                            if (isExternallyControlled) {
+                                return@pointerInput
+                            }
                             detectDragGestures(
                                 onDragStart = { _ ->
                                     HapticUtils.performGestureStartFeedback(view)
@@ -202,7 +221,10 @@ fun AnalogStick(
                                 }
                             )
                         }
-                        .pointerInput(Unit) {
+                        .pointerInput(isExternallyControlled) {
+                            if (isExternallyControlled) {
+                                return@pointerInput
+                            }
                             detectTapGestures(
                                 onLongPress = { _ ->
                                     toggleThumbstickButton(state, type, gamepadState, view)

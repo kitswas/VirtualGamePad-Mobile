@@ -17,6 +17,7 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.PlainTooltip
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Slider
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.material3.TooltipAnchorPosition
@@ -40,6 +41,7 @@ import androidx.compose.ui.unit.dp
 import io.github.kitswas.virtualgamepadmobile.R
 import io.github.kitswas.virtualgamepadmobile.data.BaseColor
 import io.github.kitswas.virtualgamepadmobile.data.ColorScheme
+import io.github.kitswas.virtualgamepadmobile.data.MotionStickControl
 import io.github.kitswas.virtualgamepadmobile.data.PreviewBase
 import io.github.kitswas.virtualgamepadmobile.data.PreviewHeightDp
 import io.github.kitswas.virtualgamepadmobile.data.PreviewWidthDp
@@ -48,6 +50,8 @@ import io.github.kitswas.virtualgamepadmobile.data.defaultBaseColor
 import io.github.kitswas.virtualgamepadmobile.data.defaultColorScheme
 import io.github.kitswas.virtualgamepadmobile.data.defaultFullScreenEnabled
 import io.github.kitswas.virtualgamepadmobile.data.defaultHapticFeedbackEnabled
+import io.github.kitswas.virtualgamepadmobile.data.defaultMotionSensitivity
+import io.github.kitswas.virtualgamepadmobile.data.defaultMotionStickControl
 import io.github.kitswas.virtualgamepadmobile.data.defaultPollingDelay
 import io.github.kitswas.virtualgamepadmobile.data.defaultSaveConnectionCredentials
 import io.github.kitswas.virtualgamepadmobile.ui.composables.ColorSchemePicker
@@ -66,7 +70,9 @@ private data class SettingsChanges(
     val pollingDelay: Int? = null,
     val hapticFeedbackEnabled: Boolean? = null,
     val saveConnectionCredentials: Boolean? = null,
-    val fullScreenEnabled: Boolean? = null
+    val fullScreenEnabled: Boolean? = null,
+    val motionStickControl: MotionStickControl? = null,
+    val motionSensitivity: Float? = null,
 ) : Parcelable
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -85,6 +91,8 @@ fun SettingsScreen(
         val hapticEnabled by settingsRepository.hapticFeedbackEnabled.collectAsState(initial = defaultHapticFeedbackEnabled)
         val saveCredentials by settingsRepository.saveConnectionCredentials.collectAsState(initial = defaultSaveConnectionCredentials)
         val fullScreenEnabled by settingsRepository.fullScreenEnabled.collectAsState(initial = defaultFullScreenEnabled)
+        val motionStickControl by settingsRepository.motionStickControl.collectAsState(initial = defaultMotionStickControl)
+        val motionSensitivity by settingsRepository.motionSensitivity.collectAsState(initial = defaultMotionSensitivity)
 
         Column(
             modifier = Modifier
@@ -125,6 +133,46 @@ fun SettingsScreen(
                     onItemSelected = {
                         settingsChanges = settingsChanges.copy(baseColor = it)
                     })
+
+                ListItemPicker(
+                    list = MotionStickControl.entries.asIterable(),
+                    selectedItem = settingsChanges.motionStickControl ?: motionStickControl,
+                    label = stringResource(R.string.settings_motion_stick_control),
+                    formattedDisplay = { item ->
+                        val textRes = when (item) {
+                            MotionStickControl.OFF -> R.string.settings_motion_stick_off
+                            MotionStickControl.LEFT -> R.string.settings_motion_stick_left
+                            MotionStickControl.RIGHT -> R.string.settings_motion_stick_right
+                        }
+                        Text(text = stringResource(textRes))
+                    },
+                    onItemSelected = {
+                        settingsChanges = settingsChanges.copy(motionStickControl = it)
+                    }
+                )
+
+                val shownSensitivity = settingsChanges.motionSensitivity ?: motionSensitivity
+                Column(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    Text(
+                        text = stringResource(
+                            R.string.settings_motion_sensitivity,
+                            shownSensitivity
+                        ),
+                        style = MaterialTheme.typography.labelMedium
+                    )
+                    Slider(
+                        modifier = Modifier.fillMaxWidth(0.8f),
+                        value = shownSensitivity,
+                        valueRange = 0.5f..3f,
+                        steps = 9,
+                        onValueChange = {
+                            settingsChanges = settingsChanges.copy(motionSensitivity = it)
+                        }
+                    )
+                }
 
                 Row(
                     verticalAlignment = Alignment.CenterVertically,
@@ -275,6 +323,12 @@ fun SettingsScreen(
                                 settingsRepository.setFullScreenEnabled(
                                     it
                                 ); ++changesSaved
+                            }
+                            settingsChanges.motionStickControl?.let {
+                                settingsRepository.setMotionStickControl(it); ++changesSaved
+                            }
+                            settingsChanges.motionSensitivity?.let {
+                                settingsRepository.setMotionSensitivity(it); ++changesSaved
                             }
                         } catch (e: Exception) {
                             Log.e(logTag, "Error saving settings", e)

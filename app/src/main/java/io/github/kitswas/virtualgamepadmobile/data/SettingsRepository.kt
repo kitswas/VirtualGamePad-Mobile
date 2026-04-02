@@ -5,6 +5,7 @@ import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.edit
+import androidx.datastore.preferences.core.floatPreferencesKey
 import androidx.datastore.preferences.core.intPreferencesKey
 import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
@@ -61,6 +62,16 @@ class SettingsRepository(context: Context) {
 
     val fullScreenEnabled: Flow<Boolean> = dataStore.data.map { preferences ->
         preferences[FULL_SCREEN_ENABLED] ?: defaultFullScreenEnabled
+    }
+
+    val motionStickControl: Flow<MotionStickControl> = dataStore.data.map { preferences ->
+        MotionStickControl.fromInt(
+            preferences[MOTION_STICK_CONTROL] ?: defaultMotionStickControl.ordinal
+        )
+    }
+
+    val motionSensitivity: Flow<Float> = dataStore.data.map { preferences ->
+        preferences[MOTION_SENSITIVITY] ?: defaultMotionSensitivity
     }
 
     suspend fun setBaseColor(baseColor: BaseColor) {
@@ -130,6 +141,18 @@ class SettingsRepository(context: Context) {
         }
     }
 
+    suspend fun setMotionStickControl(control: MotionStickControl) {
+        dataStore.edit { preferences ->
+            preferences[MOTION_STICK_CONTROL] = control.ordinal
+        }
+    }
+
+    suspend fun setMotionSensitivity(sensitivity: Float) {
+        dataStore.edit { preferences ->
+            preferences[MOTION_SENSITIVITY] = sensitivity
+        }
+    }
+
     suspend fun resetAllSettings() {
         dataStore.edit { preferences ->
             preferences.clear()
@@ -147,5 +170,7 @@ class SettingsRepository(context: Context) {
         private val SAVE_CONNECTION_CREDENTIALS =
             booleanPreferencesKey("save_connection_credentials")
         private val FULL_SCREEN_ENABLED = booleanPreferencesKey("full_screen_enabled")
+        private val MOTION_STICK_CONTROL = intPreferencesKey("motion_stick_control")
+        private val MOTION_SENSITIVITY = floatPreferencesKey("motion_sensitivity")
     }
 }

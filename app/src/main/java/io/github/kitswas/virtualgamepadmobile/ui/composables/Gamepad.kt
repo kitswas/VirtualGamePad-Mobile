@@ -13,6 +13,7 @@ import io.github.kitswas.VGP_Data_Exchange.GamepadReading
 import io.github.kitswas.virtualgamepadmobile.data.ButtonAnchor
 import io.github.kitswas.virtualgamepadmobile.data.ButtonComponent
 import io.github.kitswas.virtualgamepadmobile.data.ButtonConfig
+import io.github.kitswas.virtualgamepadmobile.data.MotionStickControl
 
 /**
  * Convert ButtonAnchor to Compose Alignment
@@ -35,6 +36,9 @@ fun DrawGamepad(
     heightDp: Int,
     gamepadState: GamepadReading,
     buttonConfigs: Map<ButtonComponent, ButtonConfig>,
+    motionStickControl: MotionStickControl = MotionStickControl.OFF,
+    motionStickX: Float = 0f,
+    motionStickY: Float = 0f,
 ) {
     // Assuming Landscape orientation
     val baseDp = heightDp
@@ -78,6 +82,9 @@ fun DrawGamepad(
                     innerCircleRadius = (baseDp / 12 * config.scale).dp,
                     gamepadState = gamepadState,
                     type = AnalogStickType.LEFT,
+                    isExternallyControlled = motionStickControl == MotionStickControl.LEFT,
+                    externalX = motionStickX,
+                    externalY = motionStickY,
                 )
             }
 
@@ -92,6 +99,9 @@ fun DrawGamepad(
                     innerCircleRadius = (baseDp / 12 * config.scale).dp,
                     gamepadState = gamepadState,
                     type = AnalogStickType.RIGHT,
+                    isExternallyControlled = motionStickControl == MotionStickControl.RIGHT,
+                    externalX = motionStickX,
+                    externalY = motionStickY,
                 )
             }
 
