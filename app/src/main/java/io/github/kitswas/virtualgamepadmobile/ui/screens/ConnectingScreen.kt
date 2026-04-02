@@ -37,13 +37,17 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import io.github.kitswas.virtualgamepadmobile.R
+import io.github.kitswas.virtualgamepadmobile.data.PreviewBase
+import io.github.kitswas.virtualgamepadmobile.data.PreviewHeightDp
+import io.github.kitswas.virtualgamepadmobile.data.PreviewWidthDp
 import io.github.kitswas.virtualgamepadmobile.network.ConnectionViewModel
+import io.github.kitswas.virtualgamepadmobile.ui.theme.SuccessGreen
 import kotlinx.coroutines.launch
 
 @Composable
@@ -210,7 +214,7 @@ fun DiagnosticsDialog(
                         verticalAlignment = Alignment.CenterVertically,
                         horizontalArrangement = Arrangement.spacedBy(8.dp)
                     ) {
-                        CircularProgressIndicator(modifier = Modifier.height(20.dp))
+                        CircularProgressIndicator()
                         Text(stringResource(R.string.diagnostics_running))
                     }
                 }
@@ -226,7 +230,7 @@ fun DiagnosticsDialog(
                             Icon(
                                 imageVector = if (result.isPassed) Icons.Default.CheckCircle else Icons.Default.Error,
                                 contentDescription = null,
-                                tint = if (result.isPassed) Color(0xFF4CAF50) else MaterialTheme.colorScheme.error,
+                                tint = if (result.isPassed) SuccessGreen else MaterialTheme.colorScheme.error,
                                 modifier = Modifier.padding(top = 2.dp)
                             )
                             Column {
@@ -247,4 +251,45 @@ fun DiagnosticsDialog(
             }
         }
     )
+}
+
+@Preview(
+    widthDp = PreviewWidthDp,
+    heightDp = PreviewHeightDp,
+)
+@Composable
+private fun DiagnosticsDialogPreview() {
+    PreviewBase {
+        val sampleState = io.github.kitswas.virtualgamepadmobile.network.ConnectionState(
+            connected = false,
+            ipAddress = "192.168.1.10",
+            port = 7155,
+            error = null,
+            isConnecting = false,
+            isRunningDiagnostics = true,
+            diagnosticResults = listOf(
+                io.github.kitswas.virtualgamepadmobile.network.NetworkDiagnostics.DiagnosticResult(
+                    io.github.kitswas.virtualgamepadmobile.network.NetworkDiagnostics.DiagnosticStep.WIFI,
+                    true,
+                    "Device connected to Wi-Fi"
+                ),
+                io.github.kitswas.virtualgamepadmobile.network.NetworkDiagnostics.DiagnosticResult(
+                    io.github.kitswas.virtualgamepadmobile.network.NetworkDiagnostics.DiagnosticStep.IP,
+                    true,
+                    "Local IP: 192.168.1.10"
+                ),
+                io.github.kitswas.virtualgamepadmobile.network.NetworkDiagnostics.DiagnosticResult(
+                    io.github.kitswas.virtualgamepadmobile.network.NetworkDiagnostics.DiagnosticStep.PING,
+                    false,
+                    "Ping to server failed",
+                    "Timeout"
+                )
+            )
+        )
+
+        DiagnosticsDialog(
+            connectionState = sampleState,
+            onDismiss = {}
+        )
+    }
 }
