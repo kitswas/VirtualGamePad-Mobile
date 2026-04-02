@@ -3,18 +3,18 @@
 android-gradle-plugin = "9.1.0"
 
 # Kotlin
-kotlin = "2.3.10"
+kotlin = "2.3.20"
 kotlinx-serialization-json = "1.10.0"
 
 # AndroidX Core
-androidx-core-ktx = "1.17.0"
+androidx-core-ktx = "1.18.0"
 androidx-lifecycle = "2.10.0"
-androidx-activity-compose = "1.12.4"
+androidx-activity-compose = "1.13.0"
 androidx-window = "1.5.1"
-androidx-datastore = "1.2.0"
+androidx-datastore = "1.2.1"
 
 # Compose
-compose-bom = "2026.02.01"
+compose-bom = "2026.03.01"
 compose-navigation = "2.9.7"
 
 # QR Code Scanner
@@ -27,7 +27,7 @@ kotlinx-coroutines-test = "1.10.2"
 
 # Tools
 desugar-jdk-libs = "2.1.5"
-dokka = "2.2.0-Beta"
+dokka = "2.2.0"
 
 [libraries]
 # AndroidX Core
