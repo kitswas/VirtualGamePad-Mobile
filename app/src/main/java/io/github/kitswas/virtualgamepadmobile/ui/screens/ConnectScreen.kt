@@ -292,8 +292,8 @@ fun ConnectMenuPreview() {
     PreviewBase {
         ConnectMenu(
             onNavigateToConnectingScreen = { _, _ -> },
-            initialIp = "192.168.1.100",
-            initialPort = "7155"
+            initialIp = "",
+            initialPort = "12345"
         )
     }
 }
