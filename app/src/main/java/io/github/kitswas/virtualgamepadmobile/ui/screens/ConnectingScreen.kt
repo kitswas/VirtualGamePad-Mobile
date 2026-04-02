@@ -260,10 +260,13 @@ fun DiagnosticsDialog(
 @Composable
 private fun DiagnosticsDialogPreview() {
     PreviewBase {
+        val serverIP = "192.0.2.1" // Use TEST-NET-1 IP for preview
+        val clientIP = "192.0.2.5" // Another TEST-NET-1 IP for client
+        val port = 12345
         val sampleState = io.github.kitswas.virtualgamepadmobile.network.ConnectionState(
             connected = false,
-            ipAddress = "192.168.1.10",
-            port = 7155,
+            ipAddress = serverIP,
+            port = port,
             error = null,
             isConnecting = false,
             isRunningDiagnostics = true,
@@ -276,7 +279,7 @@ private fun DiagnosticsDialogPreview() {
                 io.github.kitswas.virtualgamepadmobile.network.NetworkDiagnostics.DiagnosticResult(
                     io.github.kitswas.virtualgamepadmobile.network.NetworkDiagnostics.DiagnosticStep.IP,
                     true,
-                    "Local IP: 192.168.1.10"
+                    "Local IP: $clientIP"
                 ),
                 io.github.kitswas.virtualgamepadmobile.network.NetworkDiagnostics.DiagnosticResult(
                     io.github.kitswas.virtualgamepadmobile.network.NetworkDiagnostics.DiagnosticStep.PING,
