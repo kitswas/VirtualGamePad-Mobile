@@ -4,6 +4,7 @@ val defaultColorScheme = ColorScheme.SYSTEM
 val defaultBaseColor = BaseColor.BLUE
 const val defaultPollingDelay = 80 // in milliseconds
 const val defaultHapticFeedbackEnabled = false // vibrations
+const val defaultSaveConnectionCredentials = false
 
 // Default button configurations with offsets matching the original layout
 // Note: Offset values are multipliers of baseDp (heightDp in landscape)

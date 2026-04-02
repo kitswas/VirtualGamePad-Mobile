@@ -48,6 +48,7 @@ import io.github.kitswas.virtualgamepadmobile.data.defaultBaseColor
 import io.github.kitswas.virtualgamepadmobile.data.defaultColorScheme
 import io.github.kitswas.virtualgamepadmobile.data.defaultHapticFeedbackEnabled
 import io.github.kitswas.virtualgamepadmobile.data.defaultPollingDelay
+import io.github.kitswas.virtualgamepadmobile.data.defaultSaveConnectionCredentials
 import io.github.kitswas.virtualgamepadmobile.ui.composables.ColorSchemePicker
 import io.github.kitswas.virtualgamepadmobile.ui.composables.ListItemPicker
 import io.github.kitswas.virtualgamepadmobile.ui.composables.SpinBox
@@ -62,7 +63,8 @@ private data class SettingsChanges(
     val colorScheme: ColorScheme? = null,
     val baseColor: BaseColor? = null,
     val pollingDelay: Int? = null,
-    val hapticFeedbackEnabled: Boolean? = null
+    val hapticFeedbackEnabled: Boolean? = null,
+    val saveConnectionCredentials: Boolean? = null
 ) : Parcelable
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -79,6 +81,7 @@ fun SettingsScreen(
         val baseColor by settingsRepository.baseColor.collectAsState(initial = defaultBaseColor)
         val pollingDelay by settingsRepository.pollingDelay.collectAsState(initial = defaultPollingDelay)
         val hapticEnabled by settingsRepository.hapticFeedbackEnabled.collectAsState(initial = defaultHapticFeedbackEnabled)
+        val saveCredentials by settingsRepository.saveConnectionCredentials.collectAsState(initial = defaultSaveConnectionCredentials)
 
         Column(
             modifier = Modifier
@@ -180,6 +183,23 @@ fun SettingsScreen(
                     )
                 }
 
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.SpaceEvenly
+                ) {
+                    Text(
+                        stringResource(R.string.settings_save_connection_credentials),
+                        style = MaterialTheme.typography.labelMedium
+                    )
+                    Switch(
+                        checked = settingsChanges.saveConnectionCredentials ?: saveCredentials,
+                        onCheckedChange = {
+                            settingsChanges = settingsChanges.copy(saveConnectionCredentials = it)
+                        }
+                    )
+                }
+
                 Button(
                     onClick = onNavigateToGamepadCustomization,
                     modifier = Modifier
@@ -223,6 +243,11 @@ fun SettingsScreen(
                             }
                             settingsChanges.hapticFeedbackEnabled?.let {
                                 settingsRepository.setHapticFeedbackEnabled(
+                                    it
+                                ); ++changesSaved
+                            }
+                            settingsChanges.saveConnectionCredentials?.let {
+                                settingsRepository.setSaveConnectionCredentials(
                                     it
                                 ); ++changesSaved
                             }

@@ -15,6 +15,7 @@
     <string name="settings_polling_interval_desc">Adjust according to your reflexes\nLower is faster</string>
     <string name="settings_polling_interval_info">Information about polling interval</string>
     <string name="settings_haptic_feedback">Haptic Feedback (Vibrations)</string>
+    <string name="settings_save_connection_credentials">Remember IP Address and Port</string>
     <string name="settings_customize_layout">Customize Gamepad Layout</string>
     <string name="settings_error_save">Error saving settings</string>
 
@@ -77,22 +78,26 @@
     <string name="diagnostics_step_subnet">Checking subnet compatibility…</string>
     <string name="diagnostics_step_ping">Pinging server…</string>
     <string name="diagnostics_step_port">Checking server port…</string>
-    
+
     <string name="diagnostics_pass_wifi">Wi-Fi is enabled and connected.</string>
-    <string name="diagnostics_fail_wifi">Wi-Fi is disconnected. Please connect to your local network.</string>
-    
+    <string name="diagnostics_fail_wifi">Wi-Fi is disconnected. Please connect to your local
+        network.</string>
+
     <string name="diagnostics_pass_ip">Local IP found: %s</string>
     <string name="diagnostics_fail_ip">Could not determine local IP address.</string>
-    
+
     <string name="diagnostics_pass_subnet">Device and server are on the same subnet.</string>
-    <string name="diagnostics_fail_subnet">Device (%1$s) and server (%2$s) appear to be on different subnets. They must be on the same local network.</string>
-    
+    <string name="diagnostics_fail_subnet">Device (%1$s) and server (%2$s) appear to be on different
+        subnets. They must be on the same local network.</string>
+
     <string name="diagnostics_pass_ping">Server responded to ping.</string>
-    <string name="diagnostics_fail_ping">Server did not respond to ping. Check if the PC is on and connected to the same network.</string>
-    
+    <string name="diagnostics_fail_ping">Server did not respond to ping. Check if the PC is on and
+        connected to the same network.</string>
+
     <string name="diagnostics_pass_port">Server port %d is reachable.</string>
-    <string name="diagnostics_fail_port">Could not connect to port %d. Check if the server app is running and Windows Firewall is allowing the connection.</string>
-    
+    <string name="diagnostics_fail_port">Could not connect to port %d. Check if the server app is
+        running and Windows Firewall is allowing the connection.</string>
+
     <string name="diagnostics_close">Close</string>
 
     <!-- Gamepad Screen -->

@@ -20,7 +20,8 @@ import java.net.Socket
 import java.net.SocketException
 import java.util.concurrent.LinkedBlockingQueue
 
-class ConnectionViewModel : ViewModel() {
+class ConnectionViewModel(private val onConnectionSuccess: suspend (String, Int) -> Unit = { _, _ -> }) :
+    ViewModel() {
 
     private val tag = this::class.java.simpleName
     private var clientSocket: Socket? = null // Internal storage for the socket
@@ -188,6 +189,15 @@ class ConnectionViewModel : ViewModel() {
                     )
                 }
                 Log.d(tag, "Connected: $clientSocket")
+
+                // Invoke callback on successful connection
+                viewModelScope.launch {
+                    try {
+                        onConnectionSuccess(command.ipAddress, command.port)
+                    } catch (e: Exception) {
+                        Log.e(tag, "Error saving connection credentials: ${e.message}", e)
+                    }
+                }
             } catch (e: IOException) {
                 Log.e(tag, "Connection failed: ${e.message}", e)
                 _uiState.update {

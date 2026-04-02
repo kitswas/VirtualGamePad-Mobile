@@ -23,6 +23,7 @@ import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -138,7 +139,9 @@ private fun processQRScanResult(
 
 @Composable
 fun ConnectMenu(
-    onNavigateToConnectingScreen: (String, String) -> Unit
+    onNavigateToConnectingScreen: (String, String) -> Unit,
+    initialIp: String,
+    initialPort: String
 ) {
     val snackbarHostState = remember { SnackbarHostState() }
     val scope = rememberCoroutineScope()
@@ -168,10 +171,23 @@ fun ConnectMenu(
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center
         ) {
-            var ipAddress by rememberSaveable { mutableStateOf("") }
-            var port by rememberSaveable { mutableStateOf("") }
-            var isIPValid by rememberSaveable { mutableStateOf(false) }
-            var isPortValid by rememberSaveable { mutableStateOf(false) }
+            var ipAddress by rememberSaveable { mutableStateOf(initialIp) }
+            var port by rememberSaveable { mutableStateOf(initialPort) }
+            var isIPValid by rememberSaveable { mutableStateOf(validateIP(initialIp)) }
+            var isPortValid by rememberSaveable { mutableStateOf(validatePort(initialPort)) }
+
+            // Update state when parameters arrive asynchronously from DataStore
+            LaunchedEffect(initialIp, initialPort) {
+                if (ipAddress.isBlank() && initialIp.isNotBlank()) {
+                    ipAddress = initialIp
+                    isIPValid = validateIP(initialIp)
+                }
+                if (port.isBlank() && initialPort.isNotBlank()) {
+                    port = initialPort
+                    isPortValid = validatePort(initialPort)
+                }
+            }
+
             val focusManager = LocalFocusManager.current
             val connectErrorIpStr = stringResource(R.string.connect_error_ip)
             val connectErrorPortStr = stringResource(R.string.connect_error_port)
@@ -275,7 +291,9 @@ fun ConnectMenu(
 fun ConnectMenuPreview() {
     PreviewBase {
         ConnectMenu(
-            onNavigateToConnectingScreen = { _, _ -> }
+            onNavigateToConnectingScreen = { _, _ -> },
+            initialIp = "192.168.1.100",
+            initialPort = "7155"
         )
     }
 }

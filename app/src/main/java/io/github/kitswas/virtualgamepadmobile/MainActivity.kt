@@ -7,6 +7,7 @@ import androidx.activity.viewModels
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.navigation.NavHostController
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
@@ -17,7 +18,9 @@ import io.github.kitswas.virtualgamepadmobile.data.SettingsRepository
 import io.github.kitswas.virtualgamepadmobile.data.defaultBaseColor
 import io.github.kitswas.virtualgamepadmobile.data.defaultColorScheme
 import io.github.kitswas.virtualgamepadmobile.data.defaultHapticFeedbackEnabled
+import io.github.kitswas.virtualgamepadmobile.data.defaultSaveConnectionCredentials
 import io.github.kitswas.virtualgamepadmobile.network.ConnectionViewModel
+import io.github.kitswas.virtualgamepadmobile.network.ConnectionViewModelFactory
 import io.github.kitswas.virtualgamepadmobile.ui.screens.AboutScreen
 import io.github.kitswas.virtualgamepadmobile.ui.screens.ConnectMenu
 import io.github.kitswas.virtualgamepadmobile.ui.screens.ConnectingScreen
@@ -27,6 +30,7 @@ import io.github.kitswas.virtualgamepadmobile.ui.screens.MainMenu
 import io.github.kitswas.virtualgamepadmobile.ui.screens.SettingsScreen
 import io.github.kitswas.virtualgamepadmobile.ui.theme.VirtualGamePadMobileTheme
 import io.github.kitswas.virtualgamepadmobile.ui.utils.HapticUtils
+import kotlinx.coroutines.flow.first
 import kotlin.system.exitProcess
 
 
@@ -38,9 +42,15 @@ class MainActivity : ComponentActivity() {
 
         // Create a ViewModel the first time the system calls an activity's onCreate() method.
         // Re-created activities receive the same ConnectionViewModel instance created by the first activity.
-        // Use the 'by viewModels()' Kotlin property delegate
+        // Use the 'by viewModels()' Kotlin property delegate with factory
         // from the activity-ktx artifact
-        val connectionViewModel: ConnectionViewModel by viewModels()
+        val connectionViewModel: ConnectionViewModel by viewModels {
+            ConnectionViewModelFactory { ip, port ->
+                if (settingsRepository.saveConnectionCredentials.first()) {
+                    settingsRepository.setLastConnectionCredentials(ip, port.toString())
+                }
+            }
+        }
         setContent {
             AppUI(
                 connectionViewModel = connectionViewModel,
@@ -93,10 +103,23 @@ class MainActivity : ComponentActivity() {
                 )
             }
             composable("connect_screen") {
+                val lastIpAddress by settingsRepository.lastConnectionIpAddress.collectAsState(
+                    initial = ""
+                )
+                val lastPort by settingsRepository.lastConnectionPort.collectAsState(initial = "")
+                val saveCredentials by settingsRepository.saveConnectionCredentials.collectAsState(
+                    initial = defaultSaveConnectionCredentials
+                )
+
+                val initialIp = if (saveCredentials) lastIpAddress else ""
+                val initialPort = if (saveCredentials) lastPort else ""
+
                 ConnectMenu(
                     onNavigateToConnectingScreen = { ipAddress, port ->
                         navController.navigate("connecting_screen/$ipAddress/$port")
-                    }
+                    },
+                    initialIp = initialIp,
+                    initialPort = initialPort
                 )
             }
             composable(
