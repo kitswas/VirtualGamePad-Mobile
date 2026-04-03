@@ -19,6 +19,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import io.github.kitswas.virtualgamepadmobile.R
 
 /**
@@ -35,7 +36,7 @@ import io.github.kitswas.virtualgamepadmobile.R
 fun <T> ListItemPicker(
     modifier: Modifier = Modifier,
     list: Iterable<T>,
-    default: T,
+    selectedItem: T,
     label: String,
     isHorizontal: Boolean = false,
     formattedDisplay: @Composable (T) -> Unit = { item ->
@@ -48,8 +49,6 @@ fun <T> ListItemPicker(
 
     var expanded by rememberSaveable { mutableStateOf(false) }
 
-    var selectedItem = default
-
     val labelContent = @Composable {
         Text(text = label, style = MaterialTheme.typography.labelMedium)
     }
@@ -58,9 +57,10 @@ fun <T> ListItemPicker(
         OutlinedButton(onClick = { expanded = true }) {
             Row {
                 formattedDisplay(selectedItem)
+
                 Icon(
                     painter = painterResource(R.drawable.ic_arrow_drop_down),
-                    contentDescription = "Expand"
+                    contentDescription = stringResource(R.string.content_desc_expand)
                 )
             }
             DropdownMenu(
@@ -69,7 +69,6 @@ fun <T> ListItemPicker(
             ) {
                 list.forEach { item ->
                     DropdownMenuItem(text = { formattedDisplay(item) }, onClick = {
-                        selectedItem = item
                         expanded = false
                         onItemSelected(item)
                     })
@@ -117,7 +116,7 @@ fun <T> ListItemPicker(
     ListItemPicker(
         modifier = modifier,
         list = list,
-        default = list.elementAt(defaultIndex),
+        selectedItem = list.elementAt(defaultIndex),
         label = label,
         isHorizontal = isHorizontal,
         formattedDisplay = formattedDisplay,

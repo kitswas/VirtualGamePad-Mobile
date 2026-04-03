@@ -13,6 +13,7 @@
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
         android:resizeableActivity="false"
+        android:usesCleartextTraffic="false"
         android:theme="@style/Theme.VirtualGamePadMobile">
         <activity
             android:name=".MainActivity"

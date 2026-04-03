@@ -1,3 +1,195 @@
 <resources>
     <string name="app_name">VirtualGamePadMobile</string>
+
+    <!-- Main Menu -->
+    <string name="menu_start">Start</string>
+    <string name="menu_settings">Settings</string>
+    <string name="menu_about">About</string>
+    <string name="menu_exit">Exit</string>
+
+    <!-- Settings Screen -->
+    <string name="settings_title">Settings</string>
+    <string name="settings_theme_color">Theme Color</string>
+    <string name="settings_color_scheme">Color Scheme</string>
+    <string name="settings_polling_interval">Polling Interval (ms)</string>
+    <string name="settings_polling_interval_desc">Adjust according to your reflexes\nLower is faster</string>
+    <string name="settings_polling_interval_info">Information about polling interval</string>
+    <string name="settings_haptic_feedback">Haptic Feedback (Vibrations)</string>
+    <string name="settings_save_connection_credentials">Remember IP Address and Port</string>
+    <string name="settings_full_screen">Full Screen</string>
+    <string name="settings_customize_layout">Customize Gamepad Layout</string>
+    <string name="settings_error_save">Error saving settings</string>
+
+    <!-- About Screen -->
+    <string name="about_title">🎮 Virtual GamePad Mobile</string>
+    <string name="about_version">Version %s</string>
+    <string name="about_view_license">View Licence</string>
+    <string name="about_latest_release">Latest Release</string>
+    <string name="about_description">A mobile application that lets your phone work as a gamepad for PC games.</string>
+    <string name="about_source_code">Source Code</string>
+    <string name="about_project_website">Project Website</string>
+    <string name="about_report_issues">Report Issues</string>
+    <string name="about_dev_version">Development</string>
+
+    <!-- Gamepad Customization -->
+    <string name="customization_title">Gamepad Customization</string>
+    <string name="customization_desc">Customize individual button visibility, size, and position</string>
+    <string name="customization_export">Export</string>
+    <string name="customization_preview">Preview Gamepad</string>
+    <string name="customization_import">Import</string>
+    <string name="customization_export_title">Export Configuration</string>
+    <string name="customization_export_desc">Copy this JSON to share or backup your configuration:</string>
+    <string name="customization_export_label">Gamepad Layout JSON</string>
+    <string name="customization_copy">Copy</string>
+    <string name="customization_done">Done</string>
+    <string name="customization_import_title">Import Configuration</string>
+    <string name="customization_import_desc">Paste the JSON configuration to import:</string>
+    <string name="customization_import_error">Error: Invalid JSON format</string>
+    <string name="customization_import_placeholder">Paste JSON here...</string>
+    <string name="customization_error_save">Error saving button configs</string>
+
+    <!-- Connect Screen -->
+    <string name="connect_qr_error_format">Invalid QR Code format</string>
+    <string name="connect_qr_error_processing">Error processing QR Code: %s</string>
+    <string name="connect_qr_error_scanning">Error scanning QR Code: %s</string>
+    <string name="connect_camera_permission_denied">Camera permission is required to scan QR Codes</string>
+    <string name="connect_error_ip">Invalid IP address format</string>
+    <string name="connect_error_port">Invalid port number (must be between 1-65535)</string>
+    <string name="connect_error_params">Invalid connection parameters</string>
+    <string name="connect_scan_qr">Scan QR Code</string>
+    <string name="connect_ip_label">IP Address</string>
+    <string name="connect_port_label">Port</string>
+    <string name="connect_button">Connect</string>
+    <string name="connect_download_server">Download Server</string>
+
+    <!-- Connecting Screen -->
+    <string name="connecting_success">Connected! Redirecting...</string>
+    <string name="connecting_status">Connecting to %1$s:%2$s…</string>
+    <string name="connecting_error_title">Connection Error</string>
+    <string name="connecting_retry">Retry</string>
+    <string name="connecting_diagnostics">Run Diagnostics</string>
+    <string name="connecting_preparing">Preparing connection…</string>
+    <string name="connecting_failed">Connection failed: %s</string>
+
+    <!-- Diagnostics -->
+    <string name="diagnostics_title">Connection Diagnostics</string>
+    <string name="diagnostics_running">Running diagnostics…</string>
+    <string name="diagnostics_step_wifi">Checking Wi-Fi connection…</string>
+    <string name="diagnostics_step_ip">Checking local IP address…</string>
+    <string name="diagnostics_step_subnet">Checking subnet compatibility…</string>
+    <string name="diagnostics_step_ping">Pinging server…</string>
+    <string name="diagnostics_step_port">Checking server port…</string>
+
+    <string name="diagnostics_pass_wifi">Wi-Fi is enabled and connected.</string>
+    <string name="diagnostics_fail_wifi">Wi-Fi is disconnected. Please connect to your local
+        network.</string>
+
+    <string name="diagnostics_pass_ip">Local IP found: %s</string>
+    <string name="diagnostics_fail_ip">Could not determine local IP address.</string>
+
+    <string name="diagnostics_pass_subnet">Device and server are on the same subnet.</string>
+    <string name="diagnostics_fail_subnet">Device (%1$s) and server (%2$s) appear to be on different
+        subnets. They must be on the same local network.</string>
+
+    <string name="diagnostics_pass_ping">Server responded to ping.</string>
+    <string name="diagnostics_fail_ping">Server did not respond to ping. Check if the PC is on and
+        connected to the same network.</string>
+
+    <string name="diagnostics_pass_port">Server port %d is reachable.</string>
+    <string name="diagnostics_fail_port">Could not connect to port %d. Check if the server app is
+        running and Windows Firewall is allowing the connection.</string>
+
+    <string name="diagnostics_close">Close</string>
+
+    <!-- Gamepad Screen -->
+    <string name="gamepad_connection_lost_error">Connection lost: %s</string>
+    <string name="gamepad_connection_lost">Connection lost</string>
+
+    <!-- QR Code Scanner -->
+    <string name="qr_scan_prompt">Scan QR Code shown on the server</string>
+
+    <!-- General Errors -->
+    <string name="error_unexpected">Unexpected error: %s</string>
+    <string name="error_unknown">Unknown</string>
+    <string name="error_unknown_connection">Unknown connection error</string>
+    <string name="error_connect">Connect error: %s</string>
+    <string name="error_connection_lost">Connection lost: %s</string>
+
+    <!-- Button Anchors -->
+    <string name="anchor_top_left">Top Left</string>
+    <string name="anchor_top_center">Top Center</string>
+    <string name="anchor_top_right">Top Right</string>
+    <string name="anchor_center_left">Center Left</string>
+    <string name="anchor_center">Center</string>
+    <string name="anchor_center_right">Center Right</string>
+    <string name="anchor_bottom_left">Bottom Left</string>
+    <string name="anchor_bottom_center">Bottom Center</string>
+    <string name="anchor_bottom_right">Bottom Right</string>
+
+    <!-- Button Components -->
+    <string name="component_left_analog">Left Analog Stick</string>
+    <string name="component_right_analog">Right Analog Stick</string>
+    <string name="component_dpad">D-Pad</string>
+    <string name="component_face_buttons">Face Buttons (A/B/X/Y)</string>
+    <string name="component_left_trigger">Left Trigger (LT)</string>
+    <string name="component_right_trigger">Right Trigger (RT)</string>
+    <string name="component_left_shoulder">Left Shoulder (LB)</string>
+    <string name="component_right_shoulder">Right Shoulder (RB)</string>
+    <string name="component_select">Select (View)</string>
+    <string name="component_start">Start (Menu)</string>
+
+    <!-- Color Schemes -->
+    <string name="scheme_light">Light Mode</string>
+    <string name="scheme_dark">Dark Mode</string>
+    <string name="scheme_system">System Default</string>
+
+    <!-- Colors -->
+    <string name="color_red">Red</string>
+    <string name="color_green">Green</string>
+    <string name="color_blue">Blue</string>
+
+    <!-- Theme Preview -->
+    <string name="theme_preview_title">Theme Color Palette</string>
+    <string name="theme_preview_primary">Primary Colors</string>
+    <string name="theme_preview_secondary">Secondary Colors</string>
+    <string name="theme_preview_tertiary">Tertiary Colors</string>
+    <string name="theme_preview_surface">Surface Colors</string>
+    <string name="theme_preview_background">Background Colors</string>
+    <string name="theme_preview_error">Error Colors</string>
+    <string name="theme_preview_other">Other Colors</string>
+
+    <!-- Face Buttons -->
+    <string name="button_a">A</string>
+    <string name="button_b">B</string>
+    <string name="button_x">X</string>
+    <string name="button_y">Y</string>
+
+    <!-- Composables & Buttons -->
+    <string name="button_lt">LT</string>
+    <string name="button_rt">RT</string>
+    <string name="button_l_shoulder">LSHLDR</string>
+    <string name="button_r_shoulder">RSHLDR</string>
+    <string name="button_visible">Visible</string>
+    <string name="button_hidden">Hidden</string>
+    <string name="button_anchor_position">Anchor Position</string>
+    <string name="button_scale_format">Scale: %.2fx</string>
+    <string name="button_offset_x_format">Offset X: %.2f× baseDp</string>
+    <string name="button_offset_y_format">Offset Y: %.2f× baseDp</string>
+    <string name="content_desc_decrease">Decrease</string>
+    <string name="content_desc_increase">Increase</string>
+    <string name="content_desc_expand">Expand</string>
+    <string name="content_desc_button">%s Button</string>
+    <string name="content_desc_dpad_button">Dpad Button %s</string>
+
+    <!-- Common Actions -->
+    <string name="back">Back</string>
+    <string name="cancel">Cancel</string>
+    <string name="save">Save</string>
+    <string name="reset">Reset</string>
+
+    <!-- Errors -->
+    <string name="error_min_value">Value must be at least %s</string>
+    <string name="error_max_value">Value must be at most %s</string>
+    <string name="error_invalid_number">Please enter a valid number</string>
+
 </resources>

@@ -19,6 +19,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalView
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
@@ -26,6 +27,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.times
 import io.github.kitswas.VGP_Data_Exchange.GameButtons
 import io.github.kitswas.VGP_Data_Exchange.GamepadReading
+import io.github.kitswas.virtualgamepadmobile.R
 import io.github.kitswas.virtualgamepadmobile.data.PreviewBase
 import io.github.kitswas.virtualgamepadmobile.ui.theme.darken
 import io.github.kitswas.virtualgamepadmobile.ui.theme.faceButtonTextStyle
@@ -60,6 +62,13 @@ fun FaceButton(
         FaceButtonType.X -> GameButtons.X
         FaceButtonType.Y -> GameButtons.Y
     }
+    val label = when (type) {
+        FaceButtonType.A -> stringResource(R.string.button_a)
+        FaceButtonType.B -> stringResource(R.string.button_b)
+        FaceButtonType.X -> stringResource(R.string.button_x)
+        FaceButtonType.Y -> stringResource(R.string.button_y)
+    }
+
     val interactionSource = remember { MutableInteractionSource() }
     val isPressed by interactionSource.collectIsPressedAsState()
     // See https://stackoverflow.com/a/69157877/8659747
@@ -89,7 +98,7 @@ fun FaceButton(
         border = BorderStroke(2.dp, MaterialTheme.colorScheme.outline),
     ) {
         Text(
-            text = type.name,
+            text = label,
             color = foregroundColour,
             textAlign = TextAlign.Center,
             style = faceButtonTextStyle(size),

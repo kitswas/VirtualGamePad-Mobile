@@ -20,10 +20,12 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalView
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import io.github.kitswas.VGP_Data_Exchange.GamepadReading
+import io.github.kitswas.virtualgamepadmobile.R
 import io.github.kitswas.virtualgamepadmobile.ui.utils.HapticUtils
 
 enum class TriggerType {
@@ -60,9 +62,10 @@ fun Trigger(
             HapticUtils.performButtonReleaseFeedback(view)
         }
     }
-    val text = when (type) {
-        TriggerType.LEFT -> "LT"
-        TriggerType.RIGHT -> "RT"
+
+    val label = when (type) {
+        TriggerType.LEFT -> stringResource(R.string.button_lt)
+        TriggerType.RIGHT -> stringResource(R.string.button_rt)
     }
 
     val triggerShape = when (type) {
@@ -89,7 +92,7 @@ fun Trigger(
             border = BorderStroke(2.dp, MaterialTheme.colorScheme.outline),
             interactionSource = interactionSource,
         ) {
-            Text(text)
+            Text(label)
         }
     }
 }

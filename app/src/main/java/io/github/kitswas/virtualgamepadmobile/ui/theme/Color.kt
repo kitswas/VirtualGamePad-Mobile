@@ -20,6 +20,7 @@ val Gold = Color(0xFFFFD700)
 val Silver = Color(0xFFC0C0C0)
 val PureBlack = Color(0xFF000000)
 val PristineWhite = Color(0xFFFFFFFF)
+val SuccessGreen = Color(0xFF4CAF50)
 
 /**
  * Darkens a [Color] by the given [fraction] (in percentage).

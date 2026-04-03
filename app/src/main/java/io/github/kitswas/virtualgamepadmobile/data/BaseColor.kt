@@ -1,6 +1,8 @@
 package io.github.kitswas.virtualgamepadmobile.data
 
+import androidx.annotation.StringRes
 import androidx.compose.ui.graphics.Color
+import io.github.kitswas.virtualgamepadmobile.R
 import io.github.kitswas.virtualgamepadmobile.ui.theme.GlossyBlue
 import io.github.kitswas.virtualgamepadmobile.ui.theme.GlossyGreen
 import io.github.kitswas.virtualgamepadmobile.ui.theme.GlossyRed
@@ -8,8 +10,10 @@ import io.github.kitswas.virtualgamepadmobile.ui.theme.NeonBlue
 import io.github.kitswas.virtualgamepadmobile.ui.theme.NeonGreen
 import io.github.kitswas.virtualgamepadmobile.ui.theme.NeonRed
 
-enum class BaseColor {
-    RED, GREEN, BLUE;
+enum class BaseColor(@StringRes val nameRes: Int) {
+    RED(R.string.color_red),
+    GREEN(R.string.color_green),
+    BLUE(R.string.color_blue);
 
     companion object {
         fun fromInt(i: Int): BaseColor {

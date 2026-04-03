@@ -11,7 +11,9 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
+import io.github.kitswas.virtualgamepadmobile.R
 import io.github.kitswas.virtualgamepadmobile.data.PreviewBase
 import io.github.kitswas.virtualgamepadmobile.data.PreviewHeightDp
 import io.github.kitswas.virtualgamepadmobile.data.PreviewWidthDp
@@ -32,16 +34,16 @@ fun MainMenu(
             verticalArrangement = Arrangement.Center
         ) {
             Button(onClick = onNavigateToConnectScreen, shape = CircleShape) {
-                Text(text = "Start")
+                Text(text = stringResource(R.string.menu_start))
             }
             Button(onClick = onNavigateToSettingsScreen, shape = CircleShape) {
-                Text(text = "Settings")
+                Text(text = stringResource(R.string.menu_settings))
             }
             Button(onClick = onNavigateToAboutScreen, shape = CircleShape) {
-                Text(text = "About")
+                Text(text = stringResource(R.string.menu_about))
             }
             Button(onClick = onExit, shape = CircleShape) {
-                Text(text = "Exit")
+                Text(text = stringResource(R.string.menu_exit))
             }
         }
     }

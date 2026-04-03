@@ -23,6 +23,7 @@ import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -35,10 +36,12 @@ import androidx.compose.ui.focus.FocusDirection
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.core.net.toUri
+import io.github.kitswas.virtualgamepadmobile.R
 import io.github.kitswas.virtualgamepadmobile.data.PreviewBase
 import io.github.kitswas.virtualgamepadmobile.data.PreviewHeightDp
 import io.github.kitswas.virtualgamepadmobile.data.PreviewWidthDp
@@ -80,7 +83,8 @@ private fun processQRScanResult(
     result: QRScanResult,
     onNavigateToConnectingScreen: (String, String) -> Unit,
     snackbarHostState: SnackbarHostState,
-    scope: CoroutineScope
+    scope: CoroutineScope,
+    context: android.content.Context
 ) {
     when (result) {
         is QRScanResult.Success -> {
@@ -96,14 +100,17 @@ private fun processQRScanResult(
                 } else {
                     scope.launch {
                         snackbarHostState.showSnackbar(
-                            message = "Invalid QR Code format",
+                            message = context.getString(R.string.connect_qr_error_format),
                         )
                     }
                 }
             } catch (e: Exception) {
                 scope.launch {
                     snackbarHostState.showSnackbar(
-                        message = "Error processing QR Code: ${e.message ?: e.toString()}",
+                        message = context.getString(
+                            R.string.connect_qr_error_processing,
+                            e.message ?: e.toString()
+                        ),
                     )
                 }
             }
@@ -112,7 +119,7 @@ private fun processQRScanResult(
         is QRScanResult.Error -> {
             scope.launch {
                 snackbarHostState.showSnackbar(
-                    message = "Error scanning QR Code: ${result.message}",
+                    message = context.getString(R.string.connect_qr_error_scanning, result.message),
                 )
             }
         }
@@ -120,7 +127,7 @@ private fun processQRScanResult(
         is QRScanResult.PermissionDenied -> {
             scope.launch {
                 snackbarHostState.showSnackbar(
-                    message = "Camera permission is required to scan QR Codes",
+                    message = context.getString(R.string.connect_camera_permission_denied),
                 )
             }
         }
@@ -132,7 +139,9 @@ private fun processQRScanResult(
 
 @Composable
 fun ConnectMenu(
-    onNavigateToConnectingScreen: (String, String) -> Unit
+    onNavigateToConnectingScreen: (String, String) -> Unit,
+    initialIp: String,
+    initialPort: String
 ) {
     val snackbarHostState = remember { SnackbarHostState() }
     val scope = rememberCoroutineScope()
@@ -144,7 +153,8 @@ fun ConnectMenu(
             result,
             onNavigateToConnectingScreen = onNavigateToConnectingScreen,
             snackbarHostState = snackbarHostState,
-            scope = scope
+            scope = scope,
+            context = context
         )
     }
 
@@ -161,11 +171,27 @@ fun ConnectMenu(
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center
         ) {
-            var ipAddress by rememberSaveable { mutableStateOf("") }
-            var port by rememberSaveable { mutableStateOf("") }
-            var isIPValid by rememberSaveable { mutableStateOf(false) }
-            var isPortValid by rememberSaveable { mutableStateOf(false) }
+            var ipAddress by rememberSaveable { mutableStateOf(initialIp) }
+            var port by rememberSaveable { mutableStateOf(initialPort) }
+            var isIPValid by rememberSaveable { mutableStateOf(validateIP(initialIp)) }
+            var isPortValid by rememberSaveable { mutableStateOf(validatePort(initialPort)) }
+
+            // Update state when parameters arrive asynchronously from DataStore
+            LaunchedEffect(initialIp, initialPort) {
+                if (ipAddress.isBlank() && initialIp.isNotBlank()) {
+                    ipAddress = initialIp
+                    isIPValid = validateIP(initialIp)
+                }
+                if (port.isBlank() && initialPort.isNotBlank()) {
+                    port = initialPort
+                    isPortValid = validatePort(initialPort)
+                }
+            }
+
             val focusManager = LocalFocusManager.current
+            val connectErrorIpStr = stringResource(R.string.connect_error_ip)
+            val connectErrorPortStr = stringResource(R.string.connect_error_port)
+            val connectErrorParamsStr = stringResource(R.string.connect_error_params)
 
             fun attemptToConnect() {
                 if (isIPValid && isPortValid) {
@@ -174,9 +200,9 @@ fun ConnectMenu(
                 } else {
                     scope.launch {
                         val errorMessage = when {
-                            !isIPValid -> "Invalid IP address format"
-                            !isPortValid -> "Invalid port number (must be between 1-65535)"
-                            else -> "Invalid connection parameters"
+                            !isIPValid -> connectErrorIpStr
+                            !isPortValid -> connectErrorPortStr
+                            else -> connectErrorParamsStr
                         }
                         snackbarHostState.showSnackbar(
                             message = errorMessage,
@@ -187,11 +213,11 @@ fun ConnectMenu(
             }
 
             Button(onClick = { qrCodeScanner() }, shape = CircleShape) {
-                Text(text = "Scan QR Code")
+                Text(text = stringResource(R.string.connect_scan_qr))
             }
 
             TextField(
-                label = { Text(text = "IP Address") },
+                label = { Text(text = stringResource(R.string.connect_ip_label)) },
                 value = ipAddress,
                 onValueChange = {
                     ipAddress = it
@@ -213,7 +239,7 @@ fun ConnectMenu(
             )
 
             TextField(
-                label = { Text(text = "Port") },
+                label = { Text(text = stringResource(R.string.connect_port_label)) },
                 value = port,
                 onValueChange = {
                     port = it
@@ -238,7 +264,7 @@ fun ConnectMenu(
                 shape = CircleShape,
                 enabled = isIPValid && isPortValid,
             ) {
-                Text(text = "Connect")
+                Text(text = stringResource(R.string.connect_button))
             }
 
             OutlinedButton(
@@ -248,7 +274,10 @@ fun ConnectMenu(
                     val intent = Intent(Intent.ACTION_VIEW, downloadsUrl.toUri())
                     context.startActivity(intent)
                 }) {
-                Text(text = "Download Server", style = MaterialTheme.typography.labelSmall)
+                Text(
+                    text = stringResource(R.string.connect_download_server),
+                    style = MaterialTheme.typography.labelSmall
+                )
             }
         }
     }
@@ -262,7 +291,9 @@ fun ConnectMenu(
 fun ConnectMenuPreview() {
     PreviewBase {
         ConnectMenu(
-            onNavigateToConnectingScreen = { _, _ -> }
+            onNavigateToConnectingScreen = { _, _ -> },
+            initialIp = "",
+            initialPort = "12345"
         )
     }
 }

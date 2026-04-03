@@ -18,8 +18,10 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import io.github.kitswas.virtualgamepadmobile.R
 import io.github.kitswas.virtualgamepadmobile.data.ButtonAnchor
 import io.github.kitswas.virtualgamepadmobile.data.ButtonComponent
 import io.github.kitswas.virtualgamepadmobile.data.ButtonConfig
@@ -58,7 +60,7 @@ fun ButtonConfigEditor(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(
-                    text = component.displayName,
+                    text = stringResource(component.nameRes),
                     style = MaterialTheme.typography.titleSmall
                 )
                 Row(
@@ -66,7 +68,9 @@ fun ButtonConfigEditor(
                     horizontalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
                     Text(
-                        text = if (visible) "Visible" else "Hidden",
+                        text = if (visible) stringResource(R.string.button_visible) else stringResource(
+                            R.string.button_hidden
+                        ),
                         style = MaterialTheme.typography.bodySmall
                     )
                     Switch(
@@ -83,9 +87,12 @@ fun ButtonConfigEditor(
             ListItemPicker(
                 modifier = Modifier.fillMaxWidth(),
                 list = ButtonAnchor.entries.asIterable(),
-                default = anchor,
-                label = "Anchor Position",
+                selectedItem = anchor,
+                label = stringResource(R.string.button_anchor_position),
                 isHorizontal = true,
+                formattedDisplay = { item ->
+                    Text(text = stringResource(item.nameRes))
+                },
                 onItemSelected = {
                     anchor = it
                     onConfigChange(config.copy(anchor = it))
@@ -99,7 +106,7 @@ fun ButtonConfigEditor(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(
-                    text = "Scale: ${String.format("%.2f", scale)}x",
+                    text = stringResource(R.string.button_scale_format, scale),
                     style = MaterialTheme.typography.bodyMedium,
                     modifier = Modifier.weight(2f)
                 )
@@ -121,7 +128,7 @@ fun ButtonConfigEditor(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(
-                    text = "Offset X: ${String.format("%.2f", offsetX)}× baseDp",
+                    text = stringResource(R.string.button_offset_x_format, offsetX),
                     style = MaterialTheme.typography.bodyMedium,
                     modifier = Modifier.weight(2f)
                 )
@@ -143,7 +150,7 @@ fun ButtonConfigEditor(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(
-                    text = "Offset Y: ${String.format("%.2f", offsetY)}× baseDp",
+                    text = stringResource(R.string.button_offset_y_format, offsetY),
                     style = MaterialTheme.typography.bodyMedium,
                     modifier = Modifier.weight(2f)
                 )

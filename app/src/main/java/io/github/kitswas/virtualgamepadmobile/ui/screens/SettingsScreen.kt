@@ -34,6 +34,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import io.github.kitswas.virtualgamepadmobile.R
@@ -45,8 +46,10 @@ import io.github.kitswas.virtualgamepadmobile.data.PreviewWidthDp
 import io.github.kitswas.virtualgamepadmobile.data.SettingsRepository
 import io.github.kitswas.virtualgamepadmobile.data.defaultBaseColor
 import io.github.kitswas.virtualgamepadmobile.data.defaultColorScheme
+import io.github.kitswas.virtualgamepadmobile.data.defaultFullScreenEnabled
 import io.github.kitswas.virtualgamepadmobile.data.defaultHapticFeedbackEnabled
 import io.github.kitswas.virtualgamepadmobile.data.defaultPollingDelay
+import io.github.kitswas.virtualgamepadmobile.data.defaultSaveConnectionCredentials
 import io.github.kitswas.virtualgamepadmobile.ui.composables.ColorSchemePicker
 import io.github.kitswas.virtualgamepadmobile.ui.composables.ListItemPicker
 import io.github.kitswas.virtualgamepadmobile.ui.composables.SpinBox
@@ -58,10 +61,12 @@ private const val logTag = "SettingsScreen"
 
 @Parcelize
 private data class SettingsChanges(
-    var colorScheme: ColorScheme? = null,
-    var baseColor: BaseColor? = null,
-    var pollingDelay: Int? = null,
-    var hapticFeedbackEnabled: Boolean? = null
+    val colorScheme: ColorScheme? = null,
+    val baseColor: BaseColor? = null,
+    val pollingDelay: Int? = null,
+    val hapticFeedbackEnabled: Boolean? = null,
+    val saveConnectionCredentials: Boolean? = null,
+    val fullScreenEnabled: Boolean? = null
 ) : Parcelable
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -71,13 +76,15 @@ fun SettingsScreen(
     onNavigateToGamepadCustomization: () -> Unit,
     settingsRepository: SettingsRepository
 ) {
-    val settingsChanges by rememberSaveable { mutableStateOf(SettingsChanges()) }
+    var settingsChanges by rememberSaveable { mutableStateOf(SettingsChanges()) }
 
     Scaffold { paddingValues ->
         val colorScheme by settingsRepository.colorScheme.collectAsState(initial = defaultColorScheme)
         val baseColor by settingsRepository.baseColor.collectAsState(initial = defaultBaseColor)
         val pollingDelay by settingsRepository.pollingDelay.collectAsState(initial = defaultPollingDelay)
         val hapticEnabled by settingsRepository.hapticFeedbackEnabled.collectAsState(initial = defaultHapticFeedbackEnabled)
+        val saveCredentials by settingsRepository.saveConnectionCredentials.collectAsState(initial = defaultSaveConnectionCredentials)
+        val fullScreenEnabled by settingsRepository.fullScreenEnabled.collectAsState(initial = defaultFullScreenEnabled)
 
         Column(
             modifier = Modifier
@@ -88,7 +95,7 @@ fun SettingsScreen(
         ) {
             // Fixed title at the top
             Text(
-                "Settings",
+                stringResource(R.string.settings_title),
                 style = MaterialTheme.typography.titleLarge,
                 modifier = Modifier.padding(vertical = 8.dp)
             )
@@ -104,16 +111,19 @@ fun SettingsScreen(
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
 
-                ColorSchemePicker(default = colorScheme) {
-                    settingsChanges.colorScheme = it
+                ColorSchemePicker(selectedItem = settingsChanges.colorScheme ?: colorScheme) {
+                    settingsChanges = settingsChanges.copy(colorScheme = it)
                 }
 
                 ListItemPicker(
                     list = BaseColor.entries.asIterable(),
-                    default = baseColor,
-                    label = "Theme Color",
+                    selectedItem = settingsChanges.baseColor ?: baseColor,
+                    label = stringResource(R.string.settings_theme_color),
+                    formattedDisplay = { item ->
+                        Text(text = stringResource(item.nameRes))
+                    },
                     onItemSelected = {
-                        settingsChanges.baseColor = it
+                        settingsChanges = settingsChanges.copy(baseColor = it)
                     })
 
                 Row(
@@ -121,11 +131,11 @@ fun SettingsScreen(
                     horizontalArrangement = Arrangement.SpaceAround
                 ) {
                     SpinBox(
-                        value = pollingDelay,
+                        value = settingsChanges.pollingDelay ?: pollingDelay,
                         onValueChange = {
-                            settingsChanges.pollingDelay = it
+                            settingsChanges = settingsChanges.copy(pollingDelay = it)
                         },
-                        label = "Polling Interval (ms)",
+                        label = stringResource(R.string.settings_polling_interval),
                         minValue = 20,
                         maxValue = 200,
                         step = 10
@@ -140,7 +150,7 @@ fun SettingsScreen(
                         tooltip = {
                             PlainTooltip(shadowElevation = 10.dp) {
                                 Text(
-                                    "Adjust according to your reflexes\nLower is faster",
+                                    stringResource(R.string.settings_polling_interval_desc),
                                     style = MaterialTheme.typography.bodyLarge
                                 )
                             }
@@ -152,7 +162,7 @@ fun SettingsScreen(
                         }) {
                             Icon(
                                 painter = painterResource(R.drawable.ic_info),
-                                contentDescription = "Information about polling interval",
+                                contentDescription = stringResource(R.string.settings_polling_interval_info),
                                 tint = MaterialTheme.colorScheme.secondary,
                             )
                         }
@@ -164,20 +174,48 @@ fun SettingsScreen(
                     verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.SpaceEvenly
                 ) {
-                    var switchState by rememberSaveable(hapticEnabled) {
-                        mutableStateOf(
-                            hapticEnabled
-                        )
-                    }
                     Text(
-                        "Haptic Feedback (Vibrations)",
+                        stringResource(R.string.settings_haptic_feedback),
                         style = MaterialTheme.typography.labelMedium
                     )
                     Switch(
-                        checked = switchState,
+                        checked = settingsChanges.hapticFeedbackEnabled ?: hapticEnabled,
                         onCheckedChange = {
-                            settingsChanges.hapticFeedbackEnabled = it
-                            switchState = it
+                            settingsChanges = settingsChanges.copy(hapticFeedbackEnabled = it)
+                        }
+                    )
+                }
+
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.SpaceEvenly
+                ) {
+                    Text(
+                        stringResource(R.string.settings_full_screen),
+                        style = MaterialTheme.typography.labelMedium
+                    )
+                    Switch(
+                        checked = settingsChanges.fullScreenEnabled ?: fullScreenEnabled,
+                        onCheckedChange = {
+                            settingsChanges = settingsChanges.copy(fullScreenEnabled = it)
+                        }
+                    )
+                }
+
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.SpaceEvenly
+                ) {
+                    Text(
+                        stringResource(R.string.settings_save_connection_credentials),
+                        style = MaterialTheme.typography.labelMedium
+                    )
+                    Switch(
+                        checked = settingsChanges.saveConnectionCredentials ?: saveCredentials,
+                        onCheckedChange = {
+                            settingsChanges = settingsChanges.copy(saveConnectionCredentials = it)
                         }
                     )
                 }
@@ -188,7 +226,7 @@ fun SettingsScreen(
                         .fillMaxWidth(0.6f)
                         .padding(vertical = 8.dp)
                 ) {
-                    Text("Customize Gamepad Layout")
+                    Text(stringResource(R.string.settings_customize_layout))
                 }
 
             }
@@ -201,14 +239,11 @@ fun SettingsScreen(
                 horizontalArrangement = Arrangement.SpaceEvenly
             ) {
                 Button(onClick = {
-                    settingsChanges.pollingDelay = null
-                    settingsChanges.colorScheme = null
-                    settingsChanges.baseColor = null
-                    settingsChanges.hapticFeedbackEnabled = null
+                    settingsChanges = SettingsChanges()
                     runBlocking { settingsRepository.resetAllSettings() }
                     Log.i(logTag, "Settings reset to defaults")
                 }) {
-                    Text("Reset")
+                    Text(stringResource(R.string.reset))
                 }
 
                 Button(onClick = {
@@ -231,6 +266,16 @@ fun SettingsScreen(
                                     it
                                 ); ++changesSaved
                             }
+                            settingsChanges.saveConnectionCredentials?.let {
+                                settingsRepository.setSaveConnectionCredentials(
+                                    it
+                                ); ++changesSaved
+                            }
+                            settingsChanges.fullScreenEnabled?.let {
+                                settingsRepository.setFullScreenEnabled(
+                                    it
+                                ); ++changesSaved
+                            }
                         } catch (e: Exception) {
                             Log.e(logTag, "Error saving settings", e)
                         }
@@ -238,10 +283,10 @@ fun SettingsScreen(
                     Log.i(logTag, "Saved settings: $changesSaved")
                     onNavigateBack()
                 }) {
-                    Text("Save")
+                    Text(stringResource(R.string.save))
                 }
                 Button(onClick = onNavigateBack) {
-                    Text("Cancel")
+                    Text(stringResource(R.string.cancel))
                 }
             }
         }

@@ -4,7 +4,6 @@ import java.util.Properties
 
 plugins {
     alias(libs.plugins.android.application)
-    alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.compose)
     alias(libs.plugins.dokka)
     alias(libs.plugins.kotlin.parcelize)
@@ -21,8 +20,8 @@ android {
         minSdk = 26
         // Specifies the API level used to test the app.
         targetSdk = 34
-        versionCode = 10
-        versionName = "0.4.1"
+        versionCode = 11
+        versionName = "0.4.2"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables {
@@ -52,18 +51,13 @@ android {
 
     compileOptions {
         isCoreLibraryDesugaringEnabled = true
-        sourceCompatibility = JavaVersion.VERSION_17
-        targetCompatibility = JavaVersion.VERSION_17
-    }
-
-    kotlin {
-        compilerOptions {
-            jvmTarget = JvmTarget.fromTarget("17")
-        }
+        sourceCompatibility = JavaVersion.VERSION_21
+        targetCompatibility = JavaVersion.VERSION_21
     }
 
     buildFeatures {
         compose = true
+        resValues = true
     }
 
     composeOptions {
@@ -82,10 +76,22 @@ android {
         includeInApk = false
         includeInBundle = false
     }
+
+    sourceSets {
+        getByName("main") {
+            java.directories.add("../VGP_Data_Exchange")
+        }
+    }
+}
+
+kotlin {
+    compilerOptions {
+        jvmTarget = JvmTarget.fromTarget("21")
+    }
 }
 
 val props = Properties()
-val propFile = File("signing.properties")
+val propFile: File = rootProject.file("signing.properties")
 
 if (propFile.canRead()) {
     props.load(FileInputStream(propFile))
@@ -117,6 +123,7 @@ dependencies {
     implementation(libs.androidx.lifecycle.runtime.ktx)
     implementation(libs.androidx.window)
     implementation(libs.compose.ui)
+    implementation(libs.compose.material.icons.extended)
     implementation(libs.compose.ui.tooling.preview)
     implementation(libs.kotlinx.serialization.json)
     implementation(libs.material3)
@@ -127,7 +134,6 @@ dependencies {
     implementation(libs.zxing.android.embedded)
     implementation(libs.zxing.core)
     implementation(platform(libs.compose.bom))
-    testImplementation(libs.robolectric)
     coreLibraryDesugaring(libs.desugar.jdk.libs)
 
     // Test dependencies
@@ -143,16 +149,4 @@ dependencies {
     // Debug dependencies
     debugImplementation(libs.compose.ui.test.manifest)
     debugImplementation(libs.compose.ui.tooling)
-}
-
-val updateVGPDataExchangePackage by tasks.registering(ProcessResources::class) {
-    println("Updating VGP_Data_Exchange package...")
-    from(rootDir.toPath().resolve("VGP_Data_Exchange/io/github/kitswas/VGP_Data_Exchange"))
-    into(rootDir.toPath().resolve("app/src/main/java/io/github/kitswas/VGP_Data_Exchange"))
-}
-
-tasks.matching {
-    it != updateVGPDataExchangePackage.get()
-}.configureEach {
-    dependsOn(updateVGPDataExchangePackage)
 }

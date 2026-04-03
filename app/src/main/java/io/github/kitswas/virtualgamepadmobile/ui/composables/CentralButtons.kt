@@ -24,6 +24,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
@@ -72,8 +73,8 @@ fun ShoulderButton(
         ShoulderButtonType.RIGHT -> GameButtons.RightShoulder
     }
     val text = when (type) {
-        ShoulderButtonType.LEFT -> "LSHLDR"
-        ShoulderButtonType.RIGHT -> "RSHLDR"
+        ShoulderButtonType.LEFT -> stringResource(R.string.button_l_shoulder)
+        ShoulderButtonType.RIGHT -> stringResource(R.string.button_r_shoulder)
     }
 
     val interactionSource = remember { MutableInteractionSource() }
@@ -154,14 +155,14 @@ fun MenuButton(
         if (iconPainter != null) {
             Icon(
                 painter = iconPainter,
-                contentDescription = "${gameButton.name} Button",
+                contentDescription = stringResource(R.string.content_desc_button, gameButton.name),
                 modifier = Modifier.size(size / 2),
                 tint = MaterialTheme.colorScheme.primary
             )
         } else {
             Icon(
                 imageVector = ImageVector.vectorResource(R.drawable.screenicon),
-                contentDescription = "${gameButton.name} Button",
+                contentDescription = stringResource(R.string.content_desc_button, gameButton.name),
                 modifier = Modifier.size(size / 2),
                 tint = MaterialTheme.colorScheme.primary
             )

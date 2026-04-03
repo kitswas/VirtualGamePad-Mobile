@@ -1,0 +1,73 @@
+name: Build and Test
+on: [pull_request, push, workflow_dispatch]
+
+jobs:
+  # Job 1: Build and fast checks
+  build-and-unit-test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          submodules: true
+
+      - name: Set up JDK
+        uses: actions/setup-java@v5
+        with:
+          java-version: "21"
+          distribution: "temurin"
+          cache: gradle
+
+      - name: Build, lint and run Unit Tests in parallel
+        run: |
+          chmod +x gradlew
+          ./gradlew build lint test
+
+  # Job 2: Parallel Instrumented Tests
+  instrumented-tests:
+    needs: build-and-unit-test # Only run if build/unit tests pass
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false # Don't cancel API 34 if API 26 fails
+      matrix:
+        api-level:
+          - 26 # Minimum supported API level
+          - 34 # Target API level for testing
+          - 36 # Latest API level
+
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          submodules: true
+
+      - name: set up JDK
+        uses: actions/setup-java@v5
+        with:
+          java-version: "21"
+          distribution: "temurin"
+          cache: gradle
+
+      - name: Make gradlew executable
+        run: chmod +x gradlew
+
+      - name: Enable KVM
+        run: |
+          echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
+          sudo udevadm control --reload-rules
+          sudo udevadm trigger --name-match=kvm
+
+      - name: Run Instrumented Tests (API ${{ matrix.api-level }})
+        uses: reactivecircus/android-emulator-runner@v2
+        with:
+          api-level: ${{ matrix.api-level }}
+          target: ${{ matrix.api-level >= 31 && 'google_apis' || 'default' }}
+          arch: x86_64
+          disable-animations: true
+          script: ./gradlew connectedCheck --stacktrace
+
+      - name: Upload Test Report (API ${{ matrix.api-level }})
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: reports-api-${{ matrix.api-level }}
+          path: app/build/reports/androidTests/connected/
+          retention-days: 7

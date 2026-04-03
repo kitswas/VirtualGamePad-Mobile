@@ -31,16 +31,14 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import io.github.kitswas.VGP_Data_Exchange.GamepadReading
+import io.github.kitswas.virtualgamepadmobile.R
 import io.github.kitswas.virtualgamepadmobile.data.ButtonComponent
 import io.github.kitswas.virtualgamepadmobile.data.ButtonConfig
-import io.github.kitswas.virtualgamepadmobile.data.OFFSET_VALUE_RANGE
 import io.github.kitswas.virtualgamepadmobile.data.PreviewBase
-import io.github.kitswas.virtualgamepadmobile.data.SCALE_VALUE_RANGE
-import io.github.kitswas.virtualgamepadmobile.data.PreviewHeightDp
-import io.github.kitswas.virtualgamepadmobile.data.PreviewWidthDp
 import io.github.kitswas.virtualgamepadmobile.data.SettingsRepository
 import io.github.kitswas.virtualgamepadmobile.data.defaultButtonConfigs
 import io.github.kitswas.virtualgamepadmobile.ui.composables.ButtonConfigEditor
@@ -49,33 +47,38 @@ import io.github.kitswas.virtualgamepadmobile.ui.composables.ResponsiveGrid
 import kotlinx.coroutines.runBlocking
 import kotlinx.serialization.json.Json
 
-private const val logTag = "GamepadCustomizationScreen"
+private const val logTag = "GamepadCustomization"
 
 /**
- * Sanitizes imported button configurations to ensure all values are within valid ranges
- * and all required components are present.
+ * Sanitizes button configurations to ensure all components have a valid config.
  */
 private fun sanitizeButtonConfigs(configs: Map<ButtonComponent, ButtonConfig>): Map<ButtonComponent, ButtonConfig> {
-    val sanitized = mutableMapOf<ButtonComponent, ButtonConfig>()
-    
-    // Ensure all button components have a configuration
-    ButtonComponent.entries.forEach { component ->
-        val config = configs[component] ?: ButtonConfig.default(component)
-        
-        // Sanitize values to valid ranges
-        val sanitizedConfig = config.copy(
-            visible = config.visible, // Boolean, always valid
-            scale = config.scale.coerceIn(SCALE_VALUE_RANGE),
-            offsetX = config.offsetX.coerceIn(OFFSET_VALUE_RANGE),
-            offsetY = config.offsetY.coerceIn(OFFSET_VALUE_RANGE),
-            anchor = config.anchor // Enum, always valid if deserialized
-        )
-        
-        sanitized[component] = sanitizedConfig
+    return ButtonComponent.entries.associateWith { component ->
+        configs[component] ?: ButtonConfig.default(component)
     }
-    
-    Log.i(logTag, "Sanitized ${sanitized.size} button configurations")
-    return sanitized
+}
+
+/**
+ * Full-screen gamepad preview overlay
+ */
+@SuppressLint("ConfigurationScreenWidthHeight")
+@Composable
+fun GamepadPreview(
+    buttonConfigs: Map<ButtonComponent, ButtonConfig>,
+) {
+    val configuration = LocalConfiguration.current
+    val screenHeight = configuration.screenHeightDp
+    val screenWidth = configuration.screenWidthDp
+
+    val gamepadState = remember { GamepadReading() }
+
+    // Draw the gamepad with current configuration
+    DrawGamepad(
+        widthDp = screenWidth,
+        heightDp = screenHeight,
+        gamepadState = gamepadState,
+        buttonConfigs = buttonConfigs
+    )
 }
 
 @Composable
@@ -110,7 +113,7 @@ fun GamepadCustomizationScreen(
 
     if (showExportDialog) {
         ExportConfigDialog(
-            configsToExport = currentConfigs,
+            buttonConfigs = currentConfigs,
             onDismiss = { showExportDialog = false }
         )
     }
@@ -142,7 +145,7 @@ fun GamepadCustomizationScreen(
         ) {
             // Fixed title at the top
             Text(
-                "Gamepad Customization",
+                stringResource(R.string.customization_title),
                 style = MaterialTheme.typography.titleLarge,
                 modifier = Modifier.padding(vertical = 8.dp)
             )
@@ -157,7 +160,7 @@ fun GamepadCustomizationScreen(
                 verticalArrangement = Arrangement.spacedBy(8.dp)
             ) {
                 Text(
-                    "Customize individual button visibility, size, and position",
+                    stringResource(R.string.customization_desc),
                     style = MaterialTheme.typography.bodyMedium,
                     modifier = Modifier.padding(vertical = 4.dp)
                 )
@@ -206,15 +209,15 @@ fun GamepadCustomizationScreen(
                     horizontalArrangement = Arrangement.SpaceEvenly
                 ) {
                     Button(onClick = { showExportDialog = true }) {
-                        Text("Export")
+                        Text(stringResource(R.string.customization_export))
                     }
                     Button(
                         onClick = { showPreview = true },
                     ) {
-                        Text("Preview Gamepad")
+                        Text(stringResource(R.string.customization_preview))
                     }
                     Button(onClick = { showImportDialog = true }) {
-                        Text("Import")
+                        Text(stringResource(R.string.customization_import))
                     }
                 }
 
@@ -230,7 +233,7 @@ fun GamepadCustomizationScreen(
                         }
                         Log.i(logTag, "Button configs reset to defaults")
                     }) {
-                        Text("Reset")
+                        Text(stringResource(R.string.reset))
                     }
 
                     Button(onClick = {
@@ -248,11 +251,11 @@ fun GamepadCustomizationScreen(
                         }
                         onNavigateBack()
                     }) {
-                        Text("Save")
+                        Text(stringResource(R.string.save))
                     }
 
                     Button(onClick = onNavigateBack) {
-                        Text("Cancel")
+                        Text(stringResource(R.string.cancel))
                     }
                 }
             }
@@ -265,17 +268,19 @@ fun GamepadCustomizationScreen(
  */
 @Composable
 fun ExportConfigDialog(
-    configsToExport: Map<ButtonComponent, ButtonConfig>,
+    buttonConfigs: Map<ButtonComponent, ButtonConfig>,
     onDismiss: () -> Unit
 ) {
-    val clipboard = LocalContext.current.getSystemService(CLIPBOARD_SERVICE) as ClipboardManager
-    val jsonString = remember(configsToExport) {
-        Json.encodeToString(configsToExport)
+    val context = LocalContext.current
+    val clipboard = context.getSystemService(CLIPBOARD_SERVICE) as ClipboardManager
+    val jsonString = remember(buttonConfigs) {
+        Json.encodeToString(buttonConfigs)
     }
+    val exportLabel = stringResource(R.string.customization_export_label)
 
     AlertDialog(
         onDismissRequest = onDismiss,
-        title = { Text("Export Configuration") },
+        title = { Text(stringResource(R.string.customization_export_title)) },
         text = {
             Log.i(logTag, "Exporting button configs: $jsonString")
             Column(
@@ -283,7 +288,7 @@ fun ExportConfigDialog(
                 verticalArrangement = Arrangement.spacedBy(8.dp)
             ) {
                 Text(
-                    "Copy this JSON to share or backup your configuration:",
+                    stringResource(R.string.customization_export_desc),
                     style = MaterialTheme.typography.bodySmall
                 )
                 TextField(
@@ -292,6 +297,7 @@ fun ExportConfigDialog(
                     modifier = Modifier
                         .fillMaxWidth()
                         .verticalScroll(rememberScrollState()),
+                    label = { Text(stringResource(R.string.customization_export_label)) },
                     readOnly = true,
                     singleLine = false,
                     maxLines = 5,
@@ -300,12 +306,12 @@ fun ExportConfigDialog(
                         Button(onClick = {
                             // Copy to clipboard
                             val clip = android.content.ClipData.newPlainText(
-                                "Gamepad Layout JSON", jsonString
+                                exportLabel, jsonString
                             )
                             clipboard.setPrimaryClip(clip)
                             Log.i(logTag, "Exported JSON copied to clipboard")
                         }) {
-                            Text("Copy")
+                            Text(stringResource(R.string.customization_copy))
                         }
                     }
                 )
@@ -313,7 +319,7 @@ fun ExportConfigDialog(
         },
         confirmButton = {
             Button(onClick = onDismiss) {
-                Text("Done")
+                Text(stringResource(R.string.customization_done))
             }
         }
     )
@@ -332,18 +338,18 @@ fun ImportConfigDialog(
     var hasError by rememberSaveable { mutableStateOf(false) }
     AlertDialog(
         onDismissRequest = onDismiss,
-        title = { Text("Import Configuration") },
+        title = { Text(stringResource(R.string.customization_import_title)) },
         text = {
             Column(
                 modifier = Modifier.fillMaxWidth(),
                 verticalArrangement = Arrangement.spacedBy(8.dp)
             ) {
                 Text(
-                    "Paste the JSON configuration to import:",
+                    stringResource(R.string.customization_import_desc),
                     style = MaterialTheme.typography.bodySmall
                 )
                 val errorMessage = if (hasError) {
-                    "Error: Invalid JSON format"
+                    stringResource(R.string.customization_import_error)
                 } else {
                     ""
                 }
@@ -359,7 +365,7 @@ fun ImportConfigDialog(
                     modifier = Modifier
                         .fillMaxWidth()
                         .verticalScroll(rememberScrollState()),
-                    placeholder = { Text("Paste JSON here...") },
+                    placeholder = { Text(stringResource(R.string.customization_import_placeholder)) },
                     singleLine = false,
                     maxLines = 5
                 )
@@ -371,10 +377,10 @@ fun ImportConfigDialog(
                     try {
                         val configs: Map<ButtonComponent, ButtonConfig> =
                             Json.decodeFromString(importedJsonText)
-                        
+
                         // Sanitize the imported configs
                         val sanitizedConfigs = sanitizeButtonConfigs(configs)
-                        
+
                         hasError = false
                         Log.i(logTag, "Imported and sanitized button configs: $sanitizedConfigs")
                         onImport(sanitizedConfigs)
@@ -384,45 +390,23 @@ fun ImportConfigDialog(
                     }
                 }
             ) {
-                Text("Import")
+                Text(stringResource(R.string.customization_import))
             }
         },
         dismissButton = {
             Button(onClick = onDismiss) {
-                Text("Cancel")
+                Text(stringResource(R.string.cancel))
             }
         }
     )
 }
 
-/**
- * Full-screen gamepad preview overlay
- */
 @SuppressLint("ConfigurationScreenWidthHeight")
-@Composable
-fun GamepadPreview(
-    buttonConfigs: Map<ButtonComponent, ButtonConfig>,
-) {
-    val configuration = LocalConfiguration.current
-    val screenHeight = configuration.screenHeightDp
-    val screenWidth = configuration.screenWidthDp
-
-    val gamepadState = remember { GamepadReading() }
-
-    // Draw the gamepad with current configuration
-    DrawGamepad(
-        widthDp = screenWidth,
-        heightDp = screenHeight,
-        gamepadState = gamepadState,
-        buttonConfigs = buttonConfigs
-    )
-}
-
 @Preview(
-    widthDp = PreviewWidthDp,
-    heightDp = PreviewHeightDp,
+    showBackground = true,
+    widthDp = 800,
+    heightDp = 400
 )
-@MultiDevicePreview
 @Composable
 fun GamepadCustomizationScreenPreview() {
     PreviewBase {

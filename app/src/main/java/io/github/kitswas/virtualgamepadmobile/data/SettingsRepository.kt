@@ -47,6 +47,22 @@ class SettingsRepository(context: Context) {
             }
         }
 
+    val lastConnectionIpAddress: Flow<String> = dataStore.data.map { preferences ->
+        preferences[LAST_CONNECTION_IP_ADDRESS] ?: ""
+    }
+
+    val lastConnectionPort: Flow<String> = dataStore.data.map { preferences ->
+        preferences[LAST_CONNECTION_PORT] ?: ""
+    }
+
+    val saveConnectionCredentials: Flow<Boolean> = dataStore.data.map { preferences ->
+        preferences[SAVE_CONNECTION_CREDENTIALS] ?: defaultSaveConnectionCredentials
+    }
+
+    val fullScreenEnabled: Flow<Boolean> = dataStore.data.map { preferences ->
+        preferences[FULL_SCREEN_ENABLED] ?: defaultFullScreenEnabled
+    }
+
     suspend fun setBaseColor(baseColor: BaseColor) {
         dataStore.edit { preferences ->
             preferences[BASE_COLOR] = baseColor.ordinal
@@ -95,6 +111,25 @@ class SettingsRepository(context: Context) {
         }
     }
 
+    suspend fun setLastConnectionCredentials(ipAddress: String, port: String) {
+        dataStore.edit { preferences ->
+            preferences[LAST_CONNECTION_IP_ADDRESS] = ipAddress
+            preferences[LAST_CONNECTION_PORT] = port
+        }
+    }
+
+    suspend fun setSaveConnectionCredentials(enabled: Boolean) {
+        dataStore.edit { preferences ->
+            preferences[SAVE_CONNECTION_CREDENTIALS] = enabled
+        }
+    }
+
+    suspend fun setFullScreenEnabled(enabled: Boolean) {
+        dataStore.edit { preferences ->
+            preferences[FULL_SCREEN_ENABLED] = enabled
+        }
+    }
+
     suspend fun resetAllSettings() {
         dataStore.edit { preferences ->
             preferences.clear()
@@ -107,5 +142,10 @@ class SettingsRepository(context: Context) {
         private val POLLING_DELAY = intPreferencesKey("polling_delay")
         private val HAPTIC_FEEDBACK_ENABLED = booleanPreferencesKey("haptic_feedback_enabled")
         private val BUTTON_CONFIGS = stringPreferencesKey("button_configs")
+        private val LAST_CONNECTION_IP_ADDRESS = stringPreferencesKey("last_connection_ip_address")
+        private val LAST_CONNECTION_PORT = stringPreferencesKey("last_connection_port")
+        private val SAVE_CONNECTION_CREDENTIALS =
+            booleanPreferencesKey("save_connection_credentials")
+        private val FULL_SCREEN_ENABLED = booleanPreferencesKey("full_screen_enabled")
     }
 }
