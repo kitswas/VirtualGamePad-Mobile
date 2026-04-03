@@ -20,7 +20,7 @@ jobs:
       - name: Build, lint and run Unit Tests in parallel
         run: |
           chmod +x gradlew
-          ./gradlew build lint test
+          ./gradlew build lint test --stacktrace
 
   # Job 2: Parallel Instrumented Tests
   instrumented-tests:
