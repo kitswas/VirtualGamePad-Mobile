@@ -1,7 +1,11 @@
 package io.github.kitswas.virtualgamepadmobile.ui.screens
 
 import android.annotation.SuppressLint
+import android.app.Activity
 import android.content.res.Configuration
+import android.hardware.Sensor
+import android.hardware.SensorEvent
+import android.hardware.SensorManager
 import android.util.Log
 import android.widget.Toast
 import androidx.compose.runtime.Composable
@@ -59,6 +63,32 @@ fun GamePad(
     DrawGamepad(screenWidth, screenHeight, gamepadState, buttonConfigs)
 
     val activity = LocalContext.current.findActivity()
+    val sensorService = activity?.getSystemService(Activity.SENSOR_SERVICE)
+    if (sensorService is SensorManager) {
+        val rotationSensor = sensorService.getDefaultSensor(Sensor.TYPE_ROTATION_VECTOR)
+        sensorService.registerListener(object : android.hardware.SensorEventListener {
+
+            override fun onAccuracyChanged(sensor: Sensor?, accuracy: Int) {
+                // If you need to process this as well, it would be a good idea
+                // to wrap the values from this as well as onSensorChanged() into
+                // a custom SensorEvent class and then put it on a channel.
+            }
+
+            override fun onSensorChanged(event: SensorEvent?) {
+                if (event?.sensor == rotationSensor) {
+                    val rotationMatrix = FloatArray(9)
+                    SensorManager.getRotationMatrixFromVector(rotationMatrix, event?.values)
+                    // TODO rotate
+                    val orientation = FloatArray(3)
+                    SensorManager.getOrientation(rotationMatrix, orientation)
+                    gamepadState.Pitch = orientation[1];
+                    gamepadState.Roll = orientation[2];
+                }
+            }
+
+        }, rotationSensor, 20000);
+    }
+
     // disconnect on back press
     androidx.lifecycle.compose.LocalLifecycleOwner.current.lifecycle
         .addObserver(androidx.lifecycle.LifecycleEventObserver { _, event ->

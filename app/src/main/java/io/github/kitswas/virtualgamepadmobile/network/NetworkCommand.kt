@@ -31,6 +31,8 @@ sealed class NetworkCommand {
             RightThumbstickY = originalState.RightThumbstickY
             LeftTrigger = originalState.LeftTrigger
             RightTrigger = originalState.RightTrigger
+            Pitch = originalState.Pitch
+            Roll = originalState.Roll
         }
     }
 
