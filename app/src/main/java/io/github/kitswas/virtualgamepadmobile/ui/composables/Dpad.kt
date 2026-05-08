@@ -1,10 +1,6 @@
 package io.github.kitswas.virtualgamepadmobile.ui.composables
 
-import android.util.Log
 import androidx.compose.foundation.BorderStroke
-import androidx.compose.foundation.interaction.MutableInteractionSource
-import androidx.compose.foundation.interaction.collectIsPressedAsState
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material3.Icon
@@ -12,14 +8,9 @@ import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedIconButton
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.DisposableEffect
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.remember
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
@@ -30,7 +21,6 @@ import io.github.kitswas.VGP_Data_Exchange.GameButtons
 import io.github.kitswas.VGP_Data_Exchange.GamepadReading
 import io.github.kitswas.virtualgamepadmobile.R
 import io.github.kitswas.virtualgamepadmobile.ui.theme.darken
-import io.github.kitswas.virtualgamepadmobile.ui.utils.HapticUtils
 
 enum class DpadButtonType {
     UP, DOWN, LEFT, RIGHT
@@ -43,48 +33,24 @@ fun DpadButton(
     foregroundColour: Color = MaterialTheme.colorScheme.primary,
     backgroundColour: Color = darken(MaterialTheme.colorScheme.primary, 0.8f),
     size: Dp,
-    gamepadState: GamepadReading,
+    isPressed: Boolean = false,
 ) {
-    val view = LocalView.current
     val rotation = when (type) {
         DpadButtonType.UP -> -90f
         DpadButtonType.DOWN -> 90f
         DpadButtonType.LEFT -> 180f
         DpadButtonType.RIGHT -> 0f
     }
-    val gameButton = when (type) {
-        DpadButtonType.UP -> GameButtons.DPadUp
-        DpadButtonType.DOWN -> GameButtons.DPadDown
-        DpadButtonType.LEFT -> GameButtons.DPadLeft
-        DpadButtonType.RIGHT -> GameButtons.DPadRight
-    }
-    val interactionSource = remember { MutableInteractionSource() }
-    val isPressed by interactionSource.collectIsPressedAsState()
-    // See https://stackoverflow.com/a/69157877/8659747
-    if (isPressed) {
-        Log.d("DPadButton ${type.name}", "Pressed")
-        HapticUtils.performButtonPressFeedback(view)
-        gamepadState.ButtonsDown = gamepadState.ButtonsDown or gameButton.value
-        //Use if + DisposableEffect to wait for the press action is completed
-        DisposableEffect(Unit) {
-            onDispose {
-                Log.d("DPadButton ${type.name}", "Released")
-                HapticUtils.performButtonReleaseFeedback(view)
-                gamepadState.ButtonsDown = gamepadState.ButtonsDown and gameButton.value.inv()
-                gamepadState.ButtonsUp = gamepadState.ButtonsUp or gameButton.value
-            }
-        }
-    }
+
     OutlinedIconButton(
         modifier = modifier
             .size(size)
             .padding(0.dp),
         onClick = {},
         colors = IconButtonDefaults.outlinedIconButtonColors(
-            containerColor = backgroundColour,
+            containerColor = if (isPressed) foregroundColour else backgroundColour,
         ),
         border = BorderStroke(2.dp, MaterialTheme.colorScheme.outline),
-        interactionSource = interactionSource,
     ) {
         Icon(
             painter = painterResource(R.drawable.ic_play_arrow),
@@ -92,7 +58,7 @@ fun DpadButton(
             modifier = Modifier
                 .rotate(rotation)
                 .size(size),
-            tint = foregroundColour
+            tint = if (isPressed) backgroundColour else foregroundColour
         )
     }
 }
@@ -107,32 +73,23 @@ fun Dpad(
     gamepadState: GamepadReading,
 ) {
     val buttonSize = 2 * size / 5
-    Box(modifier = modifier.size(size), contentAlignment = Alignment.Center) {
-        DpadButton(
-            type = DpadButtonType.UP,
-            modifier = Modifier.align(Alignment.TopCenter),
-            size = buttonSize,
-            gamepadState = gamepadState,
-        )
-        DpadButton(
-            type = DpadButtonType.DOWN,
-            modifier = Modifier.align(Alignment.BottomCenter),
-            size = buttonSize,
-            gamepadState = gamepadState,
-        )
-        DpadButton(
-            type = DpadButtonType.LEFT,
-            modifier = Modifier.align(Alignment.CenterStart),
-            size = buttonSize,
-            gamepadState = gamepadState,
-        )
-        DpadButton(
-            type = DpadButtonType.RIGHT,
-            modifier = Modifier.align(Alignment.CenterEnd),
-            size = buttonSize,
-            gamepadState = gamepadState,
-        )
-    }
+    DirectionalButtons(
+        modifier = modifier,
+        size = size,
+        gamepadState = gamepadState,
+        top = DirectionalButtonConfig(GameButtons.DPadUp) { isPressed ->
+            DpadButton(DpadButtonType.UP, size = buttonSize, isPressed = isPressed)
+        },
+        bottom = DirectionalButtonConfig(GameButtons.DPadDown) { isPressed ->
+            DpadButton(DpadButtonType.DOWN, size = buttonSize, isPressed = isPressed)
+        },
+        left = DirectionalButtonConfig(GameButtons.DPadLeft) { isPressed ->
+            DpadButton(DpadButtonType.LEFT, size = buttonSize, isPressed = isPressed)
+        },
+        right = DirectionalButtonConfig(GameButtons.DPadRight) { isPressed ->
+            DpadButton(DpadButtonType.RIGHT, size = buttonSize, isPressed = isPressed)
+        }
+    )
 }
 
 @Preview(showBackground = false)
