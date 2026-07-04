@@ -17,6 +17,8 @@
     <string name="settings_haptic_feedback">Haptic Feedback (Vibrations)</string>
     <string name="settings_save_connection_credentials">Remember IP Address and Port</string>
     <string name="settings_full_screen">Full Screen</string>
+    <string name="settings_allow_multipress">Allow Multipress (Diagonals/Combos)</string>
+    <string name="settings_allow_multipress_desc">Enables pressing the gap between buttons to trigger multiple inputs simultaneously.</string>
     <string name="settings_customize_layout">Customize Gamepad Layout</string>
     <string name="settings_error_save">Error saving settings</string>
 

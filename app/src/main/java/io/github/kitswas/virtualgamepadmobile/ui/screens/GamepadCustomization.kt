@@ -40,6 +40,7 @@ import io.github.kitswas.virtualgamepadmobile.data.ButtonComponent
 import io.github.kitswas.virtualgamepadmobile.data.ButtonConfig
 import io.github.kitswas.virtualgamepadmobile.data.PreviewBase
 import io.github.kitswas.virtualgamepadmobile.data.SettingsRepository
+import io.github.kitswas.virtualgamepadmobile.data.defaultAllowMultipress
 import io.github.kitswas.virtualgamepadmobile.data.defaultButtonConfigs
 import io.github.kitswas.virtualgamepadmobile.ui.composables.ButtonConfigEditor
 import io.github.kitswas.virtualgamepadmobile.ui.composables.DrawGamepad
@@ -65,6 +66,7 @@ private fun sanitizeButtonConfigs(configs: Map<ButtonComponent, ButtonConfig>): 
 @Composable
 fun GamepadPreview(
     buttonConfigs: Map<ButtonComponent, ButtonConfig>,
+    allowMultipress: Boolean = false,
 ) {
     val configuration = LocalConfiguration.current
     val screenHeight = configuration.screenHeightDp
@@ -77,7 +79,8 @@ fun GamepadPreview(
         widthDp = screenWidth,
         heightDp = screenHeight,
         gamepadState = gamepadState,
-        buttonConfigs = buttonConfigs
+        buttonConfigs = buttonConfigs,
+        allowMultipress = allowMultipress
     )
 }
 
@@ -87,6 +90,7 @@ fun GamepadCustomizationScreen(
     settingsRepository: SettingsRepository
 ) {
     val buttonConfigs by settingsRepository.buttonConfigs.collectAsState(initial = defaultButtonConfigs)
+    val allowMultipress by settingsRepository.allowMultipress.collectAsState(initial = defaultAllowMultipress)
     var modifiedConfigs by rememberSaveable {
         mutableStateOf<Map<ButtonComponent, ButtonConfig>?>(
             null
@@ -107,7 +111,7 @@ fun GamepadCustomizationScreen(
 
     if (showPreview) {
         // Full-screen preview overlay
-        GamepadPreview(buttonConfigs = currentConfigs)
+        GamepadPreview(buttonConfigs = currentConfigs, allowMultipress = allowMultipress)
         return
     }
 

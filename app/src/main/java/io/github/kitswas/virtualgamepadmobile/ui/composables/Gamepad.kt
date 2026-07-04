@@ -35,6 +35,7 @@ fun DrawGamepad(
     heightDp: Int,
     gamepadState: GamepadReading,
     buttonConfigs: Map<ButtonComponent, ButtonConfig>,
+    allowMultipress: Boolean = false,
 ) {
     // Assuming Landscape orientation
     val baseDp = heightDp
@@ -104,6 +105,7 @@ fun DrawGamepad(
                     ),
                     size = (0.45 * baseDp * config.scale).dp,
                     gamepadState = gamepadState,
+                    allowMultipress = allowMultipress,
                 )
             }
 
@@ -116,6 +118,7 @@ fun DrawGamepad(
                     ),
                     size = (0.45 * baseDp * config.scale).dp,
                     gamepadState = gamepadState,
+                    allowMultipress = allowMultipress,
                 )
             }
 

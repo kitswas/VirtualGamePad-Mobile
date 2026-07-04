@@ -44,6 +44,7 @@ import io.github.kitswas.virtualgamepadmobile.data.PreviewBase
 import io.github.kitswas.virtualgamepadmobile.data.PreviewHeightDp
 import io.github.kitswas.virtualgamepadmobile.data.PreviewWidthDp
 import io.github.kitswas.virtualgamepadmobile.data.SettingsRepository
+import io.github.kitswas.virtualgamepadmobile.data.defaultAllowMultipress
 import io.github.kitswas.virtualgamepadmobile.data.defaultBaseColor
 import io.github.kitswas.virtualgamepadmobile.data.defaultColorScheme
 import io.github.kitswas.virtualgamepadmobile.data.defaultFullScreenEnabled
@@ -66,7 +67,8 @@ private data class SettingsChanges(
     val pollingDelay: Int? = null,
     val hapticFeedbackEnabled: Boolean? = null,
     val saveConnectionCredentials: Boolean? = null,
-    val fullScreenEnabled: Boolean? = null
+    val fullScreenEnabled: Boolean? = null,
+    val allowMultipress: Boolean? = null
 ) : Parcelable
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -85,6 +87,7 @@ fun SettingsScreen(
         val hapticEnabled by settingsRepository.hapticFeedbackEnabled.collectAsState(initial = defaultHapticFeedbackEnabled)
         val saveCredentials by settingsRepository.saveConnectionCredentials.collectAsState(initial = defaultSaveConnectionCredentials)
         val fullScreenEnabled by settingsRepository.fullScreenEnabled.collectAsState(initial = defaultFullScreenEnabled)
+        val allowMultipress by settingsRepository.allowMultipress.collectAsState(initial = defaultAllowMultipress)
 
         Column(
             modifier = Modifier
@@ -208,6 +211,34 @@ fun SettingsScreen(
                     verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.SpaceEvenly
                 ) {
+                    Column(
+                        modifier = Modifier.weight(1f).padding(start = 16.dp),
+                        horizontalAlignment = Alignment.Start
+                    ) {
+                        Text(
+                            stringResource(R.string.settings_allow_multipress),
+                            style = MaterialTheme.typography.labelMedium
+                        )
+                        Text(
+                            stringResource(R.string.settings_allow_multipress_desc),
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                    }
+                    Switch(
+                        checked = settingsChanges.allowMultipress ?: allowMultipress,
+                        onCheckedChange = {
+                            settingsChanges = settingsChanges.copy(allowMultipress = it)
+                        },
+                        modifier = Modifier.padding(end = 16.dp)
+                    )
+                }
+
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.SpaceEvenly
+                ) {
                     Text(
                         stringResource(R.string.settings_save_connection_credentials),
                         style = MaterialTheme.typography.labelMedium
@@ -273,6 +304,11 @@ fun SettingsScreen(
                             }
                             settingsChanges.fullScreenEnabled?.let {
                                 settingsRepository.setFullScreenEnabled(
+                                    it
+                                ); ++changesSaved
+                            }
+                            settingsChanges.allowMultipress?.let {
+                                settingsRepository.setAllowMultipress(
                                     it
                                 ); ++changesSaved
                             }

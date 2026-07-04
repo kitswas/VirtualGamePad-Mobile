@@ -15,7 +15,6 @@ import androidx.compose.ui.unit.Dp
 import io.github.kitswas.VGP_Data_Exchange.GameButtons
 import io.github.kitswas.VGP_Data_Exchange.GamepadReading
 import io.github.kitswas.virtualgamepadmobile.ui.utils.HapticUtils
-import kotlin.math.sqrt
 
 /**
  * Configuration for a single button within the [DirectionalButtons] group.
@@ -36,6 +35,7 @@ fun DirectionalButtons(
     modifier: Modifier = Modifier,
     size: Dp,
     gamepadState: GamepadReading,
+    allowMultipress: Boolean = false,
     top: DirectionalButtonConfig,
     bottom: DirectionalButtonConfig,
     left: DirectionalButtonConfig,
@@ -43,13 +43,13 @@ fun DirectionalButtons(
 ) {
     val view = LocalView.current
     val density = LocalDensity.current
-    
+
     // Calculate layout dimensions in pixels
     val sizePx = with(density) { size.toPx() }
     val buttonSizePx = 2 * sizePx / 5
     val halfSize = sizePx / 2f
     val buttonRadiusPx = buttonSizePx / 2f
-    
+
     // Calculate centers for hit detection
     val centers = remember(sizePx, buttonSizePx) {
         mapOf(
@@ -66,35 +66,19 @@ fun DirectionalButtons(
     // Tracks which buttons are pressed by each unique pointer (finger)
     val pressedButtonsByPointer = remember { mutableStateMapOf<PointerId, Set<GameButtons>>() }
 
-    // Aggregate of all currently pressed buttons across all pointers
-    val currentPressedButtons = remember(pressedButtonsByPointer.size, pressedButtonsByPointer.values.sumOf { it.size }) {
-        pressedButtonsByPointer.values.flatten().toSet()
-    }
-
-    // Synchronize the local pressed state with the global gamepadState and trigger haptics
-    LaunchedEffect(currentPressedButtons) {
-        val allButtons = listOf(top.gameButton, bottom.gameButton, left.gameButton, right.gameButton)
-        allButtons.forEach { button ->
-            val isDown = button in currentPressedButtons
-            val wasDown = (gamepadState.ButtonsDown and button.value) != 0
-            
-            if (isDown && !wasDown) {
-                Log.d("DirectionalButtons", "Pressed ${button.name}")
-                HapticUtils.performButtonPressFeedback(view)
-                gamepadState.ButtonsDown = gamepadState.ButtonsDown or button.value
-            } else if (!isDown && wasDown) {
-                Log.d("DirectionalButtons", "Released ${button.name}")
-                HapticUtils.performButtonReleaseFeedback(view)
-                gamepadState.ButtonsDown = gamepadState.ButtonsDown and button.value.inv()
-                gamepadState.ButtonsUp = gamepadState.ButtonsUp or button.value
-            }
-        }
+    // Aggregate of all currently pressed buttons across all pointers for visual highlighting
+    val currentPressedButtons by remember {
+        derivedStateOf { pressedButtonsByPointer.values.flatten().toSet() }
     }
 
     Box(
         modifier = modifier
             .size(size)
-            .pointerInput(Unit) {
+            .pointerInput(allowMultipress) {
+                val allButtons =
+                    listOf(top.gameButton, bottom.gameButton, left.gameButton, right.gameButton)
+                val hitRadiusSq = hitRadius * hitRadius
+
                 awaitPointerEventScope {
                     while (true) {
                         val event = awaitPointerEvent()
@@ -102,17 +86,45 @@ fun DirectionalButtons(
                             if (change.pressed) {
                                 val pointerPos = change.position
                                 // Determine which buttons this pointer is currently over
-                                val pressed = centers.filter { (_, center) ->
-                                    val dist = sqrt(
-                                        (pointerPos.x - center.x) * (pointerPos.x - center.x) +
-                                        (pointerPos.y - center.y) * (pointerPos.y - center.y)
-                                    )
-                                    dist <= hitRadius
-                                }.keys
+                                val hits = centers
+                                    .mapValues { (_, center) ->
+                                        val dx = pointerPos.x - center.x
+                                        val dy = pointerPos.y - center.y
+                                        dx * dx + dy * dy
+                                    }
+                                    .filterValues { it <= hitRadiusSq }
+
+                                val pressed = if (allowMultipress) {
+                                    hits.keys
+                                } else {
+                                    // If multipress is disabled, only select the single closest button
+                                    hits.minByOrNull { it.value }?.key?.let { setOf(it) }
+                                        ?: emptySet()
+                                }
                                 pressedButtonsByPointer[change.id] = pressed
                             } else {
                                 // Pointer released
                                 pressedButtonsByPointer.remove(change.id)
+                            }
+                        }
+
+                        // Synchronize the local pressed state with the global gamepadState and trigger haptics
+                        // This happens immediately within the pointer event loop for lowest latency
+                        val newAllPressed = pressedButtonsByPointer.values.flatten().toSet()
+                        allButtons.forEach { button ->
+                            val isDown = button in newAllPressed
+                            val wasDown = (gamepadState.ButtonsDown and button.value) != 0
+
+                            if (isDown && !wasDown) {
+                                Log.d("DirectionalButtons", "Pressed ${button.name}")
+                                HapticUtils.performButtonPressFeedback(view)
+                                gamepadState.ButtonsDown = gamepadState.ButtonsDown or button.value
+                            } else if (!isDown && wasDown) {
+                                Log.d("DirectionalButtons", "Released ${button.name}")
+                                HapticUtils.performButtonReleaseFeedback(view)
+                                gamepadState.ButtonsDown =
+                                    gamepadState.ButtonsDown and button.value.inv()
+                                gamepadState.ButtonsUp = gamepadState.ButtonsUp or button.value
                             }
                         }
                     }
@@ -120,17 +132,17 @@ fun DirectionalButtons(
             }
     ) {
         // Visual buttons are placed according to the original layout logic
-        Box(modifier = Modifier.align(Alignment.TopCenter)) { 
-            top.content(top.gameButton in currentPressedButtons) 
+        Box(modifier = Modifier.align(Alignment.TopCenter)) {
+            top.content(top.gameButton in currentPressedButtons)
         }
-        Box(modifier = Modifier.align(Alignment.BottomCenter)) { 
-            bottom.content(bottom.gameButton in currentPressedButtons) 
+        Box(modifier = Modifier.align(Alignment.BottomCenter)) {
+            bottom.content(bottom.gameButton in currentPressedButtons)
         }
-        Box(modifier = Modifier.align(Alignment.CenterStart)) { 
-            left.content(left.gameButton in currentPressedButtons) 
+        Box(modifier = Modifier.align(Alignment.CenterStart)) {
+            left.content(left.gameButton in currentPressedButtons)
         }
-        Box(modifier = Modifier.align(Alignment.CenterEnd)) { 
-            right.content(right.gameButton in currentPressedButtons) 
+        Box(modifier = Modifier.align(Alignment.CenterEnd)) {
+            right.content(right.gameButton in currentPressedButtons)
         }
     }
 }

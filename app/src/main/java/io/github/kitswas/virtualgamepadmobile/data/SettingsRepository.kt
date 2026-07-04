@@ -63,6 +63,10 @@ class SettingsRepository(context: Context) {
         preferences[FULL_SCREEN_ENABLED] ?: defaultFullScreenEnabled
     }
 
+    val allowMultipress: Flow<Boolean> = dataStore.data.map { preferences ->
+        preferences[ALLOW_MULTIPRESS] ?: defaultAllowMultipress
+    }
+
     suspend fun setBaseColor(baseColor: BaseColor) {
         dataStore.edit { preferences ->
             preferences[BASE_COLOR] = baseColor.ordinal
@@ -130,6 +134,12 @@ class SettingsRepository(context: Context) {
         }
     }
 
+    suspend fun setAllowMultipress(enabled: Boolean) {
+        dataStore.edit { preferences ->
+            preferences[ALLOW_MULTIPRESS] = enabled
+        }
+    }
+
     suspend fun resetAllSettings() {
         dataStore.edit { preferences ->
             preferences.clear()
@@ -147,5 +157,6 @@ class SettingsRepository(context: Context) {
         private val SAVE_CONNECTION_CREDENTIALS =
             booleanPreferencesKey("save_connection_credentials")
         private val FULL_SCREEN_ENABLED = booleanPreferencesKey("full_screen_enabled")
+        private val ALLOW_MULTIPRESS = booleanPreferencesKey("allow_multipress")
     }
 }

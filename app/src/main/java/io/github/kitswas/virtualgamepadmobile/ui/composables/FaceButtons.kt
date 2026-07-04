@@ -79,12 +79,14 @@ fun FaceButtons(
     modifier: Modifier = Modifier,
     size: Dp = 360.dp,
     gamepadState: GamepadReading,
+    allowMultipress: Boolean = false,
 ) {
     val buttonSize = 2 * size / 5
     DirectionalButtons(
         modifier = modifier,
         size = size,
         gamepadState = gamepadState,
+        allowMultipress = allowMultipress,
         top = DirectionalButtonConfig(GameButtons.Y) { isPressed ->
             FaceButton(FaceButtonType.Y, size = buttonSize, isPressed = isPressed)
         },
