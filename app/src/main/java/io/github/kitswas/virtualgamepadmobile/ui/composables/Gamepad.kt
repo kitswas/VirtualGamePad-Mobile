@@ -6,8 +6,16 @@ import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.layout.LayoutCoordinates
+import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.unit.dp
 import io.github.kitswas.VGP_Data_Exchange.GamepadReading
 import io.github.kitswas.virtualgamepadmobile.data.ButtonAnchor
@@ -59,6 +67,21 @@ fun DrawGamepad(
         }
     }
 
+    // A single controller shared by every discrete button (D-pad, face
+    // buttons, shoulder buttons, menu buttons) so that touches are resolved
+    // against the whole cluster at once. This is what enables multiple
+    // fingers to each drive a different button (up to MAX_TRACKED_TOUCH_POINTS)
+    // and lets a held finger "roll over" from one button straight into
+    // another instead of requiring a lift-and-re-tap.
+    val touchController = remember { MultiTouchController() }
+    var containerCoordinates by remember { mutableStateOf<LayoutCoordinates?>(null) }
+
+    // Make sure no button is left stuck "pressed" if the gamepad screen is
+    // torn down (e.g. navigating back) mid-touch.
+    DisposableEffect(touchController) {
+        onDispose { touchController.releaseAll() }
+    }
+
     // First we make a box that will contain the gamepad
     // And put padding around it so that it doesn't touch the edges of the screen
     Surface {
@@ -66,7 +89,13 @@ fun DrawGamepad(
             modifier = Modifier
                 .padding(deadZonePadding.dp)
                 .fillMaxSize()
+                .onGloballyPositioned { containerCoordinates = it }
+                .multiTouchDispatcher(touchController)
         ) {
+            CompositionLocalProvider(
+                LocalMultiTouchController provides touchController,
+                LocalTouchContainerCoordinates provides containerCoordinates,
+            ) {
             // Left Analog Stick
             RenderComponent(ButtonComponent.LEFT_ANALOG_STICK) { config ->
                 AnalogStick(
@@ -151,6 +180,7 @@ fun DrawGamepad(
                 gamepadState = gamepadState,
                 buttonConfigs = buttonConfigs,
             )
+            }
         }
     }
 }

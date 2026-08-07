@@ -1,20 +1,16 @@
 package io.github.kitswas.virtualgamepadmobile.ui.composables
 
 import android.util.Log
+import androidx.compose.animation.animateColorAsState
 import androidx.compose.foundation.BorderStroke
-import androidx.compose.foundation.interaction.MutableInteractionSource
-import androidx.compose.foundation.interaction.collectIsPressedAsState
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedButton
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -69,40 +65,50 @@ fun FaceButton(
         FaceButtonType.Y -> stringResource(R.string.button_y)
     }
 
-    val interactionSource = remember { MutableInteractionSource() }
-    val isPressed by interactionSource.collectIsPressedAsState()
-    // See https://stackoverflow.com/a/69157877/8659747
-    if (isPressed) {
-        Log.d("FaceButton ${type.name}", "Pressed")
-        HapticUtils.performButtonPressFeedback(view)
-        gamepadState.ButtonsDown = gamepadState.ButtonsDown or gameButton.value
-        //Use if + DisposableEffect to wait for the press action is completed
-        DisposableEffect(Unit) {
-            onDispose {
-                Log.d("FaceButton ${type.name}", "Released")
-                HapticUtils.performButtonReleaseFeedback(view)
-                gamepadState.ButtonsDown = gamepadState.ButtonsDown and gameButton.value.inv()
-                gamepadState.ButtonsUp = gamepadState.ButtonsUp or gameButton.value
-            }
-        }
-    }
-    OutlinedButton(
+    // Registers this button's on-screen bounds with the shared MultiTouchController
+    // (see TouchZoneController.kt) instead of using a per-button clickable/
+    // interactionSource. A single controller resolving every finger against every
+    // button's bounds is what allows several buttons to be held at once (up to
+    // MAX_TRACKED_TOUCH_POINTS) and lets a finger "roll" from one button directly
+    // into another without lifting off the screen.
+    val isPressed = LocalMultiTouchController.current?.pressedZones?.get("face_${type.name}") ?: false
+
+    val pressedBackground = lighten(backgroundColour, 0.18f)
+    val animatedBackground by animateColorAsState(
+        targetValue = if (isPressed) pressedBackground else backgroundColour,
+        label = "faceButtonBackground",
+    )
+
+    Surface(
         modifier = modifier
             .size(size)
-            .padding(0.dp),
-        onClick = {},
-        colors = ButtonDefaults.outlinedButtonColors(
-            containerColor = backgroundColour,
-        ),
-        interactionSource = interactionSource,
+            .padding(0.dp)
+            .touchZone(
+                id = "face_${type.name}",
+                onPress = {
+                    Log.d("FaceButton ${type.name}", "Pressed")
+                    HapticUtils.performButtonPressFeedback(view)
+                    gamepadState.ButtonsDown = gamepadState.ButtonsDown or gameButton.value
+                },
+                onRelease = {
+                    Log.d("FaceButton ${type.name}", "Released")
+                    HapticUtils.performButtonReleaseFeedback(view)
+                    gamepadState.ButtonsDown = gamepadState.ButtonsDown and gameButton.value.inv()
+                    gamepadState.ButtonsUp = gamepadState.ButtonsUp or gameButton.value
+                },
+            ),
+        shape = MaterialTheme.shapes.small,
+        color = animatedBackground,
         border = BorderStroke(2.dp, MaterialTheme.colorScheme.outline),
     ) {
-        Text(
-            text = label,
-            color = foregroundColour,
-            textAlign = TextAlign.Center,
-            style = faceButtonTextStyle(size),
-        )
+        Box(contentAlignment = Alignment.Center, modifier = Modifier.size(size)) {
+            Text(
+                text = label,
+                color = foregroundColour,
+                textAlign = TextAlign.Center,
+                style = faceButtonTextStyle(size),
+            )
+        }
     }
 }
 

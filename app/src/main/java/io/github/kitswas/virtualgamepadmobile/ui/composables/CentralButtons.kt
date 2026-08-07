@@ -1,26 +1,24 @@
 package io.github.kitswas.virtualgamepadmobile.ui.composables
 
 import android.util.Log
+import androidx.compose.animation.animateColorAsState
 import androidx.compose.foundation.BorderStroke
-import androidx.compose.foundation.interaction.MutableInteractionSource
-import androidx.compose.foundation.interaction.collectIsPressedAsState
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.widthIn
-import androidx.compose.material3.Button
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedIconButton
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.lerp
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.res.painterResource
@@ -77,35 +75,50 @@ fun ShoulderButton(
         ShoulderButtonType.RIGHT -> stringResource(R.string.button_r_shoulder)
     }
 
-    val interactionSource = remember { MutableInteractionSource() }
-    val isPressed by interactionSource.collectIsPressedAsState()
+    // See TouchZoneController.kt for why this uses a shared MultiTouchController
+    // touch zone instead of a per-button clickable/interactionSource.
+    val zoneId = "shoulder_${type.name}"
+    val isPressed = LocalMultiTouchController.current?.pressedZones?.get(zoneId) ?: false
 
-    // See https://stackoverflow.com/a/69157877/8659747
-    if (isPressed) {
-        Log.d(gameButton.name, "Pressed")
-        HapticUtils.performButtonPressFeedback(view)
-        gamepadState.ButtonsDown = gamepadState.ButtonsDown or gameButton.value
-        //Use if + DisposableEffect to wait for the press action is completed
-        DisposableEffect(Unit) {
-            onDispose {
-                Log.d(gameButton.name, "Released")
-                HapticUtils.performButtonReleaseFeedback(view)
-                gamepadState.ButtonsDown =
-                    gamepadState.ButtonsDown and gameButton.value.inv()
-                gamepadState.ButtonsUp = gamepadState.ButtonsUp or gameButton.value
-            }
-        }
-    }
+    val restingColor = MaterialTheme.colorScheme.primary
+    val pressedColor = lerp(restingColor, MaterialTheme.colorScheme.onPrimary, 0.35f)
+    val animatedBackground by animateColorAsState(
+        targetValue = if (isPressed) pressedColor else restingColor,
+        label = "shoulderButtonBackground",
+    )
 
-    Button(
+    Surface(
         modifier = modifier
             .heightIn(min = size)
-            .widthIn(min = size * 1.5f),
+            .widthIn(min = size * 1.5f)
+            .touchZone(
+                id = zoneId,
+                onPress = {
+                    Log.d(gameButton.name, "Pressed")
+                    HapticUtils.performButtonPressFeedback(view)
+                    gamepadState.ButtonsDown = gamepadState.ButtonsDown or gameButton.value
+                },
+                onRelease = {
+                    Log.d(gameButton.name, "Released")
+                    HapticUtils.performButtonReleaseFeedback(view)
+                    gamepadState.ButtonsDown =
+                        gamepadState.ButtonsDown and gameButton.value.inv()
+                    gamepadState.ButtonsUp = gamepadState.ButtonsUp or gameButton.value
+                },
+            ),
+        shape = MaterialTheme.shapes.small,
+        color = animatedBackground,
+        contentColor = MaterialTheme.colorScheme.onPrimary,
         border = BorderStroke(2.dp, MaterialTheme.colorScheme.outline),
-        onClick = { },
-        interactionSource = interactionSource,
     ) {
-        Text(text)
+        Box(
+            modifier = Modifier
+                .heightIn(min = size)
+                .widthIn(min = size * 1.5f),
+            contentAlignment = Alignment.Center,
+        ) {
+            Text(text)
+        }
     }
 }
 
@@ -126,46 +139,56 @@ fun MenuButton(
         MenuButtonType.MENU -> painterResource(R.drawable.ic_menu)
     }
 
-    val interactionSource = remember { MutableInteractionSource() }
-    val isPressed by interactionSource.collectIsPressedAsState()
+    // See TouchZoneController.kt for why this uses a shared MultiTouchController
+    // touch zone instead of a per-button clickable/interactionSource.
+    val zoneId = "menu_${type.name}"
+    val isPressed = LocalMultiTouchController.current?.pressedZones?.get(zoneId) ?: false
 
-    // See https://stackoverflow.com/a/69157877/8659747
-    if (isPressed) {
-        Log.d(gameButton.name, "Pressed")
-        HapticUtils.performButtonPressFeedback(view)
-        gamepadState.ButtonsDown = gamepadState.ButtonsDown or gameButton.value
-        //Use if + DisposableEffect to wait for the press action is completed
-        DisposableEffect(Unit) {
-            onDispose {
-                Log.d(gameButton.name, "Released")
-                HapticUtils.performButtonReleaseFeedback(view)
-                gamepadState.ButtonsDown =
-                    gamepadState.ButtonsDown and gameButton.value.inv()
-                gamepadState.ButtonsUp = gamepadState.ButtonsUp or gameButton.value
-            }
-        }
-    }
+    val restingColor = Color.Transparent
+    val pressedColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.18f)
+    val animatedBackground by animateColorAsState(
+        targetValue = if (isPressed) pressedColor else restingColor,
+        label = "menuButtonBackground",
+    )
 
-    OutlinedIconButton(
-        modifier = modifier.size(size),
+    Surface(
+        modifier = modifier
+            .size(size)
+            .touchZone(
+                id = zoneId,
+                onPress = {
+                    Log.d(gameButton.name, "Pressed")
+                    HapticUtils.performButtonPressFeedback(view)
+                    gamepadState.ButtonsDown = gamepadState.ButtonsDown or gameButton.value
+                },
+                onRelease = {
+                    Log.d(gameButton.name, "Released")
+                    HapticUtils.performButtonReleaseFeedback(view)
+                    gamepadState.ButtonsDown =
+                        gamepadState.ButtonsDown and gameButton.value.inv()
+                    gamepadState.ButtonsUp = gamepadState.ButtonsUp or gameButton.value
+                },
+            ),
+        shape = MaterialTheme.shapes.small,
+        color = animatedBackground,
         border = BorderStroke(2.dp, MaterialTheme.colorScheme.outline),
-        onClick = { },
-        interactionSource = interactionSource,
     ) {
-        if (iconPainter != null) {
-            Icon(
-                painter = iconPainter,
-                contentDescription = stringResource(R.string.content_desc_button, gameButton.name),
-                modifier = Modifier.size(size / 2),
-                tint = MaterialTheme.colorScheme.primary
-            )
-        } else {
-            Icon(
-                imageVector = ImageVector.vectorResource(R.drawable.screenicon),
-                contentDescription = stringResource(R.string.content_desc_button, gameButton.name),
-                modifier = Modifier.size(size / 2),
-                tint = MaterialTheme.colorScheme.primary
-            )
+        Box(modifier = Modifier.size(size), contentAlignment = Alignment.Center) {
+            if (iconPainter != null) {
+                Icon(
+                    painter = iconPainter,
+                    contentDescription = stringResource(R.string.content_desc_button, gameButton.name),
+                    modifier = Modifier.size(size / 2),
+                    tint = MaterialTheme.colorScheme.primary
+                )
+            } else {
+                Icon(
+                    imageVector = ImageVector.vectorResource(R.drawable.screenicon),
+                    contentDescription = stringResource(R.string.content_desc_button, gameButton.name),
+                    modifier = Modifier.size(size / 2),
+                    tint = MaterialTheme.colorScheme.primary
+                )
+            }
         }
     }
 }
