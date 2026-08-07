@@ -1,24 +1,21 @@
 package io.github.kitswas.virtualgamepadmobile.ui.composables
 
 import android.util.Log
+import androidx.compose.animation.animateColorAsState
 import androidx.compose.foundation.BorderStroke
-import androidx.compose.foundation.interaction.MutableInteractionSource
-import androidx.compose.foundation.interaction.collectIsPressedAsState
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedIconButton
+import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.lerp
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -58,42 +55,51 @@ fun DpadButton(
         DpadButtonType.LEFT -> GameButtons.DPadLeft
         DpadButtonType.RIGHT -> GameButtons.DPadRight
     }
-    val interactionSource = remember { MutableInteractionSource() }
-    val isPressed by interactionSource.collectIsPressedAsState()
-    // See https://stackoverflow.com/a/69157877/8659747
-    if (isPressed) {
-        Log.d("DPadButton ${type.name}", "Pressed")
-        HapticUtils.performButtonPressFeedback(view)
-        gamepadState.ButtonsDown = gamepadState.ButtonsDown or gameButton.value
-        //Use if + DisposableEffect to wait for the press action is completed
-        DisposableEffect(Unit) {
-            onDispose {
-                Log.d("DPadButton ${type.name}", "Released")
-                HapticUtils.performButtonReleaseFeedback(view)
-                gamepadState.ButtonsDown = gamepadState.ButtonsDown and gameButton.value.inv()
-                gamepadState.ButtonsUp = gamepadState.ButtonsUp or gameButton.value
-            }
-        }
-    }
-    OutlinedIconButton(
+    // See TouchZoneController.kt: a shared MultiTouchController resolves every
+    // finger against every D-pad direction's bounds, instead of each direction
+    // using its own clickable. This allows e.g. UP and RIGHT to be held at the
+    // same time by different fingers, and lets a finger slide from one
+    // direction straight into an adjacent one without lifting.
+    val isPressed = LocalMultiTouchController.current?.pressedZones?.get("dpad_${type.name}") ?: false
+
+    val pressedBackground = lerp(backgroundColour, foregroundColour, 0.35f)
+    val animatedBackground by animateColorAsState(
+        targetValue = if (isPressed) pressedBackground else backgroundColour,
+        label = "dpadButtonBackground",
+    )
+
+    Surface(
         modifier = modifier
             .size(size)
-            .padding(0.dp),
-        onClick = {},
-        colors = IconButtonDefaults.outlinedIconButtonColors(
-            containerColor = backgroundColour,
-        ),
+            .padding(0.dp)
+            .touchZone(
+                id = "dpad_${type.name}",
+                onPress = {
+                    Log.d("DPadButton ${type.name}", "Pressed")
+                    HapticUtils.performButtonPressFeedback(view)
+                    gamepadState.ButtonsDown = gamepadState.ButtonsDown or gameButton.value
+                },
+                onRelease = {
+                    Log.d("DPadButton ${type.name}", "Released")
+                    HapticUtils.performButtonReleaseFeedback(view)
+                    gamepadState.ButtonsDown = gamepadState.ButtonsDown and gameButton.value.inv()
+                    gamepadState.ButtonsUp = gamepadState.ButtonsUp or gameButton.value
+                },
+            ),
+        shape = MaterialTheme.shapes.small,
+        color = animatedBackground,
         border = BorderStroke(2.dp, MaterialTheme.colorScheme.outline),
-        interactionSource = interactionSource,
     ) {
-        Icon(
-            painter = painterResource(R.drawable.ic_play_arrow),
-            contentDescription = stringResource(R.string.content_desc_dpad_button, type.name),
-            modifier = Modifier
-                .rotate(rotation)
-                .size(size),
-            tint = foregroundColour
-        )
+        Box(contentAlignment = Alignment.Center, modifier = Modifier.size(size)) {
+            Icon(
+                painter = painterResource(R.drawable.ic_play_arrow),
+                contentDescription = stringResource(R.string.content_desc_dpad_button, type.name),
+                modifier = Modifier
+                    .rotate(rotation)
+                    .size(size),
+                tint = foregroundColour
+            )
+        }
     }
 }
 
