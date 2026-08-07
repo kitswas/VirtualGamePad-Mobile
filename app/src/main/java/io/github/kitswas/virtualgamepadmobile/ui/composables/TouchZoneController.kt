@@ -15,7 +15,6 @@ import androidx.compose.ui.input.pointer.PointerId
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.input.pointer.positionChanged
 import androidx.compose.ui.layout.LayoutCoordinates
-import androidx.compose.ui.layout.localBoundingBoxOf
 import androidx.compose.ui.layout.onGloballyPositioned
 
 /**
