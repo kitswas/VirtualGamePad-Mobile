@@ -10,6 +10,8 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Info
 import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -24,7 +26,6 @@ import androidx.compose.material3.TooltipBox
 import androidx.compose.material3.TooltipDefaults
 import androidx.compose.material3.rememberTooltipState
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.rememberCoroutineScope
@@ -33,10 +34,10 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import io.github.kitswas.virtualgamepadmobile.R
 import io.github.kitswas.virtualgamepadmobile.data.BaseColor
 import io.github.kitswas.virtualgamepadmobile.data.ColorScheme
@@ -79,12 +80,12 @@ fun SettingsScreen(
     var settingsChanges by rememberSaveable { mutableStateOf(SettingsChanges()) }
 
     Scaffold { paddingValues ->
-        val colorScheme by settingsRepository.colorScheme.collectAsState(initial = defaultColorScheme)
-        val baseColor by settingsRepository.baseColor.collectAsState(initial = defaultBaseColor)
-        val pollingDelay by settingsRepository.pollingDelay.collectAsState(initial = defaultPollingDelay)
-        val hapticEnabled by settingsRepository.hapticFeedbackEnabled.collectAsState(initial = defaultHapticFeedbackEnabled)
-        val saveCredentials by settingsRepository.saveConnectionCredentials.collectAsState(initial = defaultSaveConnectionCredentials)
-        val fullScreenEnabled by settingsRepository.fullScreenEnabled.collectAsState(initial = defaultFullScreenEnabled)
+        val colorScheme by settingsRepository.colorScheme.collectAsStateWithLifecycle(initialValue = defaultColorScheme)
+        val baseColor by settingsRepository.baseColor.collectAsStateWithLifecycle(initialValue = defaultBaseColor)
+        val pollingDelay by settingsRepository.pollingDelay.collectAsStateWithLifecycle(initialValue = defaultPollingDelay)
+        val hapticEnabled by settingsRepository.hapticFeedbackEnabled.collectAsStateWithLifecycle(initialValue = defaultHapticFeedbackEnabled)
+        val saveCredentials by settingsRepository.saveConnectionCredentials.collectAsStateWithLifecycle(initialValue = defaultSaveConnectionCredentials)
+        val fullScreenEnabled by settingsRepository.fullScreenEnabled.collectAsStateWithLifecycle(initialValue = defaultFullScreenEnabled)
 
         Column(
             modifier = Modifier
@@ -161,7 +162,7 @@ fun SettingsScreen(
                             scope.launch { toolTipState.show() }
                         }) {
                             Icon(
-                                painter = painterResource(R.drawable.ic_info),
+                                imageVector = Icons.Default.Info,
                                 contentDescription = stringResource(R.string.settings_polling_interval_info),
                                 tint = MaterialTheme.colorScheme.secondary,
                             )

@@ -10,6 +10,9 @@ import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.widthIn
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.FilterNone
+import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material3.Button
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -21,11 +24,8 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalView
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
@@ -121,9 +121,9 @@ fun MenuButton(
         MenuButtonType.VIEW -> GameButtons.View
         MenuButtonType.MENU -> GameButtons.Menu
     }
-    val iconPainter = when (type) {
-        MenuButtonType.VIEW -> null
-        MenuButtonType.MENU -> painterResource(R.drawable.ic_menu)
+    val imageVector = when (type) {
+        MenuButtonType.VIEW -> Icons.Default.FilterNone
+        MenuButtonType.MENU -> Icons.Default.Menu
     }
 
     val interactionSource = remember { MutableInteractionSource() }
@@ -134,7 +134,7 @@ fun MenuButton(
         Log.d(gameButton.name, "Pressed")
         HapticUtils.performButtonPressFeedback(view)
         gamepadState.ButtonsDown = gamepadState.ButtonsDown or gameButton.value
-        //Use if + DisposableEffect to wait for the press action is completed
+        // Use if + DisposableEffect to wait for the press action is completed
         DisposableEffect(Unit) {
             onDispose {
                 Log.d(gameButton.name, "Released")
@@ -152,21 +152,12 @@ fun MenuButton(
         onClick = { },
         interactionSource = interactionSource,
     ) {
-        if (iconPainter != null) {
-            Icon(
-                painter = iconPainter,
-                contentDescription = stringResource(R.string.content_desc_button, gameButton.name),
-                modifier = Modifier.size(size / 2),
-                tint = MaterialTheme.colorScheme.primary
-            )
-        } else {
-            Icon(
-                imageVector = ImageVector.vectorResource(R.drawable.screenicon),
-                contentDescription = stringResource(R.string.content_desc_button, gameButton.name),
-                modifier = Modifier.size(size / 2),
-                tint = MaterialTheme.colorScheme.primary
-            )
-        }
+        Icon(
+            imageVector = imageVector,
+            contentDescription = stringResource(R.string.content_desc_button, gameButton.name),
+            modifier = Modifier.size(size / 2),
+            tint = MaterialTheme.colorScheme.primary
+        )
     }
 }
 
