@@ -83,9 +83,15 @@ fun SettingsScreen(
         val colorScheme by settingsRepository.colorScheme.collectAsStateWithLifecycle(initialValue = defaultColorScheme)
         val baseColor by settingsRepository.baseColor.collectAsStateWithLifecycle(initialValue = defaultBaseColor)
         val pollingDelay by settingsRepository.pollingDelay.collectAsStateWithLifecycle(initialValue = defaultPollingDelay)
-        val hapticEnabled by settingsRepository.hapticFeedbackEnabled.collectAsStateWithLifecycle(initialValue = defaultHapticFeedbackEnabled)
-        val saveCredentials by settingsRepository.saveConnectionCredentials.collectAsStateWithLifecycle(initialValue = defaultSaveConnectionCredentials)
-        val fullScreenEnabled by settingsRepository.fullScreenEnabled.collectAsStateWithLifecycle(initialValue = defaultFullScreenEnabled)
+        val hapticEnabled by settingsRepository.hapticFeedbackEnabled.collectAsStateWithLifecycle(
+            initialValue = defaultHapticFeedbackEnabled
+        )
+        val saveCredentials by settingsRepository.saveConnectionCredentials.collectAsStateWithLifecycle(
+            initialValue = defaultSaveConnectionCredentials
+        )
+        val fullScreenEnabled by settingsRepository.fullScreenEnabled.collectAsStateWithLifecycle(
+            initialValue = defaultFullScreenEnabled
+        )
 
         Column(
             modifier = Modifier

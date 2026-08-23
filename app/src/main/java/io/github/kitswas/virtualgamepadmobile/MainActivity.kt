@@ -134,7 +134,12 @@ class MainActivity : ComponentActivity() {
 
                 ConnectMenu(
                     onNavigateToConnectingScreen = { ipAddress, port ->
-                        navController.navigate(Screen.Connecting(ipAddress = ipAddress, port = port))
+                        navController.navigate(
+                            Screen.Connecting(
+                                ipAddress = ipAddress,
+                                port = port
+                            )
+                        )
                     },
                     initialIp = initialIp,
                     initialPort = initialPort
