@@ -1,6 +1,7 @@
 package io.github.kitswas.virtualgamepadmobile.ui.screens
 
 import android.os.Parcelable
+import android.content.pm.ActivityInfo
 import android.util.Log
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -38,21 +39,18 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import io.github.kitswas.virtualgamepadmobile.R
-import io.github.kitswas.virtualgamepadmobile.data.BaseColor
-import io.github.kitswas.virtualgamepadmobile.data.ColorScheme
+import io.github.kitswas.virtualgamepadmobile.data.AppLanguage
 import io.github.kitswas.virtualgamepadmobile.data.PreviewBase
 import io.github.kitswas.virtualgamepadmobile.data.PreviewHeightDp
 import io.github.kitswas.virtualgamepadmobile.data.PreviewWidthDp
 import io.github.kitswas.virtualgamepadmobile.data.SettingsRepository
-import io.github.kitswas.virtualgamepadmobile.data.defaultBaseColor
-import io.github.kitswas.virtualgamepadmobile.data.defaultColorScheme
 import io.github.kitswas.virtualgamepadmobile.data.defaultFullScreenEnabled
 import io.github.kitswas.virtualgamepadmobile.data.defaultHapticFeedbackEnabled
 import io.github.kitswas.virtualgamepadmobile.data.defaultPollingDelay
 import io.github.kitswas.virtualgamepadmobile.data.defaultSaveConnectionCredentials
-import io.github.kitswas.virtualgamepadmobile.ui.composables.ColorSchemePicker
 import io.github.kitswas.virtualgamepadmobile.ui.composables.ListItemPicker
 import io.github.kitswas.virtualgamepadmobile.ui.composables.SpinBox
+import io.github.kitswas.virtualgamepadmobile.ui.utils.LockScreenOrientation
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import kotlinx.parcelize.Parcelize
@@ -61,8 +59,7 @@ private const val logTag = "SettingsScreen"
 
 @Parcelize
 private data class SettingsChanges(
-    val colorScheme: ColorScheme? = null,
-    val baseColor: BaseColor? = null,
+    val appLanguage: AppLanguage? = null,
     val pollingDelay: Int? = null,
     val hapticFeedbackEnabled: Boolean? = null,
     val saveConnectionCredentials: Boolean? = null,
@@ -76,11 +73,11 @@ fun SettingsScreen(
     onNavigateToGamepadCustomization: () -> Unit,
     settingsRepository: SettingsRepository
 ) {
+    LockScreenOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT)
     var settingsChanges by rememberSaveable { mutableStateOf(SettingsChanges()) }
 
     Scaffold { paddingValues ->
-        val colorScheme by settingsRepository.colorScheme.collectAsState(initial = defaultColorScheme)
-        val baseColor by settingsRepository.baseColor.collectAsState(initial = defaultBaseColor)
+        val appLanguage by settingsRepository.appLanguage.collectAsState(initial = AppLanguage.Default)
         val pollingDelay by settingsRepository.pollingDelay.collectAsState(initial = defaultPollingDelay)
         val hapticEnabled by settingsRepository.hapticFeedbackEnabled.collectAsState(initial = defaultHapticFeedbackEnabled)
         val saveCredentials by settingsRepository.saveConnectionCredentials.collectAsState(initial = defaultSaveConnectionCredentials)
@@ -111,19 +108,15 @@ fun SettingsScreen(
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
 
-                ColorSchemePicker(selectedItem = settingsChanges.colorScheme ?: colorScheme) {
-                    settingsChanges = settingsChanges.copy(colorScheme = it)
-                }
-
                 ListItemPicker(
-                    list = BaseColor.entries.asIterable(),
-                    selectedItem = settingsChanges.baseColor ?: baseColor,
-                    label = stringResource(R.string.settings_theme_color),
+                    list = AppLanguage.entries.asIterable(),
+                    selectedItem = settingsChanges.appLanguage ?: appLanguage,
+                    label = stringResource(R.string.settings_language),
                     formattedDisplay = { item ->
                         Text(text = stringResource(item.nameRes))
                     },
                     onItemSelected = {
-                        settingsChanges = settingsChanges.copy(baseColor = it)
+                        settingsChanges = settingsChanges.copy(appLanguage = it)
                     })
 
                 Row(
@@ -250,12 +243,11 @@ fun SettingsScreen(
                     var changesSaved = 0
                     runBlocking {
                         try {
-                            settingsChanges.colorScheme?.let {
-                                settingsRepository.setColorScheme(
+                            settingsChanges.appLanguage?.let {
+                                settingsRepository.setAppLanguage(
                                     it
                                 ); ++changesSaved
                             }
-                            settingsChanges.baseColor?.let { settingsRepository.setBaseColor(it); ++changesSaved }
                             settingsChanges.pollingDelay?.let {
                                 settingsRepository.setPollingDelay(
                                     it

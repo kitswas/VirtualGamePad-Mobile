@@ -1,19 +1,19 @@
 package io.github.kitswas.virtualgamepadmobile.ui.composables
 
 import android.util.Log
-import androidx.compose.foundation.BorderStroke
+import androidx.compose.animation.animateColorAsState
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.foundation.background
+import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.collectIsPressedAsState
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.widthIn
-import androidx.compose.material3.Button
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.Icon
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedIconButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
@@ -21,11 +21,15 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.vectorResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
@@ -52,13 +56,12 @@ private fun ButtonAnchor.toAlignment(): Alignment = when (this) {
     ButtonAnchor.BOTTOM_RIGHT -> Alignment.BottomEnd
 }
 
-enum class ShoulderButtonType {
-    LEFT, RIGHT
-}
+enum class ShoulderButtonType { LEFT, RIGHT }
+enum class MenuButtonType { VIEW, MENU }
 
-enum class MenuButtonType {
-    VIEW, MENU
-}
+// HUD Aesthetic Colors
+private val hudBaseColor = Color(0xFFF5F5F5)
+private val hudDarkSurface = Color(0xFF1E1E24)
 
 @Composable
 fun ShoulderButton(
@@ -73,39 +76,54 @@ fun ShoulderButton(
         ShoulderButtonType.RIGHT -> GameButtons.RightShoulder
     }
     val text = when (type) {
-        ShoulderButtonType.LEFT -> stringResource(R.string.button_l_shoulder)
-        ShoulderButtonType.RIGHT -> stringResource(R.string.button_r_shoulder)
+        ShoulderButtonType.LEFT -> "LB" // Shortened to LB for better fit in a circle, change to your preference
+        ShoulderButtonType.RIGHT -> "RB" // Shortened to RB
     }
 
     val interactionSource = remember { MutableInteractionSource() }
     val isPressed by interactionSource.collectIsPressedAsState()
 
-    // See https://stackoverflow.com/a/69157877/8659747
     if (isPressed) {
         Log.d(gameButton.name, "Pressed")
         HapticUtils.performButtonPressFeedback(view)
         gamepadState.ButtonsDown = gamepadState.ButtonsDown or gameButton.value
-        //Use if + DisposableEffect to wait for the press action is completed
         DisposableEffect(Unit) {
             onDispose {
                 Log.d(gameButton.name, "Released")
                 HapticUtils.performButtonReleaseFeedback(view)
-                gamepadState.ButtonsDown =
-                    gamepadState.ButtonsDown and gameButton.value.inv()
+                gamepadState.ButtonsDown = gamepadState.ButtonsDown and gameButton.value.inv()
                 gamepadState.ButtonsUp = gamepadState.ButtonsUp or gameButton.value
             }
         }
     }
 
-    Button(
+    // Animations
+    val animatedBgColor by animateColorAsState(if (isPressed) hudBaseColor else hudDarkSurface, label = "bg")
+    val animatedTextColor by animateColorAsState(if (isPressed) hudDarkSurface else hudBaseColor, label = "text")
+    val buttonScale by animateFloatAsState(if (isPressed) 0.9f else 1f, label = "scale")
+
+    Box(
         modifier = modifier
-            .heightIn(min = size)
-            .widthIn(min = size * 1.5f),
-        border = BorderStroke(2.dp, MaterialTheme.colorScheme.outline),
-        onClick = { },
-        interactionSource = interactionSource,
+            .size(size) // Locked to perfect circle size
+            .graphicsLayer {
+                scaleX = buttonScale
+                scaleY = buttonScale
+            }
+            .clip(CircleShape) // Changed to CircleShape
+            .background(animatedBgColor)
+            .border(
+                width = 1.dp,
+                color = if (isPressed) hudBaseColor else hudBaseColor.copy(alpha = 0.2f),
+                shape = CircleShape // Changed to CircleShape
+            )
+            .clickable(
+                interactionSource = interactionSource,
+                indication = null,
+                onClick = { }
+            ),
+        contentAlignment = Alignment.Center
     ) {
-        Text(text)
+        Text(text, color = animatedTextColor, fontWeight = FontWeight.Bold)
     }
 }
 
@@ -129,42 +147,59 @@ fun MenuButton(
     val interactionSource = remember { MutableInteractionSource() }
     val isPressed by interactionSource.collectIsPressedAsState()
 
-    // See https://stackoverflow.com/a/69157877/8659747
     if (isPressed) {
         Log.d(gameButton.name, "Pressed")
         HapticUtils.performButtonPressFeedback(view)
         gamepadState.ButtonsDown = gamepadState.ButtonsDown or gameButton.value
-        //Use if + DisposableEffect to wait for the press action is completed
         DisposableEffect(Unit) {
             onDispose {
                 Log.d(gameButton.name, "Released")
                 HapticUtils.performButtonReleaseFeedback(view)
-                gamepadState.ButtonsDown =
-                    gamepadState.ButtonsDown and gameButton.value.inv()
+                gamepadState.ButtonsDown = gamepadState.ButtonsDown and gameButton.value.inv()
                 gamepadState.ButtonsUp = gamepadState.ButtonsUp or gameButton.value
             }
         }
     }
 
-    OutlinedIconButton(
-        modifier = modifier.size(size),
-        border = BorderStroke(2.dp, MaterialTheme.colorScheme.outline),
-        onClick = { },
-        interactionSource = interactionSource,
+    // Animations
+    val animatedBgColor by animateColorAsState(if (isPressed) hudBaseColor else hudDarkSurface, label = "bg")
+    val animatedIconColor by animateColorAsState(if (isPressed) hudDarkSurface else hudBaseColor, label = "icon")
+    val buttonScale by animateFloatAsState(if (isPressed) 0.85f else 1f, label = "scale")
+
+    Box(
+        modifier = modifier
+            .size(size)
+            .graphicsLayer {
+                scaleX = buttonScale
+                scaleY = buttonScale
+            }
+            .clip(CircleShape)
+            .background(animatedBgColor)
+            .border(
+                width = 1.dp,
+                color = if (isPressed) hudBaseColor else hudBaseColor.copy(alpha = 0.2f),
+                shape = CircleShape
+            )
+            .clickable(
+                interactionSource = interactionSource,
+                indication = null,
+                onClick = { }
+            ),
+        contentAlignment = Alignment.Center
     ) {
         if (iconPainter != null) {
             Icon(
                 painter = iconPainter,
                 contentDescription = stringResource(R.string.content_desc_button, gameButton.name),
                 modifier = Modifier.size(size / 2),
-                tint = MaterialTheme.colorScheme.primary
+                tint = animatedIconColor
             )
         } else {
             Icon(
                 imageVector = ImageVector.vectorResource(R.drawable.screenicon),
                 contentDescription = stringResource(R.string.content_desc_button, gameButton.name),
                 modifier = Modifier.size(size / 2),
-                tint = MaterialTheme.colorScheme.primary
+                tint = animatedIconColor
             )
         }
     }
@@ -180,11 +215,9 @@ fun CentralButtons(
     gamepadState: GamepadReading,
     buttonConfigs: Map<ButtonComponent, ButtonConfig>,
 ) {
-    // Helper function to get config for a component
     fun getConfig(component: ButtonComponent) =
         buttonConfigs[component] ?: ButtonConfig.default(component)
 
-    // Helper function to render a button component with its anchor
     @Composable
     fun RenderButton(component: ButtonComponent, content: @Composable (ButtonConfig) -> Unit) {
         val config = getConfig(component)
@@ -251,7 +284,7 @@ fun CentralButtons(
     }
 }
 
-@Preview(showBackground = false)
+@Preview(showBackground = true, backgroundColor = 0xFF121212)
 @Composable
 fun CentralButtonsPreview() {
     CentralButtons(

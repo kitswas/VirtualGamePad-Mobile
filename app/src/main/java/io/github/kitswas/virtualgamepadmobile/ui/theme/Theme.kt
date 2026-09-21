@@ -10,9 +10,36 @@ import io.github.kitswas.virtualgamepadmobile.data.ColorScheme
 import io.github.kitswas.virtualgamepadmobile.data.getColorFromBaseColor
 import androidx.compose.material3.ColorScheme as MaterialColorScheme
 
-/**
- * Creates a dark mode color palette for the given base color.
- */
+// Fixed monochrome scheme (DESIGN.MD): grayscale only, dark always.
+// Status is conveyed by shape + text, never by hue.
+private fun monoDarkScheme(): MaterialColorScheme = darkColorScheme(
+    primary = PristineWhite,
+    onPrimary = PureBlack,
+    secondary = SubduedSilver,
+    onSecondary = PureBlack,
+    tertiary = SubduedSilver,
+    onTertiary = PureBlack,
+    background = DeepSurface,
+    onBackground = PristineWhite,
+    surface = DeepSurface,
+    onSurface = PristineWhite,
+    surfaceVariant = SlateGray,
+    onSurfaceVariant = SubduedSilver,
+    primaryContainer = SlateGray,
+    onPrimaryContainer = PristineWhite,
+    secondaryContainer = SlateGray,
+    onSecondaryContainer = PristineWhite,
+    tertiaryContainer = SlateGray,
+    onTertiaryContainer = PristineWhite,
+    error = PristineWhite,
+    onError = PureBlack,
+    errorContainer = SlateGray,
+    onErrorContainer = PristineWhite,
+    outline = SubduedSilver,
+    outlineVariant = SlateGray,
+    scrim = PureBlack,
+)
+
 private fun createDarkColorPalette(baseColor: BaseColor): MaterialColorScheme {
     val darkColorPrimary = getColorFromBaseColor(baseColor, true)
     val onDarkColorPrimary = contrasting(darkColorPrimary)
@@ -36,9 +63,6 @@ private fun createDarkColorPalette(baseColor: BaseColor): MaterialColorScheme {
     )
 }
 
-/**
- * Creates a light mode color palette for the given base color.
- */
 private fun createLightColorPalette(baseColor: BaseColor): MaterialColorScheme {
     val lightColorPrimary = getColorFromBaseColor(baseColor, false)
     val onLightColorPrimary = contrasting(lightColorPrimary)
@@ -68,18 +92,13 @@ fun VirtualGamePadMobileTheme(
     baseColor: BaseColor,
     content: @Composable () -> Unit
 ) {
-
     val darkTheme: Boolean = when (darkMode) {
         ColorScheme.LIGHT -> false
         ColorScheme.DARK -> true
         ColorScheme.SYSTEM -> isSystemInDarkTheme()
     }
 
-    val colorScheme = if (darkTheme) {
-        createDarkColorPalette(baseColor)
-    } else {
-        createLightColorPalette(baseColor)
-    }
+    val colorScheme = monoDarkScheme()
 
     MaterialTheme(
         colorScheme = colorScheme,

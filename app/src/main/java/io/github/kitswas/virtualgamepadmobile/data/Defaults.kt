@@ -1,11 +1,12 @@
 package io.github.kitswas.virtualgamepadmobile.data
 
-val defaultColorScheme = ColorScheme.SYSTEM
+val defaultColorScheme = ColorScheme.DARK
 val defaultBaseColor = BaseColor.BLUE
 const val defaultPollingDelay = 80 // in milliseconds
 const val defaultHapticFeedbackEnabled = false // vibrations
 const val defaultSaveConnectionCredentials = false
 const val defaultFullScreenEnabled = false
+val defaultStickResponseMode = StickResponseMode.RESPONSIVE
 
 // Default button configurations with offsets matching the original layout
 // Note: Offset values are multipliers of baseDp (heightDp in landscape)

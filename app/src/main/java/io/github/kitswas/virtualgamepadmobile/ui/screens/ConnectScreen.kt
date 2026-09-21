@@ -1,6 +1,7 @@
 package io.github.kitswas.virtualgamepadmobile.ui.screens
 
 import android.content.Intent
+import android.content.pm.ActivityInfo
 import android.net.InetAddresses
 import android.os.Build
 import android.util.Log
@@ -47,6 +48,7 @@ import io.github.kitswas.virtualgamepadmobile.data.PreviewHeightDp
 import io.github.kitswas.virtualgamepadmobile.data.PreviewWidthDp
 import io.github.kitswas.virtualgamepadmobile.ui.components.QRScanResult
 import io.github.kitswas.virtualgamepadmobile.ui.components.rememberQRCodeScanner
+import io.github.kitswas.virtualgamepadmobile.ui.utils.LockScreenOrientation
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
@@ -143,10 +145,11 @@ fun ConnectMenu(
     initialIp: String,
     initialPort: String
 ) {
+    LockScreenOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT)
     val snackbarHostState = remember { SnackbarHostState() }
     val scope = rememberCoroutineScope()
     val context = LocalContext.current
-    val downloadsUrl = "https://kitswas.github.io/VirtualGamePad/#installation"
+    val downloadsUrl = "https://github.com/Amr-Os/minassat-al-mutahakkamat/releases/latest"
 
     val qrCodeScanner = rememberQRCodeScanner { result ->
         processQRScanResult(

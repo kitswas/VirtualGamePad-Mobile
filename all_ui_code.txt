@@ -1,0 +1,1815 @@
+package io.github.kitswas.virtualgamepadmobile.ui.composables
+
+import androidx.compose.foundation.gestures.detectDragGestures
+import androidx.compose.foundation.gestures.detectTapGestures
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.offset
+import androidx.compose.foundation.layout.size
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableFloatStateOf
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.platform.LocalView
+import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.IntOffset
+import androidx.compose.ui.unit.dp
+import io.github.kitswas.VGP_Data_Exchange.GameButtons
+import io.github.kitswas.VGP_Data_Exchange.GamepadReading
+import io.github.kitswas.virtualgamepadmobile.ui.theme.darken
+import io.github.kitswas.virtualgamepadmobile.ui.theme.lighten
+import io.github.kitswas.virtualgamepadmobile.ui.utils.HapticUtils
+import kotlin.math.roundToInt
+import kotlin.math.sqrt
+
+enum class AnalogStickType {
+    LEFT, RIGHT
+}
+
+private class AnalogStickUiState {
+    var offsetX by mutableFloatStateOf(0f)
+    var offsetY by mutableFloatStateOf(0f)
+    var visualX by mutableFloatStateOf(0f)
+    var visualY by mutableFloatStateOf(0f)
+    var isPressed by mutableStateOf(false)
+    var hasExitedDeadzone by mutableStateOf(false)
+}
+
+private fun updateThumbstickValues(
+    type: AnalogStickType,
+    gamepadState: GamepadReading,
+    x: Float,
+    y: Float,
+) {
+    when (type) {
+        AnalogStickType.LEFT -> {
+            gamepadState.LeftThumbstickX = x
+            gamepadState.LeftThumbstickY = y
+        }
+
+        AnalogStickType.RIGHT -> {
+            gamepadState.RightThumbstickX = x
+            gamepadState.RightThumbstickY = y
+        }
+    }
+}
+
+private fun thumbstickButtonMask(type: AnalogStickType): Int = when (type) {
+    AnalogStickType.LEFT -> GameButtons.LeftThumbstick.value
+    AnalogStickType.RIGHT -> GameButtons.RightThumbstick.value
+}
+
+private fun resetAnalogStick(
+    state: AnalogStickUiState,
+    type: AnalogStickType,
+    gamepadState: GamepadReading,
+) {
+    state.offsetX = 0f
+    state.offsetY = 0f
+    state.visualX = 0f
+    state.visualY = 0f
+    state.hasExitedDeadzone = false
+    updateThumbstickValues(type, gamepadState, 0f, 0f)
+}
+
+private fun handleAnalogDrag(
+    state: AnalogStickUiState,
+    dragX: Float,
+    dragY: Float,
+    maxOffset: Float,
+    type: AnalogStickType,
+    gamepadState: GamepadReading,
+    view: android.view.View,
+) {
+    state.offsetX += dragX
+    state.offsetY += dragY
+
+    val magnitude = sqrt(state.offsetX * state.offsetX + state.offsetY * state.offsetY)
+    val normalizedDistance = (magnitude / maxOffset).coerceIn(0f, 1f)
+    
+    // Minimalist Haptics: Only trigger once when crossing the 15% deadzone threshold
+    if (normalizedDistance > 0.15f && !state.hasExitedDeadzone) {
+        HapticUtils.performButtonPressFeedback(view)
+        state.hasExitedDeadzone = true
+    } else if (normalizedDistance <= 0.15f) {
+        state.hasExitedDeadzone = false
+    }
+
+    if (magnitude <= 0f) {
+        return
+    }
+
+    val scaleFactor = if (magnitude > maxOffset) maxOffset / magnitude else 1f
+    state.visualX = state.offsetX * scaleFactor
+    state.visualY = state.offsetY * scaleFactor
+    updateThumbstickValues(type, gamepadState, state.visualX / maxOffset, state.visualY / maxOffset)
+}
+
+private fun toggleThumbstickButton(
+    state: AnalogStickUiState,
+    type: AnalogStickType,
+    gamepadState: GamepadReading,
+    view: android.view.View,
+) {
+    val mask = thumbstickButtonMask(type)
+    if (!state.isPressed) {
+        state.isPressed = true
+        gamepadState.ButtonsDown = gamepadState.ButtonsDown or mask
+        HapticUtils.performButtonPressFeedback(view)
+        return
+    }
+
+    state.isPressed = false
+    gamepadState.ButtonsDown = gamepadState.ButtonsDown and mask.inv()
+    gamepadState.ButtonsUp = gamepadState.ButtonsUp or mask
+    HapticUtils.performGestureEndFeedback(view)
+}
+
+@Composable
+fun AnalogStick(
+    modifier: Modifier = Modifier,
+    ringColor: Color = MaterialTheme.colorScheme.outline,
+    ringWidth: Dp = 4.dp,
+    outerCircleColor: Color = darken(MaterialTheme.colorScheme.primary, 0.8f),
+    outerCircleWidth: Dp = 4.dp,
+    innerCircleColor: Color = lighten(MaterialTheme.colorScheme.primary, 0.2f),
+    innerCircleRadius: Dp = 32.dp,
+    gamepadState: GamepadReading,
+    type: AnalogStickType,
+) {
+    val density = LocalDensity.current
+    val view = LocalView.current
+
+    Box(
+        modifier = modifier.testTag("AnalogStick_${type.name}"),
+        contentAlignment = Alignment.Center
+    ) {
+        // First draw the glow ring
+        Circle(
+            colour = ringColor,
+            modifier = Modifier
+                .size((innerCircleRadius + outerCircleWidth + ringWidth) * 2),
+            contentAlignment = Alignment.Center
+        ) {
+            // Then draw the outer circle
+            Circle(
+                modifier = Modifier
+                    .size((innerCircleRadius + outerCircleWidth) * 2),
+                contentAlignment = Alignment.Center,
+                colour = outerCircleColor,
+            ) {
+                val state = remember { AnalogStickUiState() }
+
+                // Calculate maximum offset once
+                val maxOffset = with(density) {
+                    (innerCircleRadius + outerCircleWidth).toPx()
+                }
+
+                // Then draw the inner circle
+                Circle(
+                    colour = innerCircleColor,
+                    modifier = Modifier
+                        .testTag("AnalogStick_${type.name}_Handle")
+                        .size(innerCircleRadius * 2)
+                        .offset {
+                            IntOffset(
+                                state.visualX.roundToInt(),
+                                state.visualY.roundToInt()
+                            )
+                        }
+                        .pointerInput(Unit) {
+                            detectDragGestures(
+                                onDragStart = { _ ->
+                                    HapticUtils.performGestureStartFeedback(view)
+                                },
+                                onDragEnd = {
+                                    resetAnalogStick(state, type, gamepadState)
+                                    HapticUtils.performGestureEndFeedback(view)
+                                },
+                                onDrag = { change, dragAmount ->
+                                    change.consume()
+                                    handleAnalogDrag(
+                                        state = state,
+                                        dragX = dragAmount.x,
+                                        dragY = dragAmount.y,
+                                        maxOffset = maxOffset,
+                                        type = type,
+                                        gamepadState = gamepadState,
+                                        view = view,
+                                    )
+                                }
+                            )
+                        }
+                        .pointerInput(Unit) {
+                            detectTapGestures(
+                                onLongPress = { _ ->
+                                    toggleThumbstickButton(state, type, gamepadState, view)
+                                }
+                            )
+                        }
+                ) {}
+            }
+        }
+    }
+}
+
+@Preview(showBackground = false)
+@Composable
+fun AnalogStickPreview() {
+    AnalogStick(
+        gamepadState = GamepadReading(),
+        type = AnalogStickType.LEFT,
+    )
+}
+package io.github.kitswas.virtualgamepadmobile.ui.composables
+
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.unit.dp
+import io.github.kitswas.virtualgamepadmobile.R
+
+@Suppress("UNUSED")
+@Composable
+fun <T : Number> BoundedNumericInput(
+    value: T,
+    onValueChange: (T) -> Unit,
+    label: String,
+    minValue: T,
+    maxValue: T,
+    parseValue: (String) -> T?,
+    modifier: Modifier = Modifier,
+    formatValue: (T) -> String = { it.toString() },
+    keyboardType: KeyboardType = KeyboardType.Number,
+    compareValues: (T, T) -> Int = { a, b -> a.toDouble().compareTo(b.toDouble()) },
+) {
+    var textValue by rememberSaveable { mutableStateOf(formatValue(value)) }
+    var isError by rememberSaveable { mutableStateOf(false) }
+    var errorMessage by rememberSaveable { mutableStateOf("") }
+    val errMin = stringResource(R.string.error_min_value, formatValue(minValue))
+    val errMax = stringResource(R.string.error_max_value, formatValue(maxValue))
+    val errInvalid = stringResource(R.string.error_invalid_number)
+
+    Column(
+        modifier = modifier,
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        OutlinedTextField(
+            value = textValue,
+            onValueChange = { newValue ->
+                textValue = newValue
+                try {
+                    val parsedValue = parseValue(newValue)
+                    if (parsedValue != null) {
+                        when {
+                            compareValues(parsedValue, minValue) < 0 -> {
+                                isError = true
+                                errorMessage = errMin
+                            }
+
+                            compareValues(parsedValue, maxValue) > 0 -> {
+                                isError = true
+                                errorMessage = errMax
+                            }
+
+                            else -> {
+                                isError = false
+                                errorMessage = ""
+                                onValueChange(parsedValue)
+                            }
+                        }
+                    } else {
+                        isError = true
+                        errorMessage = errInvalid
+                    }
+                } catch (_: Exception) {
+                    isError = true
+                    errorMessage = errInvalid
+                }
+            },
+            label = { Text(label, style = MaterialTheme.typography.labelMedium) },
+            singleLine = true,
+            keyboardOptions = KeyboardOptions(keyboardType = keyboardType),
+            isError = isError,
+            supportingText = {
+                if (isError) {
+                    Text(errorMessage)
+                }
+            },
+            modifier = Modifier.width(120.dp)
+        )
+    }
+}
+package io.github.kitswas.virtualgamepadmobile.ui.composables
+
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Switch
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableFloatStateOf
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
+import io.github.kitswas.virtualgamepadmobile.R
+import io.github.kitswas.virtualgamepadmobile.data.ButtonAnchor
+import io.github.kitswas.virtualgamepadmobile.data.ButtonComponent
+import io.github.kitswas.virtualgamepadmobile.data.ButtonConfig
+import io.github.kitswas.virtualgamepadmobile.data.OFFSET_VALUE_RANGE
+import io.github.kitswas.virtualgamepadmobile.data.PreviewBase
+import io.github.kitswas.virtualgamepadmobile.data.SCALE_VALUE_RANGE
+
+@Composable
+fun ButtonConfigEditor(
+    component: ButtonComponent,
+    config: ButtonConfig,
+    onConfigChange: (ButtonConfig) -> Unit,
+    modifier: Modifier = Modifier
+) {
+    var visible by rememberSaveable(config) { mutableStateOf(config.visible) }
+    var scale by rememberSaveable(config) { mutableFloatStateOf(config.scale) }
+    var offsetX by rememberSaveable(config) { mutableFloatStateOf(config.offsetX) }
+    var offsetY by rememberSaveable(config) { mutableFloatStateOf(config.offsetY) }
+    var anchor by rememberSaveable(config) { mutableStateOf(config.anchor) }
+
+    Card(
+        modifier = modifier
+            .padding(vertical = 4.dp),
+        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(12.dp),
+            verticalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
+            // Component name and visibility toggle
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    text = stringResource(component.nameRes),
+                    style = MaterialTheme.typography.titleSmall
+                )
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    Text(
+                        text = if (visible) stringResource(R.string.button_visible) else stringResource(
+                            R.string.button_hidden
+                        ),
+                        style = MaterialTheme.typography.bodySmall
+                    )
+                    Switch(
+                        checked = visible,
+                        onCheckedChange = {
+                            visible = it
+                            onConfigChange(config.copy(visible = it))
+                        }
+                    )
+                }
+            }
+
+            // Anchor picker
+            ListItemPicker(
+                modifier = Modifier.fillMaxWidth(),
+                list = ButtonAnchor.entries.asIterable(),
+                selectedItem = anchor,
+                label = stringResource(R.string.button_anchor_position),
+                isHorizontal = true,
+                formattedDisplay = { item ->
+                    Text(text = stringResource(item.nameRes))
+                },
+                onItemSelected = {
+                    anchor = it
+                    onConfigChange(config.copy(anchor = it))
+                }
+            )
+
+            // Scale slider
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    text = stringResource(R.string.button_scale_format, scale),
+                    style = MaterialTheme.typography.bodyMedium,
+                    modifier = Modifier.weight(2f)
+                )
+                androidx.compose.material3.Slider(
+                    value = scale,
+                    onValueChange = { scale = it },
+                    onValueChangeFinished = {
+                        onConfigChange(config.copy(scale = scale))
+                    },
+                    valueRange = SCALE_VALUE_RANGE,
+                    modifier = Modifier.weight(3f)
+                )
+            }
+
+            // Offset X slider
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    text = stringResource(R.string.button_offset_x_format, offsetX),
+                    style = MaterialTheme.typography.bodyMedium,
+                    modifier = Modifier.weight(2f)
+                )
+                androidx.compose.material3.Slider(
+                    value = offsetX,
+                    onValueChange = { offsetX = it },
+                    onValueChangeFinished = {
+                        onConfigChange(config.copy(offsetX = offsetX))
+                    },
+                    valueRange = OFFSET_VALUE_RANGE,
+                    modifier = Modifier.weight(3f)
+                )
+            }
+
+            // Offset Y slider
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    text = stringResource(R.string.button_offset_y_format, offsetY),
+                    style = MaterialTheme.typography.bodyMedium,
+                    modifier = Modifier.weight(2f)
+                )
+                androidx.compose.material3.Slider(
+                    value = offsetY,
+                    onValueChange = { offsetY = it },
+                    onValueChangeFinished = {
+                        onConfigChange(config.copy(offsetY = offsetY))
+                    },
+                    valueRange = OFFSET_VALUE_RANGE,
+                    modifier = Modifier.weight(3f)
+                )
+            }
+        }
+    }
+}
+
+@Preview
+@Composable
+fun ButtonConfigEditorPreview() {
+    PreviewBase {
+        ButtonConfigEditor(
+            component = ButtonComponent.FACE_BUTTONS,
+            config = ButtonConfig.default(ButtonComponent.FACE_BUTTONS),
+            onConfigChange = {}
+        )
+    }
+}
+package io.github.kitswas.virtualgamepadmobile.ui.composables
+
+import android.util.Log
+import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.interaction.collectIsPressedAsState
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.heightIn
+import androidx.compose.foundation.layout.offset
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.widthIn
+import androidx.compose.material3.Button
+import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedIconButton
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.platform.LocalView
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.res.vectorResource
+import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.dp
+import io.github.kitswas.VGP_Data_Exchange.GameButtons
+import io.github.kitswas.VGP_Data_Exchange.GamepadReading
+import io.github.kitswas.virtualgamepadmobile.R
+import io.github.kitswas.virtualgamepadmobile.data.ButtonAnchor
+import io.github.kitswas.virtualgamepadmobile.data.ButtonComponent
+import io.github.kitswas.virtualgamepadmobile.data.ButtonConfig
+import io.github.kitswas.virtualgamepadmobile.ui.utils.HapticUtils
+
+/**
+ * Convert ButtonAnchor to Compose Alignment
+ */
+private fun ButtonAnchor.toAlignment(): Alignment = when (this) {
+    ButtonAnchor.TOP_LEFT -> Alignment.TopStart
+    ButtonAnchor.TOP_CENTER -> Alignment.TopCenter
+    ButtonAnchor.TOP_RIGHT -> Alignment.TopEnd
+    ButtonAnchor.CENTER_LEFT -> Alignment.CenterStart
+    ButtonAnchor.CENTER -> Alignment.Center
+    ButtonAnchor.CENTER_RIGHT -> Alignment.CenterEnd
+    ButtonAnchor.BOTTOM_LEFT -> Alignment.BottomStart
+    ButtonAnchor.BOTTOM_CENTER -> Alignment.BottomCenter
+    ButtonAnchor.BOTTOM_RIGHT -> Alignment.BottomEnd
+}
+
+enum class ShoulderButtonType {
+    LEFT, RIGHT
+}
+
+enum class MenuButtonType {
+    VIEW, MENU
+}
+
+@Composable
+fun ShoulderButton(
+    type: ShoulderButtonType,
+    modifier: Modifier = Modifier,
+    size: Dp,
+    gamepadState: GamepadReading,
+) {
+    val view = LocalView.current
+    val gameButton = when (type) {
+        ShoulderButtonType.LEFT -> GameButtons.LeftShoulder
+        ShoulderButtonType.RIGHT -> GameButtons.RightShoulder
+    }
+    val text = when (type) {
+        ShoulderButtonType.LEFT -> stringResource(R.string.button_l_shoulder)
+        ShoulderButtonType.RIGHT -> stringResource(R.string.button_r_shoulder)
+    }
+
+    val interactionSource = remember { MutableInteractionSource() }
+    val isPressed by interactionSource.collectIsPressedAsState()
+
+    // See https://stackoverflow.com/a/69157877/8659747
+    if (isPressed) {
+        Log.d(gameButton.name, "Pressed")
+        HapticUtils.performButtonPressFeedback(view)
+        gamepadState.ButtonsDown = gamepadState.ButtonsDown or gameButton.value
+        //Use if + DisposableEffect to wait for the press action is completed
+        DisposableEffect(Unit) {
+            onDispose {
+                Log.d(gameButton.name, "Released")
+                HapticUtils.performButtonReleaseFeedback(view)
+                gamepadState.ButtonsDown =
+                    gamepadState.ButtonsDown and gameButton.value.inv()
+                gamepadState.ButtonsUp = gamepadState.ButtonsUp or gameButton.value
+            }
+        }
+    }
+
+    Button(
+        modifier = modifier
+            .heightIn(min = size)
+            .widthIn(min = size * 1.5f),
+        border = BorderStroke(2.dp, MaterialTheme.colorScheme.outline),
+        onClick = { },
+        interactionSource = interactionSource,
+    ) {
+        Text(text)
+    }
+}
+
+@Composable
+fun MenuButton(
+    type: MenuButtonType,
+    modifier: Modifier = Modifier,
+    size: Dp,
+    gamepadState: GamepadReading,
+) {
+    val view = LocalView.current
+    val gameButton = when (type) {
+        MenuButtonType.VIEW -> GameButtons.View
+        MenuButtonType.MENU -> GameButtons.Menu
+    }
+    val iconPainter = when (type) {
+        MenuButtonType.VIEW -> null
+        MenuButtonType.MENU -> painterResource(R.drawable.ic_menu)
+    }
+
+    val interactionSource = remember { MutableInteractionSource() }
+    val isPressed by interactionSource.collectIsPressedAsState()
+
+    // See https://stackoverflow.com/a/69157877/8659747
+    if (isPressed) {
+        Log.d(gameButton.name, "Pressed")
+        HapticUtils.performButtonPressFeedback(view)
+        gamepadState.ButtonsDown = gamepadState.ButtonsDown or gameButton.value
+        //Use if + DisposableEffect to wait for the press action is completed
+        DisposableEffect(Unit) {
+            onDispose {
+                Log.d(gameButton.name, "Released")
+                HapticUtils.performButtonReleaseFeedback(view)
+                gamepadState.ButtonsDown =
+                    gamepadState.ButtonsDown and gameButton.value.inv()
+                gamepadState.ButtonsUp = gamepadState.ButtonsUp or gameButton.value
+            }
+        }
+    }
+
+    OutlinedIconButton(
+        modifier = modifier.size(size),
+        border = BorderStroke(2.dp, MaterialTheme.colorScheme.outline),
+        onClick = { },
+        interactionSource = interactionSource,
+    ) {
+        if (iconPainter != null) {
+            Icon(
+                painter = iconPainter,
+                contentDescription = stringResource(R.string.content_desc_button, gameButton.name),
+                modifier = Modifier.size(size / 2),
+                tint = MaterialTheme.colorScheme.primary
+            )
+        } else {
+            Icon(
+                imageVector = ImageVector.vectorResource(R.drawable.screenicon),
+                contentDescription = stringResource(R.string.content_desc_button, gameButton.name),
+                modifier = Modifier.size(size / 2),
+                tint = MaterialTheme.colorScheme.primary
+            )
+        }
+    }
+}
+
+/**
+ * The central buttons section containing shoulder buttons (L/R bumpers) and menu buttons (View/Menu) for the gamepad.
+ */
+@Composable
+fun CentralButtons(
+    modifier: Modifier = Modifier,
+    baseDp: Int,
+    gamepadState: GamepadReading,
+    buttonConfigs: Map<ButtonComponent, ButtonConfig>,
+) {
+    // Helper function to get config for a component
+    fun getConfig(component: ButtonComponent) =
+        buttonConfigs[component] ?: ButtonConfig.default(component)
+
+    // Helper function to render a button component with its anchor
+    @Composable
+    fun RenderButton(component: ButtonComponent, content: @Composable (ButtonConfig) -> Unit) {
+        val config = getConfig(component)
+        if (config.visible) {
+            Box(
+                modifier = modifier.fillMaxSize(),
+                contentAlignment = config.anchor.toAlignment()
+            ) {
+                content(config)
+            }
+        }
+    }
+
+    // Left Shoulder button
+    RenderButton(ButtonComponent.LEFT_SHOULDER) { config ->
+        ShoulderButton(
+            type = ShoulderButtonType.LEFT,
+            modifier = Modifier.offset(
+                x = (config.offsetX * baseDp).dp,
+                y = (config.offsetY * baseDp).dp
+            ),
+            size = (baseDp / 8 * config.scale).dp,
+            gamepadState = gamepadState,
+        )
+    }
+
+    // Right Shoulder button
+    RenderButton(ButtonComponent.RIGHT_SHOULDER) { config ->
+        ShoulderButton(
+            type = ShoulderButtonType.RIGHT,
+            modifier = Modifier.offset(
+                x = (config.offsetX * baseDp).dp,
+                y = (config.offsetY * baseDp).dp
+            ),
+            size = (baseDp / 8 * config.scale).dp,
+            gamepadState = gamepadState,
+        )
+    }
+
+    // Select button (View)
+    RenderButton(ButtonComponent.SELECT_BUTTON) { config ->
+        MenuButton(
+            type = MenuButtonType.VIEW,
+            modifier = Modifier.offset(
+                x = (config.offsetX * baseDp).dp,
+                y = (config.offsetY * baseDp).dp
+            ),
+            size = (baseDp / 8 * config.scale).dp,
+            gamepadState = gamepadState,
+        )
+    }
+
+    // Start button (Menu)
+    RenderButton(ButtonComponent.START_BUTTON) { config ->
+        MenuButton(
+            type = MenuButtonType.MENU,
+            modifier = Modifier.offset(
+                x = (config.offsetX * baseDp).dp,
+                y = (config.offsetY * baseDp).dp
+            ),
+            size = (baseDp / 8 * config.scale).dp,
+            gamepadState = gamepadState,
+        )
+    }
+}
+
+@Preview(showBackground = false)
+@Composable
+fun CentralButtonsPreview() {
+    CentralButtons(
+        baseDp = 400,
+        gamepadState = GamepadReading(),
+        buttonConfigs = io.github.kitswas.virtualgamepadmobile.data.defaultButtonConfigs,
+    )
+}
+package io.github.kitswas.virtualgamepadmobile.ui.composables
+
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxScope
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
+
+@Composable
+fun Circle(
+    modifier: Modifier = Modifier,
+    contentAlignment: Alignment = Alignment.Center,
+    colour: Color = Color.White,
+    content: @Composable (BoxScope.() -> Unit)
+) {
+    Box(
+        modifier = modifier
+            .clip(shape = CircleShape)
+            .background(Color.Transparent),
+        contentAlignment = contentAlignment
+    ) {
+        Box(
+            Modifier
+                .background(colour)
+                .matchParentSize(),
+            contentAlignment = contentAlignment
+        ) {
+            content()
+        }
+    }
+}
+
+@Preview(showBackground = false)
+@Composable
+fun CirclePreview() {
+    Circle(
+        modifier = Modifier
+            .size(16.dp),
+        contentAlignment = Alignment.Center
+    ) {}
+}
+package io.github.kitswas.virtualgamepadmobile.ui.composables
+
+import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
+import io.github.kitswas.virtualgamepadmobile.R
+import io.github.kitswas.virtualgamepadmobile.data.ColorScheme
+import io.github.kitswas.virtualgamepadmobile.data.PreviewBase
+
+@Composable
+fun ColorSchemePicker(
+    selectedItem: ColorScheme,
+    modifier: Modifier = Modifier,
+    onColorSchemeSelected: (ColorScheme) -> Unit = { _ -> }
+) {
+    ListItemPicker(
+        modifier = modifier,
+        list = ColorScheme.entries.asIterable(),
+        selectedItem = selectedItem,
+        label = stringResource(R.string.settings_color_scheme),
+        formattedDisplay = { item ->
+            Text(text = stringResource(item.nameRes))
+        },
+        onItemSelected = onColorSchemeSelected
+    )
+}
+
+@Preview(showBackground = true)
+@Composable
+fun ColorSchemePickerPreview() {
+    PreviewBase {
+        ColorSchemePicker(ColorScheme.SYSTEM, Modifier.padding(16.dp))
+    }
+}
+package io.github.kitswas.virtualgamepadmobile.ui.composables
+
+import android.util.Log
+import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.interaction.collectIsPressedAsState
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButtonDefaults
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedIconButton
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.rotate
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalView
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.times
+import io.github.kitswas.VGP_Data_Exchange.GameButtons
+import io.github.kitswas.VGP_Data_Exchange.GamepadReading
+import io.github.kitswas.virtualgamepadmobile.R
+import io.github.kitswas.virtualgamepadmobile.ui.theme.darken
+import io.github.kitswas.virtualgamepadmobile.ui.utils.HapticUtils
+
+enum class DpadButtonType {
+    UP, DOWN, LEFT, RIGHT
+}
+
+@Composable
+fun DpadButton(
+    type: DpadButtonType,
+    modifier: Modifier = Modifier,
+    foregroundColour: Color = MaterialTheme.colorScheme.primary,
+    backgroundColour: Color = darken(MaterialTheme.colorScheme.primary, 0.8f),
+    size: Dp,
+    gamepadState: GamepadReading,
+) {
+    val view = LocalView.current
+    val rotation = when (type) {
+        DpadButtonType.UP -> -90f
+        DpadButtonType.DOWN -> 90f
+        DpadButtonType.LEFT -> 180f
+        DpadButtonType.RIGHT -> 0f
+    }
+    val gameButton = when (type) {
+        DpadButtonType.UP -> GameButtons.DPadUp
+        DpadButtonType.DOWN -> GameButtons.DPadDown
+        DpadButtonType.LEFT -> GameButtons.DPadLeft
+        DpadButtonType.RIGHT -> GameButtons.DPadRight
+    }
+    val interactionSource = remember { MutableInteractionSource() }
+    val isPressed by interactionSource.collectIsPressedAsState()
+    // See https://stackoverflow.com/a/69157877/8659747
+    if (isPressed) {
+        Log.d("DPadButton ${type.name}", "Pressed")
+        HapticUtils.performButtonPressFeedback(view)
+        gamepadState.ButtonsDown = gamepadState.ButtonsDown or gameButton.value
+        //Use if + DisposableEffect to wait for the press action is completed
+        DisposableEffect(Unit) {
+            onDispose {
+                Log.d("DPadButton ${type.name}", "Released")
+                HapticUtils.performButtonReleaseFeedback(view)
+                gamepadState.ButtonsDown = gamepadState.ButtonsDown and gameButton.value.inv()
+                gamepadState.ButtonsUp = gamepadState.ButtonsUp or gameButton.value
+            }
+        }
+    }
+    OutlinedIconButton(
+        modifier = modifier
+            .size(size)
+            .padding(0.dp),
+        onClick = {},
+        colors = IconButtonDefaults.outlinedIconButtonColors(
+            containerColor = backgroundColour,
+        ),
+        border = BorderStroke(2.dp, MaterialTheme.colorScheme.outline),
+        interactionSource = interactionSource,
+    ) {
+        Icon(
+            painter = painterResource(R.drawable.ic_play_arrow),
+            contentDescription = stringResource(R.string.content_desc_dpad_button, type.name),
+            modifier = Modifier
+                .rotate(rotation)
+                .size(size),
+            tint = foregroundColour
+        )
+    }
+}
+
+/**
+ * A directional pad with up, down, left, and right buttons.
+ */
+@Composable
+fun Dpad(
+    modifier: Modifier = Modifier,
+    size: Dp = 360.dp,
+    gamepadState: GamepadReading,
+) {
+    val buttonSize = 2 * size / 5
+    Box(modifier = modifier.size(size), contentAlignment = Alignment.Center) {
+        DpadButton(
+            type = DpadButtonType.UP,
+            modifier = Modifier.align(Alignment.TopCenter),
+            size = buttonSize,
+            gamepadState = gamepadState,
+        )
+        DpadButton(
+            type = DpadButtonType.DOWN,
+            modifier = Modifier.align(Alignment.BottomCenter),
+            size = buttonSize,
+            gamepadState = gamepadState,
+        )
+        DpadButton(
+            type = DpadButtonType.LEFT,
+            modifier = Modifier.align(Alignment.CenterStart),
+            size = buttonSize,
+            gamepadState = gamepadState,
+        )
+        DpadButton(
+            type = DpadButtonType.RIGHT,
+            modifier = Modifier.align(Alignment.CenterEnd),
+            size = buttonSize,
+            gamepadState = gamepadState,
+        )
+    }
+}
+
+@Preview(showBackground = false)
+@Composable
+fun DpadPreview() {
+    Dpad(
+        gamepadState = GamepadReading(),
+    )
+}
+package io.github.kitswas.virtualgamepadmobile.ui.composables
+
+import android.util.Log
+import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.interaction.collectIsPressedAsState
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalView
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.times
+import io.github.kitswas.VGP_Data_Exchange.GameButtons
+import io.github.kitswas.VGP_Data_Exchange.GamepadReading
+import io.github.kitswas.virtualgamepadmobile.R
+import io.github.kitswas.virtualgamepadmobile.data.PreviewBase
+import io.github.kitswas.virtualgamepadmobile.ui.theme.darken
+import io.github.kitswas.virtualgamepadmobile.ui.theme.faceButtonTextStyle
+import io.github.kitswas.virtualgamepadmobile.ui.theme.lighten
+import io.github.kitswas.virtualgamepadmobile.ui.utils.HapticUtils
+
+
+enum class FaceButtonType {
+    A, B, X, Y
+}
+
+private val faceButtonColourMap = mapOf(
+    FaceButtonType.A to Color(0xFF00FF00),
+    FaceButtonType.B to Color(0xFFFF0000),
+    FaceButtonType.X to Color(0xFF0055FF),
+    FaceButtonType.Y to Color(0xFFFFFF00),
+)
+
+@Composable
+fun FaceButton(
+    type: FaceButtonType,
+    modifier: Modifier = Modifier,
+    foregroundColour: Color = lighten(faceButtonColourMap[type]!!, 0.2f),
+    backgroundColour: Color = darken(faceButtonColourMap[type]!!, 0.8f),
+    size: Dp,
+    gamepadState: GamepadReading,
+) {
+    val view = LocalView.current
+    val gameButton = when (type) {
+        FaceButtonType.A -> GameButtons.A
+        FaceButtonType.B -> GameButtons.B
+        FaceButtonType.X -> GameButtons.X
+        FaceButtonType.Y -> GameButtons.Y
+    }
+    val label = when (type) {
+        FaceButtonType.A -> stringResource(R.string.button_a)
+        FaceButtonType.B -> stringResource(R.string.button_b)
+        FaceButtonType.X -> stringResource(R.string.button_x)
+        FaceButtonType.Y -> stringResource(R.string.button_y)
+    }
+
+    val interactionSource = remember { MutableInteractionSource() }
+    val isPressed by interactionSource.collectIsPressedAsState()
+    // See https://stackoverflow.com/a/69157877/8659747
+    if (isPressed) {
+        Log.d("FaceButton ${type.name}", "Pressed")
+        HapticUtils.performButtonPressFeedback(view)
+        gamepadState.ButtonsDown = gamepadState.ButtonsDown or gameButton.value
+        //Use if + DisposableEffect to wait for the press action is completed
+        DisposableEffect(Unit) {
+            onDispose {
+                Log.d("FaceButton ${type.name}", "Released")
+                HapticUtils.performButtonReleaseFeedback(view)
+                gamepadState.ButtonsDown = gamepadState.ButtonsDown and gameButton.value.inv()
+                gamepadState.ButtonsUp = gamepadState.ButtonsUp or gameButton.value
+            }
+        }
+    }
+    OutlinedButton(
+        modifier = modifier
+            .size(size)
+            .padding(0.dp),
+        onClick = {},
+        colors = ButtonDefaults.outlinedButtonColors(
+            containerColor = backgroundColour,
+        ),
+        interactionSource = interactionSource,
+        border = BorderStroke(2.dp, MaterialTheme.colorScheme.outline),
+    ) {
+        Text(
+            text = label,
+            color = foregroundColour,
+            textAlign = TextAlign.Center,
+            style = faceButtonTextStyle(size),
+        )
+    }
+}
+
+/**
+ * The A, B, X, Y buttons on a gamepad, also known as the face buttons.
+ */
+@Composable
+fun FaceButtons(
+    modifier: Modifier = Modifier,
+    size: Dp = 360.dp,
+    gamepadState: GamepadReading,
+) {
+    Box(
+        modifier = modifier.size(size),
+        contentAlignment = Alignment.Center
+    ) {
+        FaceButton(
+            type = FaceButtonType.A,
+            modifier = Modifier.align(Alignment.BottomCenter),
+            size = 2 * size / 5,
+            gamepadState = gamepadState,
+        )
+        FaceButton(
+            type = FaceButtonType.B,
+            modifier = Modifier.align(Alignment.CenterEnd),
+            size = 2 * size / 5,
+            gamepadState = gamepadState,
+        )
+        FaceButton(
+            type = FaceButtonType.X,
+            modifier = Modifier.align(Alignment.CenterStart),
+            size = 2 * size / 5,
+            gamepadState = gamepadState,
+        )
+        FaceButton(
+            type = FaceButtonType.Y,
+            modifier = Modifier.align(Alignment.TopCenter),
+            size = 2 * size / 5,
+            gamepadState = gamepadState,
+        )
+    }
+}
+
+@Preview(showBackground = false)
+@Composable
+fun FaceButtonsPreview() {
+    PreviewBase {
+        FaceButtons(
+            gamepadState = GamepadReading(),
+        )
+    }
+}
+package io.github.kitswas.virtualgamepadmobile.ui.composables
+
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.offset
+import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.Surface
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.unit.dp
+import io.github.kitswas.VGP_Data_Exchange.GamepadReading
+import io.github.kitswas.virtualgamepadmobile.data.ButtonAnchor
+import io.github.kitswas.virtualgamepadmobile.data.ButtonComponent
+import io.github.kitswas.virtualgamepadmobile.data.ButtonConfig
+
+/**
+ * Convert ButtonAnchor to Compose Alignment
+ */
+private fun ButtonAnchor.toAlignment(): Alignment = when (this) {
+    ButtonAnchor.TOP_LEFT -> Alignment.TopStart
+    ButtonAnchor.TOP_CENTER -> Alignment.TopCenter
+    ButtonAnchor.TOP_RIGHT -> Alignment.TopEnd
+    ButtonAnchor.CENTER_LEFT -> Alignment.CenterStart
+    ButtonAnchor.CENTER -> Alignment.Center
+    ButtonAnchor.CENTER_RIGHT -> Alignment.CenterEnd
+    ButtonAnchor.BOTTOM_LEFT -> Alignment.BottomStart
+    ButtonAnchor.BOTTOM_CENTER -> Alignment.BottomCenter
+    ButtonAnchor.BOTTOM_RIGHT -> Alignment.BottomEnd
+}
+
+@Composable
+fun DrawGamepad(
+    widthDp: Int,
+    heightDp: Int,
+    gamepadState: GamepadReading,
+    buttonConfigs: Map<ButtonComponent, ButtonConfig>,
+) {
+    // Assuming Landscape orientation
+    val baseDp = heightDp
+
+    val deadZonePadding = baseDp / 18
+
+    // Helper function to get config for a component
+    fun getConfig(component: ButtonComponent) =
+        buttonConfigs[component] ?: ButtonConfig.default(component)
+
+    // Helper function to render a button component
+    @Composable
+    fun RenderComponent(component: ButtonComponent, content: @Composable (ButtonConfig) -> Unit) {
+        val config = getConfig(component)
+        if (config.visible) {
+            Box(
+                modifier = Modifier.fillMaxSize(),
+                contentAlignment = config.anchor.toAlignment()
+            ) {
+                content(config)
+            }
+        }
+    }
+
+    // First we make a box that will contain the gamepad
+    // And put padding around it so that it doesn't touch the edges of the screen
+    Surface {
+        Box(
+            modifier = Modifier
+                .padding(deadZonePadding.dp)
+                .fillMaxSize()
+        ) {
+            // Left Analog Stick
+            RenderComponent(ButtonComponent.LEFT_ANALOG_STICK) { config ->
+                AnalogStick(
+                    modifier = Modifier.offset(
+                        x = (config.offsetX * baseDp).dp,
+                        y = (config.offsetY * baseDp).dp
+                    ),
+                    outerCircleWidth = (baseDp / 8 * config.scale).dp,
+                    innerCircleRadius = (baseDp / 12 * config.scale).dp,
+                    gamepadState = gamepadState,
+                    type = AnalogStickType.LEFT,
+                )
+            }
+
+            // Right Analog Stick
+            RenderComponent(ButtonComponent.RIGHT_ANALOG_STICK) { config ->
+                AnalogStick(
+                    modifier = Modifier.offset(
+                        x = (config.offsetX * baseDp).dp,
+                        y = (config.offsetY * baseDp).dp
+                    ),
+                    outerCircleWidth = (baseDp / 8 * config.scale).dp,
+                    innerCircleRadius = (baseDp / 12 * config.scale).dp,
+                    gamepadState = gamepadState,
+                    type = AnalogStickType.RIGHT,
+                )
+            }
+
+            // D-Pad
+            RenderComponent(ButtonComponent.DPAD) { config ->
+                Dpad(
+                    modifier = Modifier.offset(
+                        x = (config.offsetX * baseDp).dp,
+                        y = (config.offsetY * baseDp).dp
+                    ),
+                    size = (0.45 * baseDp * config.scale).dp,
+                    gamepadState = gamepadState,
+                )
+            }
+
+            // Face Buttons
+            RenderComponent(ButtonComponent.FACE_BUTTONS) { config ->
+                FaceButtons(
+                    modifier = Modifier.offset(
+                        x = (config.offsetX * baseDp).dp,
+                        y = (config.offsetY * baseDp).dp
+                    ),
+                    size = (0.45 * baseDp * config.scale).dp,
+                    gamepadState = gamepadState,
+                )
+            }
+
+            // Left Trigger
+            RenderComponent(ButtonComponent.LEFT_TRIGGER) { config ->
+                Trigger(
+                    modifier = Modifier.offset(
+                        x = (config.offsetX * baseDp).dp,
+                        y = (config.offsetY * baseDp).dp
+                    ),
+                    type = TriggerType.LEFT,
+                    size = (baseDp / 6 * config.scale).dp,
+                    gamepadState = gamepadState,
+                )
+            }
+
+            // Right Trigger
+            RenderComponent(ButtonComponent.RIGHT_TRIGGER) { config ->
+                Trigger(
+                    modifier = Modifier.offset(
+                        x = (config.offsetX * baseDp).dp,
+                        y = (config.offsetY * baseDp).dp
+                    ),
+                    type = TriggerType.RIGHT,
+                    size = (baseDp / 6 * config.scale).dp,
+                    gamepadState = gamepadState,
+                )
+            }
+
+            // Central Buttons (LB, RB, Select, Start)
+            CentralButtons(
+                baseDp = baseDp,
+                gamepadState = gamepadState,
+                buttonConfigs = buttonConfigs,
+            )
+        }
+    }
+}
+package io.github.kitswas.virtualgamepadmobile.ui.composables
+
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.IntrinsicSize
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.width
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
+import io.github.kitswas.virtualgamepadmobile.R
+
+/**
+ * A dropdown list picker for selecting an item from a list.
+ * @param modifier The modifier to be applied to the layout.
+ * @param list List of items to choose from.
+ * @param default Default item to display.
+ * @param label Label to display above the picker.
+ * @param isHorizontal If true, arranges label left of button (Row). If false, arranges label above button (Column).
+ * @param formattedDisplay A composable function to format and display the item.
+ */
+@Composable
+@Suppress("unused")
+fun <T> ListItemPicker(
+    modifier: Modifier = Modifier,
+    list: Iterable<T>,
+    selectedItem: T,
+    label: String,
+    isHorizontal: Boolean = false,
+    formattedDisplay: @Composable (T) -> Unit = { item ->
+        Text(
+            item.toString(), modifier = Modifier.width(IntrinsicSize.Max)
+        )
+    },
+    onItemSelected: (T) -> Unit = { _ -> }
+) {
+
+    var expanded by rememberSaveable { mutableStateOf(false) }
+
+    val labelContent = @Composable {
+        Text(text = label, style = MaterialTheme.typography.labelMedium)
+    }
+
+    val buttonContent = @Composable {
+        OutlinedButton(onClick = { expanded = true }) {
+            Row {
+                formattedDisplay(selectedItem)
+
+                Icon(
+                    painter = painterResource(R.drawable.ic_arrow_drop_down),
+                    contentDescription = stringResource(R.string.content_desc_expand)
+                )
+            }
+            DropdownMenu(
+                expanded = expanded,
+                onDismissRequest = { expanded = false },
+            ) {
+                list.forEach { item ->
+                    DropdownMenuItem(text = { formattedDisplay(item) }, onClick = {
+                        expanded = false
+                        onItemSelected(item)
+                    })
+                }
+            }
+        }
+    }
+
+    if (isHorizontal) {
+        Row(
+            modifier,
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.SpaceBetween
+        ) {
+            labelContent()
+            buttonContent()
+        }
+    } else {
+        Column(
+            modifier,
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.SpaceBetween
+        ) {
+            labelContent()
+            buttonContent()
+        }
+    }
+}
+
+/**
+ * Overloaded function to accept default index instead of default item.
+ * @see ListItemPicker
+ */
+@Composable
+@Suppress("unused")
+fun <T> ListItemPicker(
+    modifier: Modifier = Modifier,
+    list: Iterable<T>,
+    defaultIndex: Int = 0,
+    label: String,
+    isHorizontal: Boolean = false,
+    formattedDisplay: @Composable (T) -> Unit = { item -> Text(item.toString()) },
+    onItemSelected: (T) -> Unit = { _ -> }
+) {
+    ListItemPicker(
+        modifier = modifier,
+        list = list,
+        selectedItem = list.elementAt(defaultIndex),
+        label = label,
+        isHorizontal = isHorizontal,
+        formattedDisplay = formattedDisplay,
+        onItemSelected = onItemSelected
+    )
+}
+package io.github.kitswas.virtualgamepadmobile.ui.composables
+
+import android.util.Log
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalWindowInfo
+import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.times
+
+private const val LogTag = "ResponsiveGrid"
+
+/**
+ * A responsive grid composable that automatically calculates the number of columns
+ * based on available width and minimum item width. Supports incremental rendering
+ * by batching items to minimize layout recalculation.
+ *
+ * @param items List of items to display in the grid
+ * @param minItemWidth Minimum width each item should have (default 320.dp)
+ * @param horizontalSpacing Spacing between columns (default 8.dp)
+ * @param verticalSpacing Spacing between rows (default 8.dp)
+ * @param batchSize Number of items to render in each batch. If null, defaults to column count.
+ *                  Use this to control incremental rendering - useful with animated reveals.
+ * @param batchDelayMs Delay in milliseconds between rendering each batch (default 200ms).
+ *                     Set to 0 to render all items immediately.
+ * @param minItems Minimum number of items to display instantly before batching starts (default 0).
+ *                 Useful to ensure some items are visible immediately.
+ * @param modifier Modifier to apply to the grid container
+ * @param content Composable lambda to render each item
+ */
+@Composable
+fun <T> ResponsiveGrid(
+    items: List<T>,
+    modifier: Modifier = Modifier,
+    minItemWidth: Dp = 320.dp,
+    horizontalSpacing: Dp = 8.dp,
+    verticalSpacing: Dp = 8.dp,
+    batchSize: Int? = null,
+    batchDelayMs: Long = 200L,
+    minItems: Int = 0,
+    content: @Composable (item: T) -> Unit
+) {
+    // Calculate available width for content
+    // LocalWindowInfo returns size in pixels, convert to dp
+    val screenWidthPx = LocalWindowInfo.current.containerSize.width
+    val density = androidx.compose.ui.platform.LocalDensity.current
+    val screenWidth = with(density) { screenWidthPx.toDp() }
+
+    // Calculate number of columns based on screen width
+    // Account for horizontal padding on each side
+    val availableWidth = screenWidth - (2 * horizontalSpacing)
+    val itemWidthWithSpacing = minItemWidth + horizontalSpacing
+    val columns = maxOf(1, (availableWidth / itemWidthWithSpacing).toInt())
+
+    Log.d(
+        LogTag,
+        "screenWidth=$screenWidth, availableWidth=$availableWidth, itemWidthWithSpacing=$itemWidthWithSpacing, columns=$columns"
+    )
+
+    // Use provided batch size or default to column count
+    val actualBatchSize = batchSize ?: columns
+
+    // Incrementally load items with 200ms delays between batches
+    var renderedItems by remember { mutableStateOf<List<T>>(emptyList()) }
+
+    LaunchedEffect(items) {
+        // Display minimum items instantly
+        val minItemsCount = minItems.coerceAtMost(items.size)
+        renderedItems = if (minItemsCount > 0) {
+            items.take(minItemsCount)
+        } else {
+            emptyList()
+        }
+
+        // Then batch load remaining items with delays
+        var index = minItemsCount
+        while (index < items.size) {
+            if (batchDelayMs > 0) {
+                kotlinx.coroutines.delay(batchDelayMs)
+            }
+            val batchEnd = (index + actualBatchSize).coerceAtMost(items.size)
+            renderedItems = items.take(batchEnd)
+            index = batchEnd
+        }
+    }
+
+    // Batch items into grid rows
+    val rows = renderedItems.chunked(columns)
+
+    Log.d(LogTag, "Rendering grid with $columns columns and ${rows.size} rows.")
+
+    rows.forEach { rowItems ->
+        Row(
+            modifier = modifier
+                .fillMaxWidth()
+                .padding(vertical = verticalSpacing),
+            horizontalArrangement = Arrangement.spacedBy(horizontalSpacing)
+        ) {
+            rowItems.forEach { item ->
+                Box(modifier = Modifier.weight(1f)) {
+                    content(item)
+                }
+            }
+
+            // Add spacers for incomplete rows
+            repeat(columns - rowItems.size) {
+                Box(modifier = Modifier.weight(1f))
+            }
+        }
+    }
+}
+package io.github.kitswas.virtualgamepadmobile.ui.composables
+
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.dp
+import io.github.kitswas.virtualgamepadmobile.R
+
+@Composable
+fun <T : Number> SpinBox(
+    value: T,
+    onValueChange: (T) -> Unit,
+    label: String,
+    minValue: T,
+    maxValue: T,
+    step: T,
+    modifier: Modifier = Modifier,
+    formatValue: (T) -> String = { it.toString() },
+) {
+    var currentValue by rememberSaveable(value) { mutableStateOf(value) }
+
+    // Helper function to add numeric values - handles different numeric types
+    fun add(a: T, b: T): T {
+        @Suppress("UNCHECKED_CAST")
+        return when (a) {
+            is Int -> (a + (b as Int)) as T
+            is Float -> (a + (b as Float)) as T
+            is Double -> (a + (b as Double)) as T
+            is Long -> (a + (b as Long)) as T
+            else -> throw IllegalArgumentException("Unsupported numeric type")
+        }
+    }
+
+    // Helper function to subtract numeric values - handles different numeric types
+    fun subtract(a: T, b: T): T {
+        @Suppress("UNCHECKED_CAST")
+        return when (a) {
+            is Int -> (a - (b as Int)) as T
+            is Float -> (a - (b as Float)) as T
+            is Double -> (a - (b as Double)) as T
+            is Long -> (a - (b as Long)) as T
+            else -> throw IllegalArgumentException("Unsupported numeric type")
+        }
+    }
+
+    // Helper function to compare numeric values
+    fun compare(a: T, b: T): Int {
+        return a.toDouble().compareTo(b.toDouble())
+    }
+
+    Column(
+        modifier = modifier,
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        Text(
+            text = label,
+            style = MaterialTheme.typography.labelMedium,
+            modifier = Modifier.padding(bottom = 4.dp)
+        )
+
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.Center
+        ) {
+            IconButton(
+                onClick = {
+                    if (compare(currentValue, minValue) > 0) {
+                        val newValue = subtract(currentValue, step)
+                        currentValue = if (compare(newValue, minValue) < 0) {
+                            minValue
+                        } else {
+                            newValue
+                        }
+                        onValueChange(currentValue)
+                    }
+                },
+                modifier = Modifier.size(40.dp)
+            ) {
+                Icon(
+                    painter = painterResource(R.drawable.ic_keyboard_arrow_down),
+                    contentDescription = stringResource(R.string.content_desc_decrease),
+                )
+            }
+
+            Spacer(modifier = Modifier.width(4.dp))
+
+            Surface(
+                shape = MaterialTheme.shapes.small,
+                border = androidx.compose.foundation.BorderStroke(
+                    1.dp, MaterialTheme.colorScheme.outline
+                ),
+                modifier = Modifier.width(60.dp)
+            ) {
+                Text(
+                    text = formatValue(currentValue),
+                    modifier = Modifier
+                        .padding(vertical = 8.dp, horizontal = 4.dp),
+                    textAlign = TextAlign.Center,
+                    style = MaterialTheme.typography.bodyLarge
+                )
+            }
+
+            Spacer(modifier = Modifier.width(4.dp))
+
+            IconButton(
+                onClick = {
+                    if (compare(currentValue, maxValue) < 0) {
+                        val newValue = add(currentValue, step)
+                        currentValue = if (compare(newValue, maxValue) > 0) {
+                            maxValue
+                        } else {
+                            newValue
+                        }
+                        onValueChange(currentValue)
+                    }
+                },
+                modifier = Modifier.size(40.dp)
+            ) {
+                Icon(
+                    painter = painterResource(R.drawable.ic_keyboard_arrow_up),
+                    contentDescription = stringResource(R.string.content_desc_increase),
+                )
+            }
+        }
+    }
+}
+package io.github.kitswas.virtualgamepadmobile.ui.composables
+
+import android.util.Log
+import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.interaction.collectIsPressedAsState
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.shape.AbsoluteCutCornerShape
+import androidx.compose.material3.Button
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalView
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.dp
+import io.github.kitswas.VGP_Data_Exchange.GamepadReading
+import io.github.kitswas.virtualgamepadmobile.R
+import io.github.kitswas.virtualgamepadmobile.ui.utils.HapticUtils
+
+enum class TriggerType {
+    LEFT, RIGHT
+}
+
+@Composable
+fun Trigger(
+    type: TriggerType,
+    modifier: Modifier = Modifier,
+    size: Dp = 64.dp,
+    gamepadState: GamepadReading,
+) {
+    val view = LocalView.current
+
+    val interactionSource = remember { MutableInteractionSource() }
+    val isPressed by interactionSource.collectIsPressedAsState()
+
+    DisposableEffect(isPressed) {
+        if (isPressed) {
+            Log.d("TriggerButton", "Trigger ${type.name} pressed")
+            when (type) {
+                TriggerType.LEFT -> gamepadState.LeftTrigger = 1f
+                TriggerType.RIGHT -> gamepadState.RightTrigger = 1f
+            }
+            HapticUtils.performButtonPressFeedback(view)
+        }
+        onDispose {
+            Log.d("TriggerButton", "Trigger ${type.name} released")
+            when (type) {
+                TriggerType.LEFT -> gamepadState.LeftTrigger = 0f
+                TriggerType.RIGHT -> gamepadState.RightTrigger = 0f
+            }
+            HapticUtils.performButtonReleaseFeedback(view)
+        }
+    }
+
+    val label = when (type) {
+        TriggerType.LEFT -> stringResource(R.string.button_lt)
+        TriggerType.RIGHT -> stringResource(R.string.button_rt)
+    }
+
+    val triggerShape = when (type) {
+        TriggerType.LEFT -> AbsoluteCutCornerShape(
+            topRight = size * 0.4f,
+        )
+
+        TriggerType.RIGHT -> AbsoluteCutCornerShape(
+            topLeft = size * 0.4f,
+        )
+    }
+
+    Box(
+        modifier = modifier
+            .width(size)
+            .height(size * 1.25f)
+            .fillMaxSize(),
+        contentAlignment = Alignment.Center
+    ) {
+        Button(
+            onClick = {},
+            modifier = Modifier.fillMaxSize(),
+            shape = triggerShape,
+            border = BorderStroke(2.dp, MaterialTheme.colorScheme.outline),
+            interactionSource = interactionSource,
+        ) {
+            Text(label)
+        }
+    }
+}
+
+@Preview
+@Composable
+fun TriggerPreview() {
+    Row {
+        Trigger(
+            type = TriggerType.LEFT,
+            size = 64.dp,
+            gamepadState = GamepadReading()
+        )
+        Trigger(
+            type = TriggerType.RIGHT,
+            size = 64.dp,
+            gamepadState = GamepadReading()
+        )
+    }
+}

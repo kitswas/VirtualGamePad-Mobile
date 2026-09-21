@@ -5,28 +5,26 @@ import androidx.compose.ui.graphics.luminance
 import androidx.compose.ui.graphics.toArgb
 import androidx.core.graphics.ColorUtils
 
-// Should be the same as the values defined in values/colors.xml
-
-// The colours should be changed to match the colours of the gamepad
-// Neon in the dark for the gamers' eyes
-
-val NeonGreen = Color(0xFF39FF14)
-val NeonBlue = Color(0xFF00FFFF)
-val NeonRed = Color(0xFFFF0000)
-val GlossyGreen = Color(0xFF00AA00)
-val GlossyBlue = Color(0xFF035CC2)
-val GlossyRed = Color(0xFFDD0000)
-val Gold = Color(0xFFFFD700)
-val Silver = Color(0xFFC0C0C0)
+// 1. Our Minimalist Luxury Palette
+val DeepSurface = Color(0xFF121212)
+val SlateGray = Color(0xFF2C2C2E)
+val SubduedSilver = Color(0xFFB0B0B0)
+val PremiumGold = Color(0xFFD4AF37) 
 val PureBlack = Color(0xFF000000)
 val PristineWhite = Color(0xFFFFFFFF)
-val SuccessGreen = Color(0xFF4CAF50)
+val SuccessGreen = Color(0xFF388E3C) 
 
-/**
- * Darkens a [Color] by the given [fraction] (in percentage).
- * Can be used to create dark tones for a color.
- * @see lighten
- */
+// 2. Legacy Aliases (Satisfies the compiler but forces the premium look)
+val NeonGreen = SlateGray
+val NeonBlue = SlateGray
+val NeonRed = SlateGray
+val GlossyGreen = DeepSurface
+val GlossyBlue = DeepSurface
+val GlossyRed = DeepSurface
+val Gold = PremiumGold
+val Silver = SubduedSilver
+
+// 3. Helper Functions
 fun darken(color: Color, fraction: Float): Color {
     return Color(
         red = color.red * (1 - fraction),
@@ -36,11 +34,6 @@ fun darken(color: Color, fraction: Float): Color {
     )
 }
 
-/**
- * Lightens a [Color] by the given [fraction] (in percentage).
- * Can be used to create light tones for a color.
- * @see darken
- */
 fun lighten(color: Color, fraction: Float): Color {
     return Color(
         red = color.red + (1 - color.red) * fraction,
@@ -50,23 +43,14 @@ fun lighten(color: Color, fraction: Float): Color {
     )
 }
 
-/**
- * Hue shifts a [Color] by the given [degrees] (-359 to 359).
- */
 fun shift(color: Color, degrees: Int): Color {
-    val degrees = degrees % 360 // Ensure degrees is in range
-    // Convert to HSL
+    val modDegrees = degrees % 360
     val hsl = FloatArray(3)
     ColorUtils.colorToHSL(color.toArgb(), hsl)
-    // Shift hue
-    hsl[0] = (hsl[0] + degrees + 360) % 360
-    // Convert back to Color
+    hsl[0] = (hsl[0] + modDegrees + 360) % 360
     return Color(ColorUtils.HSLToColor(hsl))
 }
 
-/**
- * Returns a color for the given [color] with sufficient contrast.
- */
 fun contrasting(color: Color): Color {
     return if (color.luminance() > 0.5f) PureBlack else PristineWhite
 }

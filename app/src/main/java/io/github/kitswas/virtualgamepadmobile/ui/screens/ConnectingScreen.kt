@@ -47,7 +47,9 @@ import io.github.kitswas.virtualgamepadmobile.data.PreviewBase
 import io.github.kitswas.virtualgamepadmobile.data.PreviewHeightDp
 import io.github.kitswas.virtualgamepadmobile.data.PreviewWidthDp
 import io.github.kitswas.virtualgamepadmobile.network.ConnectionViewModel
-import io.github.kitswas.virtualgamepadmobile.ui.theme.SuccessGreen
+import io.github.kitswas.virtualgamepadmobile.ui.theme.PristineWhite
+import io.github.kitswas.virtualgamepadmobile.ui.utils.LockScreenOrientation
+import android.content.pm.ActivityInfo
 import kotlinx.coroutines.launch
 
 @Composable
@@ -58,6 +60,7 @@ fun ConnectingScreen(
     ipAddress: String,
     port: String
 ) {
+    LockScreenOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT)
     val context = LocalContext.current
     val snackbarHostState = remember { SnackbarHostState() }
     val scope = rememberCoroutineScope()
@@ -230,7 +233,7 @@ fun DiagnosticsDialog(
                             Icon(
                                 imageVector = if (result.isPassed) Icons.Default.CheckCircle else Icons.Default.Error,
                                 contentDescription = null,
-                                tint = if (result.isPassed) SuccessGreen else MaterialTheme.colorScheme.error,
+                                tint = if (result.isPassed) PristineWhite else MaterialTheme.colorScheme.error,
                                 modifier = Modifier.padding(top = 2.dp)
                             )
                             Column {

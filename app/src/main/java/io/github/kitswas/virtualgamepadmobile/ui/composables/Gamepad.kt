@@ -13,6 +13,7 @@ import io.github.kitswas.VGP_Data_Exchange.GamepadReading
 import io.github.kitswas.virtualgamepadmobile.data.ButtonAnchor
 import io.github.kitswas.virtualgamepadmobile.data.ButtonComponent
 import io.github.kitswas.virtualgamepadmobile.data.ButtonConfig
+import io.github.kitswas.virtualgamepadmobile.data.StickResponseMode
 
 /**
  * Convert ButtonAnchor to Compose Alignment
@@ -35,9 +36,17 @@ fun DrawGamepad(
     heightDp: Int,
     gamepadState: GamepadReading,
     buttonConfigs: Map<ButtonComponent, ButtonConfig>,
+    // Legacy global fallback (kept so old callers still compile); per-stick
+    // ButtonConfig.responseMode wins whenever the stick config is present.
+    stickResponseMode: StickResponseMode = StickResponseMode.default,
+    gyroX: Float = 0f,
+    gyroY: Float = 0f,
 ) {
-    // Assuming Landscape orientation
-    val baseDp = heightDp
+    // Assuming Landscape orientation. The short side drives all sizes so
+    // the layout stays identical in landscape, and degrades to a small but
+    // sane scale in portrait (e.g. rotation locked) instead of exploding:
+    // with heightDp the widgets would grow to full-screen size.
+    val baseDp = minOf(widthDp, heightDp)
 
     val deadZonePadding = baseDp / 18
 
@@ -76,8 +85,14 @@ fun DrawGamepad(
                     ),
                     outerCircleWidth = (baseDp / 8 * config.scale).dp,
                     innerCircleRadius = (baseDp / 12 * config.scale).dp,
+                    knobScale = config.analogInnerScale,
                     gamepadState = gamepadState,
                     type = AnalogStickType.LEFT,
+                    responseMode = config.responseMode,
+                    wholeAreaInteractive = true,
+                    gyroOn = config.gyro,
+                    gyroX = gyroX,
+                    gyroY = gyroY,
                 )
             }
 
@@ -90,8 +105,14 @@ fun DrawGamepad(
                     ),
                     outerCircleWidth = (baseDp / 8 * config.scale).dp,
                     innerCircleRadius = (baseDp / 12 * config.scale).dp,
+                    knobScale = config.analogInnerScale,
                     gamepadState = gamepadState,
                     type = AnalogStickType.RIGHT,
+                    responseMode = config.responseMode,
+                    wholeAreaInteractive = true,
+                    gyroOn = config.gyro,
+                    gyroX = gyroX,
+                    gyroY = gyroY,
                 )
             }
 

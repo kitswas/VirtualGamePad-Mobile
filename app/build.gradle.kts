@@ -70,7 +70,7 @@ android {
         }
     }
 
-    // See https://gitlab.com/fdroid/fdroiddata/-/merge_requests/24636#note_2619840233
+    // See https://gitlab.com
     // DependencyInfoBlock cannot be read by anyone other than Google.
     dependenciesInfo {
         includeInApk = false
@@ -107,12 +107,12 @@ if (propFile.canRead()) {
             keyPassword = props["KEY_PASSWORD"].toString()
         }
     } else {
-        println("signing.properties found but some entries are missing")
-        android.buildTypes.getByName("release").signingConfig = null
+        println("signing.properties found but some entries are missing. Falling back to debug key.")
+        android.buildTypes.getByName("release").signingConfig = android.buildTypes.getByName("debug").signingConfig
     }
 } else {
-    println("signing.properties not found")
-    android.buildTypes.getByName("release").signingConfig = null
+    println("signing.properties not found. Falling back to debug key for local testing.")
+    android.buildTypes.getByName("release").signingConfig = android.buildTypes.getByName("debug").signingConfig
 }
 
 dependencies {

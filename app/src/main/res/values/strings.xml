@@ -1,14 +1,35 @@
 <resources>
-    <string name="app_name">VirtualGamePadMobile</string>
+    <string name="app_name">لَعّيب</string>
 
     <!-- Main Menu -->
     <string name="menu_start">Start</string>
     <string name="menu_settings">Settings</string>
     <string name="menu_about">About</string>
+    <string name="menu_home">Home</string>
     <string name="menu_exit">Exit</string>
+    <string name="main_title">لَعّيب</string>
+    <string name="main_connected">Connected</string>
+    <string name="main_disconnected">Not connected</string>
+    <string name="main_no_layouts">No custom layouts created yet</string>
+    <string name="main_new_layout">New custom layout +</string>
+    <string name="main_default_profile">Game controller</string>
+    <string name="main_default_badge">Default</string>
+    <string name="main_rename_title">Rename layout</string>
+    <string name="main_rename_label">New name</string>
+    <string name="main_share_title">Share layout</string>
+    <string name="main_share_subject">Custom Layout %s</string>
+    <string name="main_new_profile">Custom Layout %d</string>
+    <string name="main_custom_layout">Custom Layout</string>
+    <string name="profile_update">Update</string>
+    <string name="profile_rename">Rename</string>
+    <string name="profile_share">Share</string>
+    <string name="profile_delete">Delete</string>
 
     <!-- Settings Screen -->
     <string name="settings_title">Settings</string>
+    <string name="settings_language">Language</string>
+    <string name="language_arabic">Arabic</string>
+    <string name="language_english">English</string>
     <string name="settings_theme_color">Theme Color</string>
     <string name="settings_color_scheme">Color Scheme</string>
     <string name="settings_polling_interval">Polling Interval (ms)</string>
@@ -21,14 +42,15 @@
     <string name="settings_error_save">Error saving settings</string>
 
     <!-- About Screen -->
-    <string name="about_title">🎮 Virtual GamePad Mobile</string>
+    <string name="about_title">🎮 لَعّيب</string>
     <string name="about_version">Version %s</string>
     <string name="about_view_license">View Licence</string>
     <string name="about_latest_release">Latest Release</string>
-    <string name="about_description">A mobile application that lets your phone work as a gamepad for PC games.</string>
+    <string name="about_description">A mobile application that lets your phone work as a gamepad for PC games. Works with منصة المتحكمات server; based on the work of kitswas.</string>
     <string name="about_source_code">Source Code</string>
     <string name="about_project_website">Project Website</string>
     <string name="about_report_issues">Report Issues</string>
+    <string name="about_get_server">Get the PC Server</string>
     <string name="about_dev_version">Development</string>
 
     <!-- Gamepad Customization -->
@@ -191,5 +213,22 @@
     <string name="error_min_value">Value must be at least %s</string>
     <string name="error_max_value">Value must be at most %s</string>
     <string name="error_invalid_number">Please enter a valid number</string>
+
+
+    <!-- Gamepad Pills & Enum Labels -->
+    <string name="gamepad_joystick">Joystick: %1$s</string>
+    <string name="gamepad_gyro">Gyro: %1$s</string>
+    <string name="gamepad_recenter">Recenter Gyro</string>
+    <string name="gamepad_gyro_recentered">Gyro recentered</string>
+    <string name="stick_linear">Linear</string>
+    <string name="stick_power">Power</string>
+    <string name="stick_assault">Assault</string>
+    <string name="stick_anti">Anti-Controls</string>
+    <string name="stick_direct">Direct</string>
+    <string name="stick_proportional">Proportional</string>
+    <string name="gyro_off">Off</string>
+    <string name="gyro_left">Left Stick</string>
+    <string name="gyro_right">Right Stick</string>
+    <string name="gyro_both">Both Sticks</string>
 
 </resources>

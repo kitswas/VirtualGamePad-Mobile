@@ -1,6 +1,7 @@
 package io.github.kitswas.virtualgamepadmobile.ui.screens
 
 import android.content.Intent
+import android.content.pm.ActivityInfo
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -32,6 +33,7 @@ import io.github.kitswas.virtualgamepadmobile.R
 import io.github.kitswas.virtualgamepadmobile.data.PreviewBase
 import io.github.kitswas.virtualgamepadmobile.data.PreviewHeightDp
 import io.github.kitswas.virtualgamepadmobile.data.PreviewWidthDp
+import io.github.kitswas.virtualgamepadmobile.ui.utils.LockScreenOrientation
 
 @Composable
 fun AboutScreen(
@@ -42,13 +44,16 @@ fun AboutScreen(
 ) {
     val context = LocalContext.current
     val scrollState = rememberScrollState()
+    LockScreenOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT)
 
     // GitHub URLs
     val projectUrl = "https://kitswas.github.io/VirtualGamePad/"
-    val mobileRepoUrl = "https://github.com/kitswas/VirtualGamePad-Mobile/"
-    val mobileLicenseUrl = "https://github.com/kitswas/VirtualGamePad-Mobile/blob/main/LICENCE.TXT"
-    val issuesUrl = "https://github.com/kitswas/VirtualGamePad-Mobile/issues/new"
-    val releaseUrl = "https://github.com/kitswas/VirtualGamePad-Mobile/releases/latest"
+    val mobileRepoUrl = "https://github.com/Amr-Os/Laeeb-Gamepad/"
+    val mobileLicenseUrl = "https://github.com/Amr-Os/Laeeb-Gamepad/blob/main/LICENCE.TXT"
+    val issuesUrl = "https://github.com/Amr-Os/Laeeb-Gamepad/issues/new"
+    val releaseUrl = "https://github.com/Amr-Os/Laeeb-Gamepad/releases/latest"
+    val serverReleaseUrl =
+        "https://github.com/Amr-Os/minassat-al-mutahakkamat/releases/latest"
 
     Scaffold { paddingValues ->
         Column(
@@ -148,6 +153,21 @@ fun AboutScreen(
                         style = MaterialTheme.typography.labelMedium
                     )
                 }
+            }
+
+            Spacer(modifier = Modifier.height(16.dp))
+
+            OutlinedButton(
+                shape = MaterialTheme.shapes.small,
+                border = BorderStroke(Hairline, MaterialTheme.colorScheme.secondary),
+                onClick = {
+                    val intent = Intent(Intent.ACTION_VIEW, serverReleaseUrl.toUri())
+                    context.startActivity(intent)
+                }) {
+                Text(
+                    stringResource(R.string.about_get_server),
+                    style = MaterialTheme.typography.labelSmall
+                )
             }
 
             Spacer(modifier = Modifier.height(32.dp))

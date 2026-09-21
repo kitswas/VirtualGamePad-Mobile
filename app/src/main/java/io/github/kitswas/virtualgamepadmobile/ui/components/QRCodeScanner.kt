@@ -39,13 +39,18 @@ fun rememberQRCodeScanner(
         contract = ActivityResultContracts.RequestPermission()
     ) { isGranted ->
         if (isGranted) {
-            // Permission granted, start scanning
+            // Permission granted, start scanning.
+            // Orientation unlocked so the viewfinder uses the full sensor in any
+            // rotation (the app itself is portrait-locked); torch on for dim rooms.
             val scanOptions = ScanOptions()
             scanOptions.setDesiredBarcodeFormats(ScanOptions.QR_CODE)
             scanOptions.setPrompt(promptText)
             scanOptions.setCameraId(0)
             scanOptions.setBeepEnabled(false)
             scanOptions.setBarcodeImageEnabled(false)
+            scanOptions.setOrientationLocked(false)
+            scanOptions.setTorchEnabled(true)
+            scanOptions.setTimeout(30_000L)
             scanLauncher.launch(scanOptions)
         } else {
             onResult(QRScanResult.PermissionDenied)

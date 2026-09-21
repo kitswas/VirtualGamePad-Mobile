@@ -33,6 +33,16 @@ class SettingsRepository(context: Context) {
         preferences[HAPTIC_FEEDBACK_ENABLED] ?: defaultHapticFeedbackEnabled
     }
 
+    val stickResponseMode: Flow<StickResponseMode> = dataStore.data.map { preferences ->
+        preferences[STICK_RESPONSE_MODE]?.let { ordinal ->
+            StickResponseMode.entries.getOrNull(ordinal)
+        } ?: defaultStickResponseMode
+    }
+
+    val activeProfileId: Flow<String> = dataStore.data.map { preferences ->
+        preferences[ACTIVE_PROFILE_ID] ?: ""
+    }
+
     val buttonConfigs: Flow<Map<ButtonComponent, ButtonConfig>> =
         dataStore.data.map { preferences ->
             val jsonString = preferences[BUTTON_CONFIGS]
@@ -63,6 +73,10 @@ class SettingsRepository(context: Context) {
         preferences[FULL_SCREEN_ENABLED] ?: defaultFullScreenEnabled
     }
 
+    val appLanguage: Flow<AppLanguage> = dataStore.data.map { preferences ->
+        AppLanguage.fromCode(preferences[APP_LANGUAGE])
+    }
+
     suspend fun setBaseColor(baseColor: BaseColor) {
         dataStore.edit { preferences ->
             preferences[BASE_COLOR] = baseColor.ordinal
@@ -84,6 +98,18 @@ class SettingsRepository(context: Context) {
     suspend fun setHapticFeedbackEnabled(enabled: Boolean) {
         dataStore.edit { preferences ->
             preferences[HAPTIC_FEEDBACK_ENABLED] = enabled
+        }
+    }
+
+    suspend fun setStickResponseMode(mode: StickResponseMode) {
+        dataStore.edit { preferences ->
+            preferences[STICK_RESPONSE_MODE] = mode.ordinal
+        }
+    }
+
+    suspend fun setActiveProfileId(profileId: String) {
+        dataStore.edit { preferences ->
+            preferences[ACTIVE_PROFILE_ID] = profileId
         }
     }
 
@@ -130,6 +156,12 @@ class SettingsRepository(context: Context) {
         }
     }
 
+    suspend fun setAppLanguage(language: AppLanguage) {
+        dataStore.edit { preferences ->
+            preferences[APP_LANGUAGE] = language.code
+        }
+    }
+
     suspend fun resetAllSettings() {
         dataStore.edit { preferences ->
             preferences.clear()
@@ -141,11 +173,14 @@ class SettingsRepository(context: Context) {
         private val BASE_COLOR = intPreferencesKey("base_color")
         private val POLLING_DELAY = intPreferencesKey("polling_delay")
         private val HAPTIC_FEEDBACK_ENABLED = booleanPreferencesKey("haptic_feedback_enabled")
+        private val STICK_RESPONSE_MODE = intPreferencesKey("stick_response_mode")
+        private val ACTIVE_PROFILE_ID = stringPreferencesKey("active_profile_id")
         private val BUTTON_CONFIGS = stringPreferencesKey("button_configs")
         private val LAST_CONNECTION_IP_ADDRESS = stringPreferencesKey("last_connection_ip_address")
         private val LAST_CONNECTION_PORT = stringPreferencesKey("last_connection_port")
         private val SAVE_CONNECTION_CREDENTIALS =
             booleanPreferencesKey("save_connection_credentials")
         private val FULL_SCREEN_ENABLED = booleanPreferencesKey("full_screen_enabled")
+        private val APP_LANGUAGE = stringPreferencesKey("app_language")
     }
 }
