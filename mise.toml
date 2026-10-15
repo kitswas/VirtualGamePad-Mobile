@@ -42,10 +42,15 @@ description = "Remove build outputs"
 run = "./gradlew clean"
 run_windows = ".\\gradlew.bat clean"
 
+[tasks.launch]
+description = "Install the debug build on the connected device and launch it"
+run = "./gradlew installDebug && adb shell monkey -p io.github.kitswas.virtualgamepadmobile -c android.intent.category.LAUNCHER 1"
+run_windows = ".\\gradlew.bat installDebug && adb shell monkey -p io.github.kitswas.virtualgamepadmobile -c android.intent.category.LAUNCHER 1"
+
 [tasks.connected-test]
 description = "Run instrumented tests on a connected device or emulator (log in out.log)"
-run = "./gradlew connectedAndroidTest > out.log 2>&1"
-run_windows = ".\\gradlew.bat connectedAndroidTest > out.log 2>&1"
+run = "./gradlew connectedAndroidTest 2>&1 | tee out.log"
+run_windows = "powershell -NoProfile -Command \".\\gradlew.bat connectedAndroidTest 2>&1 | Tee-Object out.log\""
 
 [tasks.gradle-stop]
 description = "Stop Gradle daemons (use when builds hang or files stay locked)"
