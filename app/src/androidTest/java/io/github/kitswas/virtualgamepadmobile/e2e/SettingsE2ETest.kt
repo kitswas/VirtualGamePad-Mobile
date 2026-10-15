@@ -1,9 +1,14 @@
 package io.github.kitswas.virtualgamepadmobile.e2e
 
+import android.view.WindowManager
 import androidx.compose.ui.test.assertIsDisplayed
+import androidx.compose.ui.test.assertIsOff
+import androidx.compose.ui.test.assertIsOn
 import androidx.compose.ui.test.junit4.v2.createAndroidComposeRule
+import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
+import androidx.compose.ui.test.performScrollTo
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import io.github.kitswas.virtualgamepadmobile.MainActivity
 import io.github.kitswas.virtualgamepadmobile.R
@@ -44,6 +49,44 @@ class SettingsE2ETest {
         composeTestRule.onNodeWithText(getString(R.string.save)).performClick()
 
         composeTestRule.onNodeWithText(getString(R.string.menu_start)).assertIsDisplayed()
+    }
+
+    @Test
+    fun testKeepScreenOnSettingControlsWindowFlag() {
+        composeTestRule.onNodeWithText(getString(R.string.menu_settings)).performClick()
+        composeTestRule.onNodeWithText(getString(R.string.reset)).performClick()
+        composeTestRule.onNodeWithText(getString(R.string.save)).performClick()
+
+        composeTestRule.onNodeWithText(getString(R.string.menu_settings)).performClick()
+        composeTestRule.onNodeWithTag("keepScreenOnSwitch").performScrollTo().assertIsOff().performClick()
+        composeTestRule.onNodeWithTag("keepScreenOnSwitch").assertIsOn()
+        composeTestRule.onNodeWithText(getString(R.string.save)).performClick()
+
+        composeTestRule.waitUntil(timeoutMillis = 3_000) {
+            composeTestRule.activity.window.attributes.flags and
+                WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON != 0
+        }
+
+        val flags = composeTestRule.activity.window.attributes.flags
+        check(flags and WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON != 0) {
+            "FLAG_KEEP_SCREEN_ON was not set after enabling the setting"
+        }
+
+        // Verify the value was persisted and is reflected when Settings is reopened.
+        composeTestRule.onNodeWithText(getString(R.string.menu_settings)).performClick()
+        composeTestRule.onNodeWithTag("keepScreenOnSwitch").assertIsOn()
+        composeTestRule.onNodeWithText(getString(R.string.reset)).performClick()
+        composeTestRule.onNodeWithText(getString(R.string.save)).performClick()
+
+        composeTestRule.waitUntil(timeoutMillis = 3_000) {
+            composeTestRule.activity.window.attributes.flags and
+                WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON == 0
+        }
+
+        val resetFlags = composeTestRule.activity.window.attributes.flags
+        check(resetFlags and WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON == 0) {
+            "FLAG_KEEP_SCREEN_ON was not cleared after resetting the setting"
+        }
     }
 
     @Test
