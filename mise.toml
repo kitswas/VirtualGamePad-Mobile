@@ -1,2 +1,52 @@
 [tools]
 java = "21"
+
+# Heavy prerequisite: Android SDK. Set sdk.dir in local.properties or ANDROID_HOME.
+
+[tasks.doctor]
+description = "Check prerequisites"
+run = "java -version"
+
+[tasks.build]
+description = "Build the debug APK"
+run = "./gradlew assembleDebug"
+run_windows = "gradlew.bat assembleDebug"
+
+[tasks.test]
+description = "Run unit tests"
+run = "./gradlew test"
+run_windows = "gradlew.bat test"
+
+[tasks.lint]
+description = "Run Android lint"
+run = "./gradlew lint"
+run_windows = "gradlew.bat lint"
+
+[tasks.check]
+description = "Build, lint and unit test (same as CI's first job)"
+run = "./gradlew build lint test"
+run_windows = "gradlew.bat build lint test"
+
+[tasks.clean]
+description = "Remove build outputs"
+run = "./gradlew clean"
+run_windows = "gradlew.bat clean"
+
+[tasks.connected-test]
+description = "Run instrumented tests on a connected device or emulator (log in out.log)"
+run = "./gradlew connectedAndroidTest > out.log 2>&1"
+run_windows = "gradlew.bat connectedAndroidTest > out.log 2>&1"
+
+[tasks.gradle-stop]
+description = "Stop Gradle daemons (use when builds hang or files stay locked)"
+run = "./gradlew --stop"
+run_windows = "gradlew.bat --stop"
+
+[tasks.wrapper-upgrade]
+description = "Upgrade the Gradle wrapper. Get the version and sha256 from https://gradle.org/releases/"
+usage = '''
+arg "<version>" help="Gradle version, e.g. 9.5.0"
+arg "<sha256>" help="Distribution binary-only zip checksum"
+'''
+run = "./gradlew wrapper --gradle-version ${usage_version} --gradle-distribution-sha256-sum=${usage_sha256}"
+run_windows = "gradlew.bat wrapper --gradle-version %usage_version% --gradle-distribution-sha256-sum=%usage_sha256%"
