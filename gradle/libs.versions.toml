@@ -31,6 +31,7 @@ androidx-test-espresso = "3.7.0"
 # Tools
 desugar-jdk-libs = "2.1.5"
 dokka = "2.2.0"
+jlleitschuh-ktlint = "14.0.1"
 
 [libraries]
 # AndroidX Core & Lifecycle
@@ -85,3 +86,4 @@ kotlin-compose = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "ko
 kotlin-parcelize = { id = "org.jetbrains.kotlin.plugin.parcelize", version.ref = "kotlin" }
 kotlin-serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }
 dokka = { id = "org.jetbrains.dokka", version.ref = "dokka" }
+jlleitschuh-ktlint = { id = "org.jlleitschuh.gradle.ktlint", version.ref = "jlleitschuh-ktlint" }

@@ -8,6 +8,12 @@ plugins {
     alias(libs.plugins.dokka)
     alias(libs.plugins.kotlin.parcelize)
     alias(libs.plugins.kotlin.serialization)
+    alias(libs.plugins.jlleitschuh.ktlint)
+}
+
+ktlint {
+    version.set("1.3.1")
+    android.set(true)
 }
 
 android {
@@ -92,8 +98,10 @@ val propFile: File = rootProject.file("signing.properties")
 if (propFile.canRead()) {
     props.load(FileInputStream(propFile))
 
-    if (props.containsKey("STORE_FILE") && props.containsKey("STORE_PASSWORD") &&
-        props.containsKey("KEY_ALIAS") && props.containsKey("KEY_PASSWORD")
+    if (props.containsKey("STORE_FILE") &&
+        props.containsKey("STORE_PASSWORD") &&
+        props.containsKey("KEY_ALIAS") &&
+        props.containsKey("KEY_PASSWORD")
     ) {
         android.signingConfigs.getByName("release").apply {
             storeFile = File(props["STORE_FILE"].toString())
