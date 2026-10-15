@@ -5,6 +5,8 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.width
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Icon
@@ -18,7 +20,6 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import io.github.kitswas.virtualgamepadmobile.R
 
@@ -59,7 +60,7 @@ fun <T> ListItemPicker(
                 formattedDisplay(selectedItem)
 
                 Icon(
-                    painter = painterResource(R.drawable.ic_arrow_drop_down),
+                    imageVector = Icons.Default.ArrowDropDown,
                     contentDescription = stringResource(R.string.content_desc_expand)
                 )
             }

@@ -21,7 +21,6 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -34,6 +33,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import io.github.kitswas.VGP_Data_Exchange.GamepadReading
 import io.github.kitswas.virtualgamepadmobile.R
 import io.github.kitswas.virtualgamepadmobile.data.ButtonComponent
@@ -72,7 +72,6 @@ fun GamepadPreview(
 
     val gamepadState = remember { GamepadReading() }
 
-    // Draw the gamepad with current configuration
     DrawGamepad(
         widthDp = screenWidth,
         heightDp = screenHeight,
@@ -86,7 +85,7 @@ fun GamepadCustomizationScreen(
     onNavigateBack: () -> Unit,
     settingsRepository: SettingsRepository
 ) {
-    val buttonConfigs by settingsRepository.buttonConfigs.collectAsState(initial = defaultButtonConfigs)
+    val buttonConfigs by settingsRepository.buttonConfigs.collectAsStateWithLifecycle(initialValue = defaultButtonConfigs)
     var modifiedConfigs by rememberSaveable {
         mutableStateOf<Map<ButtonComponent, ButtonConfig>?>(
             null

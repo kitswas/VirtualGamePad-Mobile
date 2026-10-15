@@ -12,7 +12,7 @@ plugins {
 
 android {
     namespace = "io.github.kitswas.virtualgamepadmobile"
-    compileSdk = 36
+    compileSdk = 37
 
     defaultConfig {
         applicationId = "io.github.kitswas.virtualgamepadmobile"
@@ -58,10 +58,6 @@ android {
     buildFeatures {
         compose = true
         resValues = true
-    }
-
-    composeOptions {
-        kotlinCompilerExtensionVersion = "1.5.8"
     }
 
     packaging {
@@ -121,16 +117,14 @@ dependencies {
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.datastore.preferences)
     implementation(libs.androidx.lifecycle.runtime.ktx)
-    implementation(libs.androidx.window)
+    implementation(libs.androidx.lifecycle.runtime.compose)
     implementation(libs.compose.ui)
+    implementation(libs.compose.material.icons.core)
     implementation(libs.compose.material.icons.extended)
     implementation(libs.compose.ui.tooling.preview)
     implementation(libs.kotlinx.serialization.json)
     implementation(libs.material3)
-    implementation(libs.material3.window.size)
     implementation(libs.navigation.compose)
-    implementation(libs.navigation.fragment.ktx)
-    implementation(libs.navigation.ui.ktx)
     implementation(libs.zxing.android.embedded)
     implementation(libs.zxing.core)
     implementation(platform(libs.compose.bom))
@@ -142,6 +136,10 @@ dependencies {
     testImplementation(platform(libs.compose.bom))
 
     // AndroidTest dependencies
+    androidTestImplementation(libs.androidx.test.ext.junit)
+    androidTestImplementation(libs.androidx.test.runner)
+    androidTestImplementation(libs.androidx.test.rules)
+    androidTestImplementation(libs.androidx.test.espresso.core)
     androidTestImplementation(libs.compose.ui.test.junit4)
     androidTestImplementation(libs.navigation.testing)
     androidTestImplementation(platform(libs.compose.bom))

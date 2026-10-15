@@ -32,7 +32,7 @@ jobs:
         api-level:
           - 26 # Minimum supported API level
           - 34 # Target API level for testing
-          - 36 # Latest API level
+          - 37 # Latest API level
 
     steps:
       - uses: actions/checkout@v6

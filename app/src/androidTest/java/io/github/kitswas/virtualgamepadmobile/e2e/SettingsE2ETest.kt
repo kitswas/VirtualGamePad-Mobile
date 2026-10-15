@@ -4,10 +4,11 @@ import android.view.WindowManager
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertIsOff
 import androidx.compose.ui.test.assertIsOn
+import androidx.compose.ui.test.junit4.v2.createAndroidComposeRule
 import androidx.compose.ui.test.onNodeWithTag
-import androidx.compose.ui.test.junit4.createAndroidComposeRule
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
+import androidx.compose.ui.test.performScrollTo
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import io.github.kitswas.virtualgamepadmobile.MainActivity
 import io.github.kitswas.virtualgamepadmobile.R
@@ -57,7 +58,7 @@ class SettingsE2ETest {
         composeTestRule.onNodeWithText(getString(R.string.save)).performClick()
 
         composeTestRule.onNodeWithText(getString(R.string.menu_settings)).performClick()
-        composeTestRule.onNodeWithTag("keepScreenOnSwitch").assertIsOff().performClick()
+        composeTestRule.onNodeWithTag("keepScreenOnSwitch").performScrollTo().assertIsOff().performClick()
         composeTestRule.onNodeWithTag("keepScreenOnSwitch").assertIsOn()
         composeTestRule.onNodeWithText(getString(R.string.save)).performClick()
 
