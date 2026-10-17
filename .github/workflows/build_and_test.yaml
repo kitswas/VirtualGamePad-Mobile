@@ -32,7 +32,7 @@ jobs:
         api-level:
           - 26 # Minimum supported API level
           - 34 # Target API level for testing
-          - 37 # Latest API level
+          - 36 # Latest supported API level (37 is not support by the Action)
 
     steps:
       - uses: actions/checkout@v7
@@ -56,7 +56,7 @@ jobs:
           sudo udevadm trigger --name-match=kvm
 
       - name: Run Instrumented Tests (API ${{ matrix.api-level }})
-        uses: ReactiveCircus/android-emulator-runner@v2.38.0
+        uses: reactivecircus/android-emulator-runner@v2
         with:
           api-level: ${{ matrix.api-level }}
           target: ${{ matrix.api-level >= 31 && 'google_apis' || 'default' }}
