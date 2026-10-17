@@ -56,7 +56,7 @@ jobs:
           sudo udevadm trigger --name-match=kvm
 
       - name: Run Instrumented Tests (API ${{ matrix.api-level }})
-        uses: reactivecircus/android-emulator-runner@v2
+        uses: ReactiveCircus/android-emulator-runner@v2.38.0
         with:
           api-level: ${{ matrix.api-level }}
           target: ${{ matrix.api-level >= 31 && 'google_apis' || 'default' }}
