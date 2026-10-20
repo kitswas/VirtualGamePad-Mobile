@@ -15,6 +15,7 @@ import kotlinx.serialization.json.Json
 val Context.settingsDataStore: DataStore<Preferences> by preferencesDataStore(name = "settings")
 
 class SettingsRepository(context: Context) {
+    private val appContext = context.applicationContext
     private val dataStore = context.settingsDataStore
 
     val baseColor: Flow<BaseColor> = dataStore.data.map { preferences ->
@@ -77,6 +78,7 @@ class SettingsRepository(context: Context) {
         dataStore.edit { preferences ->
             preferences[COLOR_SCHEME] = colorScheme.ordinal
         }
+        applyPlatformNightMode(appContext, colorScheme)
     }
 
     suspend fun setPollingDelay(delay: Int) {
@@ -144,6 +146,7 @@ class SettingsRepository(context: Context) {
         dataStore.edit { preferences ->
             preferences.clear()
         }
+        applyPlatformNightMode(appContext, defaultColorScheme)
     }
 
     companion object {

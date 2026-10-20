@@ -17,6 +17,7 @@
         android:theme="@style/Theme.VirtualGamePadMobile">
         <activity
             android:name=".MainActivity"
+            android:configChanges="uiMode"
             android:exported="true"
             android:screenOrientation="userLandscape"
             android:theme="@style/Theme.VirtualGamePadMobile">

@@ -18,6 +18,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.toRoute
 import io.github.kitswas.virtualgamepadmobile.data.SettingsRepository
+import io.github.kitswas.virtualgamepadmobile.data.applyPlatformNightMode
 import io.github.kitswas.virtualgamepadmobile.data.defaultBaseColor
 import io.github.kitswas.virtualgamepadmobile.data.defaultColorScheme
 import io.github.kitswas.virtualgamepadmobile.data.defaultFullScreenEnabled
@@ -100,6 +101,12 @@ class MainActivity : ComponentActivity() {
             } else {
                 window.clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
             }
+        }
+
+        // The platform keeps the night mode for the app, so the splash screen of the
+        // next cold start uses the resources of the chosen color scheme.
+        LaunchedEffect(Unit) {
+            applyPlatformNightMode(this@MainActivity, settingsRepository.colorScheme.first())
         }
 
         VirtualGamePadMobileTheme(
