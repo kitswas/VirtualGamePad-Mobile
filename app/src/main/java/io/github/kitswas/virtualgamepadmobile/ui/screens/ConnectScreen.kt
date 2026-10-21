@@ -1,8 +1,6 @@
 package io.github.kitswas.virtualgamepadmobile.ui.screens
 
 import android.content.Intent
-import android.net.InetAddresses
-import android.os.Build
 import android.util.Log
 import android.util.Patterns
 import androidx.compose.foundation.layout.Arrangement
@@ -66,11 +64,8 @@ private fun getPort(qrCode: String): String {
 
 @Suppress("DEPRECATION")
 private fun validateIP(ipAddress: String): Boolean {
-    return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-        InetAddresses.isNumericAddress(ipAddress)
-    } else {
-        Patterns.IP_ADDRESS.matcher(ipAddress).matches()
-    }
+    // The server only listens on IPv4, so IPv6 addresses are rejected here
+    return Patterns.IP_ADDRESS.matcher(ipAddress).matches()
 }
 
 private fun validatePort(port: String): Boolean {
@@ -190,6 +185,7 @@ fun ConnectMenu(
 
             val focusManager = LocalFocusManager.current
             val connectErrorIpStr = stringResource(R.string.connect_error_ip)
+            val connectErrorIpv6Str = stringResource(R.string.connect_error_ipv6)
             val connectErrorPortStr = stringResource(R.string.connect_error_port)
             val connectErrorParamsStr = stringResource(R.string.connect_error_params)
 
@@ -200,6 +196,7 @@ fun ConnectMenu(
                 } else {
                     scope.launch {
                         val errorMessage = when {
+                            !isIPValid && ipAddress.contains(':') -> connectErrorIpv6Str
                             !isIPValid -> connectErrorIpStr
                             !isPortValid -> connectErrorPortStr
                             else -> connectErrorParamsStr
