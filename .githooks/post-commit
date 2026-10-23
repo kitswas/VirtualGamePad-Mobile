@@ -1,0 +1,23 @@
+#!/bin/sh
+# post-commit: auto-apply ktlint formatting to the Kotlin sources the commit
+# just landed. Never rewrites the commit itself - fixes are left as unstaged
+# changes for you to review and include in your next commit.
+
+run_gradle() {
+	case "$(uname -s)" in
+	*MINGW* | *MSYS*) cmd //c gradlew.bat "$@" ;;
+	*) ./gradlew "$@" ;;
+	esac
+}
+
+if ! git diff-tree -r --no-commit-id --name-only --diff-filter=ACMR HEAD |
+	grep -Eq '\.(kt|kts)$'; then
+	exit 0
+fi
+
+if run_gradle --quiet --console=plain ktlintFormat; then
+	echo "post-commit: ktlintFormat applied - any fixes are left as unstaged changes."
+else
+	echo "post-commit: ktlintFormat reported problems - review the unstaged changes." >&2
+	exit 1
+fi

@@ -1,0 +1,29 @@
+#!/bin/sh
+# post-merge: full build check (gradlew build, including tests) after a merge
+# or pull. The merge has already landed, so this only reports: it never
+# reverts or changes your tree. A failure means the tree you are on does not
+# build or its tests fail - fix forward or revert.
+
+run_gradle() {
+	case "$(uname -s)" in
+	*MINGW* | *MSYS*) cmd //c gradlew.bat "$@" ;;
+	*) ./gradlew "$@" ;;
+	esac
+}
+
+if ! git rev-parse --verify ORIG_HEAD >/dev/null 2>&1; then
+	exit 0
+fi
+
+# Only run the expensive build when the merge actually touched build inputs.
+if ! git diff --name-only ORIG_HEAD HEAD |
+	grep -Eq '\.(kt|kts|xml)$|^gradle'; then
+	exit 0
+fi
+
+if run_gradle --console=plain build; then
+	echo "post-merge: build check passed."
+else
+	echo "post-merge: BUILD CHECK FAILED - the merge has landed; fix forward or revert manually." >&2
+	exit 1
+fi

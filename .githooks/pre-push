@@ -1,0 +1,17 @@
+#!/bin/sh
+# pre-push: block the push if ktlint finds formatting or lint violations.
+# Does not auto-fix - that is the post-commit hook's job; this is the hard
+# gate before code leaves the machine.
+# Bypass with `git push --no-verify`.
+
+run_gradle() {
+	case "$(uname -s)" in
+	*MINGW* | *MSYS*) cmd //c gradlew.bat "$@" ;;
+	*) ./gradlew "$@" ;;
+	esac
+}
+
+if ! run_gradle --console=plain ktlintCheck; then
+	echo "pre-push: ktlint check failed - fix the violations (ktlintFormat helps), then retry, or bypass with 'git push --no-verify'." >&2
+	exit 1
+fi
