@@ -47,7 +47,6 @@ fun <T> ListItemPicker(
     },
     onItemSelected: (T) -> Unit = { _ -> }
 ) {
-
     var expanded by rememberSaveable { mutableStateOf(false) }
 
     val labelContent = @Composable {

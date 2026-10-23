@@ -32,7 +32,8 @@ import kotlin.math.roundToInt
 import kotlin.math.sqrt
 
 enum class AnalogStickType {
-    LEFT, RIGHT
+    LEFT,
+    RIGHT
 }
 
 private class AnalogStickUiState {

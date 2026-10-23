@@ -30,8 +30,8 @@ import androidx.compose.ui.unit.dp
 import androidx.core.net.toUri
 import io.github.kitswas.virtualgamepadmobile.R
 import io.github.kitswas.virtualgamepadmobile.data.PreviewBase
-import io.github.kitswas.virtualgamepadmobile.data.PreviewHeightDp
-import io.github.kitswas.virtualgamepadmobile.data.PreviewWidthDp
+import io.github.kitswas.virtualgamepadmobile.data.PREVIEW_HEIGHT_DP
+import io.github.kitswas.virtualgamepadmobile.data.PREVIEW_WIDTH_DP
 
 @Composable
 fun AboutScreen(
@@ -160,8 +160,8 @@ fun AboutScreen(
 }
 
 @Preview(
-    widthDp = PreviewWidthDp,
-    heightDp = PreviewHeightDp,
+    widthDp = PREVIEW_WIDTH_DP,
+    heightDp = PREVIEW_HEIGHT_DP,
 )
 @Composable
 fun AboutScreenPreview() {

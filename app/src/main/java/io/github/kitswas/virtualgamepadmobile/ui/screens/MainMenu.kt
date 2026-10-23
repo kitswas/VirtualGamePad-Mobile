@@ -15,8 +15,8 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import io.github.kitswas.virtualgamepadmobile.R
 import io.github.kitswas.virtualgamepadmobile.data.PreviewBase
-import io.github.kitswas.virtualgamepadmobile.data.PreviewHeightDp
-import io.github.kitswas.virtualgamepadmobile.data.PreviewWidthDp
+import io.github.kitswas.virtualgamepadmobile.data.PREVIEW_HEIGHT_DP
+import io.github.kitswas.virtualgamepadmobile.data.PREVIEW_WIDTH_DP
 
 @Composable
 fun MainMenu(
@@ -50,8 +50,8 @@ fun MainMenu(
 }
 
 @Preview(
-    widthDp = PreviewWidthDp,
-    heightDp = PreviewHeightDp,
+    widthDp = PREVIEW_WIDTH_DP,
+    heightDp = PREVIEW_HEIGHT_DP,
 )
 @Composable
 fun MainMenuPreview() {

@@ -53,11 +53,13 @@ private fun ButtonAnchor.toAlignment(): Alignment = when (this) {
 }
 
 enum class ShoulderButtonType {
-    LEFT, RIGHT
+    LEFT,
+    RIGHT
 }
 
 enum class MenuButtonType {
-    VIEW, MENU
+    VIEW,
+    MENU
 }
 
 @Composable
@@ -85,7 +87,7 @@ fun ShoulderButton(
         Log.d(gameButton.name, "Pressed")
         HapticUtils.performButtonPressFeedback(view)
         gamepadState.ButtonsDown = gamepadState.ButtonsDown or gameButton.value
-        //Use if + DisposableEffect to wait for the press action is completed
+        // Use if + DisposableEffect to wait for the press action is completed
         DisposableEffect(Unit) {
             onDispose {
                 Log.d(gameButton.name, "Released")

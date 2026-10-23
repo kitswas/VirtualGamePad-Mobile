@@ -4,7 +4,7 @@ import android.os.Build
 import android.util.Log
 import android.view.HapticFeedbackConstants
 import android.view.View
-import io.github.kitswas.virtualgamepadmobile.data.defaultHapticFeedbackEnabled
+import io.github.kitswas.virtualgamepadmobile.data.DEFAULT_HAPTIC_FEEDBACK_ENABLED
 
 /**
  * Utility class for handling haptic feedback consistently across the app.
@@ -18,10 +18,10 @@ object HapticUtils {
 
     // Override flags to ensure haptic feedback is always triggered if enabled
     private const val OVERRIDE_FLAGS = HapticFeedbackConstants.FLAG_IGNORE_VIEW_SETTING or
-            HapticFeedbackConstants.FLAG_IGNORE_GLOBAL_SETTING
+        HapticFeedbackConstants.FLAG_IGNORE_GLOBAL_SETTING
 
     // Static property to control haptic feedback globally
-    var isEnabled: Boolean = defaultHapticFeedbackEnabled
+    var isEnabled: Boolean = DEFAULT_HAPTIC_FEEDBACK_ENABLED
         set(value) {
             field = value
             Log.d(TAG, "Haptic feedback enabled: $value")

@@ -47,12 +47,14 @@ import io.github.kitswas.virtualgamepadmobile.ui.composables.ResponsiveGrid
 import kotlinx.coroutines.runBlocking
 import kotlinx.serialization.json.Json
 
-private const val logTag = "GamepadCustomization"
+private const val LOG_TAG = "GamepadCustomization"
 
 /**
  * Sanitizes button configurations to ensure all components have a valid config.
  */
-private fun sanitizeButtonConfigs(configs: Map<ButtonComponent, ButtonConfig>): Map<ButtonComponent, ButtonConfig> {
+private fun sanitizeButtonConfigs(
+    configs: Map<ButtonComponent, ButtonConfig>
+): Map<ButtonComponent, ButtonConfig> {
     return ButtonComponent.entries.associateWith { component ->
         configs[component] ?: ButtonConfig.default(component)
     }
@@ -85,7 +87,8 @@ fun GamepadCustomizationScreen(
     onNavigateBack: () -> Unit,
     settingsRepository: SettingsRepository
 ) {
-    val buttonConfigs by settingsRepository.buttonConfigs.collectAsStateWithLifecycle(initialValue = defaultButtonConfigs)
+    val buttonConfigs by settingsRepository.buttonConfigs
+        .collectAsStateWithLifecycle(initialValue = defaultButtonConfigs)
     var modifiedConfigs by rememberSaveable {
         mutableStateOf<Map<ButtonComponent, ButtonConfig>?>(
             null
@@ -125,7 +128,7 @@ fun GamepadCustomizationScreen(
                 modifiedConfigs = configs
                 showImportDialog = false
                 importJsonText = ""
-                Log.i(logTag, "Button configs imported")
+                Log.i(LOG_TAG, "Button configs imported")
             },
             onDismiss = {
                 showImportDialog = false
@@ -230,7 +233,7 @@ fun GamepadCustomizationScreen(
                         runBlocking {
                             settingsRepository.setAllButtonConfigs(defaultButtonConfigs)
                         }
-                        Log.i(logTag, "Button configs reset to defaults")
+                        Log.i(LOG_TAG, "Button configs reset to defaults")
                     }) {
                         Text(stringResource(R.string.reset))
                     }
@@ -240,10 +243,10 @@ fun GamepadCustomizationScreen(
                             runBlocking {
                                 try {
                                     settingsRepository.setAllButtonConfigs(configs)
-                                    Log.i(logTag, "Button configs saved")
+                                    Log.i(LOG_TAG, "Button configs saved")
                                 } catch (e: Exception) {
                                     Log.e(
-                                        logTag, "Error saving button configs", e
+                                        LOG_TAG, "Error saving button configs", e
                                     )
                                 }
                             }
@@ -281,7 +284,7 @@ fun ExportConfigDialog(
         onDismissRequest = onDismiss,
         title = { Text(stringResource(R.string.customization_export_title)) },
         text = {
-            Log.i(logTag, "Exporting button configs: $jsonString")
+            Log.i(LOG_TAG, "Exporting button configs: $jsonString")
             Column(
                 modifier = Modifier.fillMaxWidth(),
                 verticalArrangement = Arrangement.spacedBy(8.dp)
@@ -308,7 +311,7 @@ fun ExportConfigDialog(
                                 exportLabel, jsonString
                             )
                             clipboard.setPrimaryClip(clip)
-                            Log.i(logTag, "Exported JSON copied to clipboard")
+                            Log.i(LOG_TAG, "Exported JSON copied to clipboard")
                         }) {
                             Text(stringResource(R.string.customization_copy))
                         }
@@ -364,7 +367,9 @@ fun ImportConfigDialog(
                     modifier = Modifier
                         .fillMaxWidth()
                         .verticalScroll(rememberScrollState()),
-                    placeholder = { Text(stringResource(R.string.customization_import_placeholder)) },
+                    placeholder = {
+                        Text(stringResource(R.string.customization_import_placeholder))
+                    },
                     singleLine = false,
                     maxLines = 5
                 )
@@ -381,11 +386,11 @@ fun ImportConfigDialog(
                         val sanitizedConfigs = sanitizeButtonConfigs(configs)
 
                         hasError = false
-                        Log.i(logTag, "Imported and sanitized button configs: $sanitizedConfigs")
+                        Log.i(LOG_TAG, "Imported and sanitized button configs: $sanitizedConfigs")
                         onImport(sanitizedConfigs)
                     } catch (e: Exception) {
                         hasError = true
-                        Log.e(logTag, "Error parsing JSON", e)
+                        Log.e(LOG_TAG, "Error parsing JSON", e)
                     }
                 }
             ) {

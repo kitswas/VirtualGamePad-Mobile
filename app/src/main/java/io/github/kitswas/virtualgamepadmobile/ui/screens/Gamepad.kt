@@ -20,11 +20,11 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import io.github.kitswas.VGP_Data_Exchange.GamepadReading
 import io.github.kitswas.virtualgamepadmobile.R
 import io.github.kitswas.virtualgamepadmobile.data.PreviewBase
-import io.github.kitswas.virtualgamepadmobile.data.PreviewHeightDp
-import io.github.kitswas.virtualgamepadmobile.data.PreviewWidthDp
+import io.github.kitswas.virtualgamepadmobile.data.PREVIEW_HEIGHT_DP
+import io.github.kitswas.virtualgamepadmobile.data.PREVIEW_WIDTH_DP
 import io.github.kitswas.virtualgamepadmobile.data.SettingsRepository
 import io.github.kitswas.virtualgamepadmobile.data.defaultButtonConfigs
-import io.github.kitswas.virtualgamepadmobile.data.defaultPollingDelay
+import io.github.kitswas.virtualgamepadmobile.data.DEFAULT_POLLING_DELAY
 import io.github.kitswas.virtualgamepadmobile.network.ConnectionViewModel
 import io.github.kitswas.virtualgamepadmobile.ui.composables.DrawGamepad
 import io.github.kitswas.virtualgamepadmobile.ui.utils.findActivity
@@ -33,7 +33,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
-private const val tag = "GamePadScreen"
+private const val TAG = "GamePadScreen"
 
 @SuppressLint("ConfigurationScreenWidthHeight")
 @Composable
@@ -45,7 +45,9 @@ fun GamePad(
     val context = LocalContext.current
     val settingsRepository = remember { SettingsRepository(context) }
     val pollingDelay =
-        settingsRepository.pollingDelay.collectAsStateWithLifecycle(defaultPollingDelay).value.toLong()
+        settingsRepository.pollingDelay.collectAsStateWithLifecycle(
+            DEFAULT_POLLING_DELAY
+        ).value.toLong()
     val buttonConfigs =
         settingsRepository.buttonConfigs.collectAsStateWithLifecycle(defaultButtonConfigs).value
 
@@ -62,8 +64,8 @@ fun GamePad(
     // Disconnect when activity is destroyed (ignoring configuration/orientation changes)
     androidx.lifecycle.compose.LocalLifecycleOwner.current.lifecycle
         .addObserver(androidx.lifecycle.LifecycleEventObserver { _, event ->
-            if (event == androidx.lifecycle.Lifecycle.Event.ON_DESTROY
-                && activity?.isChangingConfigurations != true
+            if (event == androidx.lifecycle.Lifecycle.Event.ON_DESTROY &&
+                activity?.isChangingConfigurations != true
             ) {
                 if (connectionViewModel != null) {
                     CoroutineScope(Dispatchers.IO).launch {
@@ -80,9 +82,9 @@ fun GamePad(
                             gamepadState.RightTrigger = 0F
                             connectionViewModel.enqueueGamepadState(gamepadState)
                             connectionViewModel.disconnect()
-                            Log.d(tag, "Disconnected")
+                            Log.d(TAG, "Disconnected")
                         } catch (e: Exception) {
-                            Log.d(tag, "Error during disconnect: ${e.message}")
+                            Log.d(TAG, "Error during disconnect: ${e.message}")
                         }
                     }
                 }
@@ -100,7 +102,7 @@ fun GamePad(
 
     LaunchedEffect(connectionLostMessage) {
         if (connectionLostMessage != null) {
-            Log.d(tag, connectionLostMessage)
+            Log.d(TAG, connectionLostMessage)
             Toast.makeText(context, connectionLostMessage, Toast.LENGTH_LONG).show()
             onNavigateBack()
         }
@@ -130,11 +132,13 @@ fun GamePad(
 @Target(AnnotationTarget.ANNOTATION_CLASS, AnnotationTarget.FUNCTION)
 @Preview(
     name = "Design Preview (Light)",
-    device = "spec:width=${PreviewWidthDp}dp,height=${PreviewHeightDp}dp,orientation=landscape,dpi=420",
+    device = "spec:width=${PREVIEW_WIDTH_DP}dp," +
+        "height=${PREVIEW_HEIGHT_DP}dp,orientation=landscape,dpi=420",
 )
 @Preview(
     name = "Design Preview (Dark)",
-    device = "spec:width=${PreviewWidthDp}dp,height=${PreviewHeightDp}dp,orientation=landscape,dpi=420",
+    device = "spec:width=${PREVIEW_WIDTH_DP}dp," +
+        "height=${PREVIEW_HEIGHT_DP}dp,orientation=landscape,dpi=420",
     uiMode = Configuration.UI_MODE_NIGHT_YES or Configuration.UI_MODE_TYPE_NORMAL
 )
 @Preview(

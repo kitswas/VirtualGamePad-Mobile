@@ -43,16 +43,16 @@ import io.github.kitswas.virtualgamepadmobile.R
 import io.github.kitswas.virtualgamepadmobile.data.BaseColor
 import io.github.kitswas.virtualgamepadmobile.data.ColorScheme
 import io.github.kitswas.virtualgamepadmobile.data.PreviewBase
-import io.github.kitswas.virtualgamepadmobile.data.PreviewHeightDp
-import io.github.kitswas.virtualgamepadmobile.data.PreviewWidthDp
+import io.github.kitswas.virtualgamepadmobile.data.PREVIEW_HEIGHT_DP
+import io.github.kitswas.virtualgamepadmobile.data.PREVIEW_WIDTH_DP
 import io.github.kitswas.virtualgamepadmobile.data.SettingsRepository
 import io.github.kitswas.virtualgamepadmobile.data.defaultBaseColor
 import io.github.kitswas.virtualgamepadmobile.data.defaultColorScheme
-import io.github.kitswas.virtualgamepadmobile.data.defaultFullScreenEnabled
-import io.github.kitswas.virtualgamepadmobile.data.defaultKeepScreenOnEnabled
-import io.github.kitswas.virtualgamepadmobile.data.defaultHapticFeedbackEnabled
-import io.github.kitswas.virtualgamepadmobile.data.defaultPollingDelay
-import io.github.kitswas.virtualgamepadmobile.data.defaultSaveConnectionCredentials
+import io.github.kitswas.virtualgamepadmobile.data.DEFAULT_FULL_SCREEN_ENABLED
+import io.github.kitswas.virtualgamepadmobile.data.DEFAULT_KEEP_SCREEN_ON_ENABLED
+import io.github.kitswas.virtualgamepadmobile.data.DEFAULT_HAPTIC_FEEDBACK_ENABLED
+import io.github.kitswas.virtualgamepadmobile.data.DEFAULT_POLLING_DELAY
+import io.github.kitswas.virtualgamepadmobile.data.DEFAULT_SAVE_CONNECTION_CREDENTIALS
 import io.github.kitswas.virtualgamepadmobile.ui.composables.ColorSchemePicker
 import io.github.kitswas.virtualgamepadmobile.ui.composables.ListItemPicker
 import io.github.kitswas.virtualgamepadmobile.ui.composables.SpinBox
@@ -60,7 +60,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import kotlinx.parcelize.Parcelize
 
-private const val logTag = "SettingsScreen"
+private const val LOG_TAG = "SettingsScreen"
 
 @Parcelize
 private data class SettingsChanges(
@@ -83,19 +83,24 @@ fun SettingsScreen(
     var settingsChanges by rememberSaveable { mutableStateOf(SettingsChanges()) }
 
     Scaffold { paddingValues ->
-        val colorScheme by settingsRepository.colorScheme.collectAsStateWithLifecycle(initialValue = defaultColorScheme)
-        val baseColor by settingsRepository.baseColor.collectAsStateWithLifecycle(initialValue = defaultBaseColor)
-        val pollingDelay by settingsRepository.pollingDelay.collectAsStateWithLifecycle(initialValue = defaultPollingDelay)
+        val colorScheme by settingsRepository.colorScheme
+            .collectAsStateWithLifecycle(initialValue = defaultColorScheme)
+        val baseColor by settingsRepository.baseColor
+            .collectAsStateWithLifecycle(initialValue = defaultBaseColor)
+        val pollingDelay by settingsRepository.pollingDelay
+            .collectAsStateWithLifecycle(initialValue = DEFAULT_POLLING_DELAY)
         val hapticEnabled by settingsRepository.hapticFeedbackEnabled.collectAsStateWithLifecycle(
-            initialValue = defaultHapticFeedbackEnabled
+            initialValue = DEFAULT_HAPTIC_FEEDBACK_ENABLED
         )
-        val saveCredentials by settingsRepository.saveConnectionCredentials.collectAsStateWithLifecycle(
-            initialValue = defaultSaveConnectionCredentials
-        )
+        val saveCredentials by settingsRepository.saveConnectionCredentials
+            .collectAsStateWithLifecycle(
+                initialValue = DEFAULT_SAVE_CONNECTION_CREDENTIALS
+            )
         val fullScreenEnabled by settingsRepository.fullScreenEnabled.collectAsStateWithLifecycle(
-            initialValue = defaultFullScreenEnabled
+            initialValue = DEFAULT_FULL_SCREEN_ENABLED
         )
-        val keepScreenOnEnabled by settingsRepository.keepScreenOnEnabled.collectAsStateWithLifecycle(initialValue = defaultKeepScreenOnEnabled)
+        val keepScreenOnEnabled by settingsRepository.keepScreenOnEnabled
+            .collectAsStateWithLifecycle(initialValue = DEFAULT_KEEP_SCREEN_ON_ENABLED)
 
         Column(
             modifier = Modifier
@@ -121,7 +126,6 @@ fun SettingsScreen(
                 verticalArrangement = Arrangement.SpaceEvenly,
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-
                 ColorSchemePicker(selectedItem = settingsChanges.colorScheme ?: colorScheme) {
                     settingsChanges = settingsChanges.copy(colorScheme = it)
                 }
@@ -173,7 +177,8 @@ fun SettingsScreen(
                         }) {
                             Icon(
                                 imageVector = Icons.Default.Info,
-                                contentDescription = stringResource(R.string.settings_polling_interval_info),
+                                contentDescription =
+                                stringResource(R.string.settings_polling_interval_info),
                                 tint = MaterialTheme.colorScheme.secondary,
                             )
                         }
@@ -270,7 +275,7 @@ fun SettingsScreen(
                 Button(onClick = {
                     settingsChanges = SettingsChanges()
                     runBlocking { settingsRepository.resetAllSettings() }
-                    Log.i(logTag, "Settings reset to defaults")
+                    Log.i(LOG_TAG, "Settings reset to defaults")
                 }) {
                     Text(stringResource(R.string.reset))
                 }
@@ -282,39 +287,48 @@ fun SettingsScreen(
                             settingsChanges.colorScheme?.let {
                                 settingsRepository.setColorScheme(
                                     it
-                                ); ++changesSaved
+                                )
+                                ++changesSaved
                             }
-                            settingsChanges.baseColor?.let { settingsRepository.setBaseColor(it); ++changesSaved }
+                            settingsChanges.baseColor?.let {
+                                settingsRepository.setBaseColor(it)
+                                ++changesSaved
+                            }
                             settingsChanges.pollingDelay?.let {
                                 settingsRepository.setPollingDelay(
                                     it
-                                ); ++changesSaved
+                                )
+                                ++changesSaved
                             }
                             settingsChanges.hapticFeedbackEnabled?.let {
                                 settingsRepository.setHapticFeedbackEnabled(
                                     it
-                                ); ++changesSaved
+                                )
+                                ++changesSaved
                             }
                             settingsChanges.saveConnectionCredentials?.let {
                                 settingsRepository.setSaveConnectionCredentials(
                                     it
-                                ); ++changesSaved
+                                )
+                                ++changesSaved
                             }
                             settingsChanges.fullScreenEnabled?.let {
                                 settingsRepository.setFullScreenEnabled(
                                     it
-                                ); ++changesSaved
+                                )
+                                ++changesSaved
                             }
                             settingsChanges.keepScreenOnEnabled?.let {
                                 settingsRepository.setKeepScreenOnEnabled(
                                     it
-                                ); ++changesSaved
+                                )
+                                ++changesSaved
                             }
                         } catch (e: Exception) {
-                            Log.e(logTag, "Error saving settings", e)
+                            Log.e(LOG_TAG, "Error saving settings", e)
                         }
                     }
-                    Log.i(logTag, "Saved settings: $changesSaved")
+                    Log.i(LOG_TAG, "Saved settings: $changesSaved")
                     onNavigateBack()
                 }) {
                     Text(stringResource(R.string.save))
@@ -328,8 +342,8 @@ fun SettingsScreen(
 }
 
 @Preview(
-    widthDp = PreviewWidthDp,
-    heightDp = PreviewHeightDp,
+    widthDp = PREVIEW_WIDTH_DP,
+    heightDp = PREVIEW_HEIGHT_DP,
 )
 @Composable
 fun SettingsScreenPreview() {

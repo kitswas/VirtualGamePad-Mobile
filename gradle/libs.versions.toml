@@ -31,7 +31,7 @@ androidx-test-espresso = "3.7.0"
 # Tools
 desugar-jdk-libs = "2.1.5"
 dokka = "2.2.0"
-jlleitschuh-ktlint = "14.0.1"
+jlleitschuh-ktlint = "14.2.0"
 
 [libraries]
 # AndroidX Core & Lifecycle

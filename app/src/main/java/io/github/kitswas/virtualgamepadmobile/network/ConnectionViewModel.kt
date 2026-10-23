@@ -20,7 +20,10 @@ import java.net.Socket
 import java.net.SocketException
 import java.util.concurrent.LinkedBlockingQueue
 
-class ConnectionViewModel(private val onConnectionSuccess: suspend (String, Int) -> Unit = { _, _ -> }) :
+class ConnectionViewModel(
+    private val onConnectionSuccess: suspend (String, Int) -> Unit = { _, _ ->
+    }
+) :
     ViewModel() {
 
     private val tag = this::class.java.simpleName
@@ -124,7 +127,8 @@ class ConnectionViewModel(private val onConnectionSuccess: suspend (String, Int)
                     // Process based on command type
                     when (val command = commandQueue.take()) {
                         is NetworkCommand.Connect -> processConnectCommand(command)
-                        is NetworkCommand.SendGamepadState -> processSendGamepadStateCommand(command)
+                        is NetworkCommand.SendGamepadState ->
+                            processSendGamepadStateCommand(command)
                         is NetworkCommand.SendString -> processSendStringCommand(command)
                         is NetworkCommand.Disconnect -> {
                             processDisconnectCommand()
@@ -239,7 +243,7 @@ class ConnectionViewModel(private val onConnectionSuccess: suspend (String, Int)
             _uiState.update {
                 it.copy(
                     error = "Connection lost: ${e.message ?: "Unknown error"}",
-                    connected = false  // Mark as disconnected immediately
+                    connected = false // Mark as disconnected immediately
                 )
             }
 
@@ -254,8 +258,8 @@ class ConnectionViewModel(private val onConnectionSuccess: suspend (String, Int)
                 throw e
             } else {
                 // For other IO exceptions, try graceful disconnect
-                commandQueue.clear()  // Clear other pending commands
-                commandQueue.offer(NetworkCommand.Disconnect)  // Make sure we disconnect properly
+                commandQueue.clear() // Clear other pending commands
+                commandQueue.offer(NetworkCommand.Disconnect) // Make sure we disconnect properly
             }
         }
     }
@@ -278,7 +282,7 @@ class ConnectionViewModel(private val onConnectionSuccess: suspend (String, Int)
             _uiState.update {
                 it.copy(
                     error = "Connection lost: ${e.message ?: "Unknown error"}",
-                    connected = false  // Mark as disconnected immediately
+                    connected = false // Mark as disconnected immediately
                 )
             }
 
@@ -293,8 +297,8 @@ class ConnectionViewModel(private val onConnectionSuccess: suspend (String, Int)
                 throw e
             } else {
                 // For other IO exceptions, try graceful disconnect
-                commandQueue.clear()  // Clear other pending commands
-                commandQueue.offer(NetworkCommand.Disconnect)  // Make sure we disconnect properly
+                commandQueue.clear() // Clear other pending commands
+                commandQueue.offer(NetworkCommand.Disconnect) // Make sure we disconnect properly
             }
         }
     }
@@ -448,4 +452,3 @@ class ConnectionViewModel(private val onConnectionSuccess: suspend (String, Int)
         _uiState.update { it.copy(diagnosticResults = emptyList(), isRunningDiagnostics = false) }
     }
 }
-

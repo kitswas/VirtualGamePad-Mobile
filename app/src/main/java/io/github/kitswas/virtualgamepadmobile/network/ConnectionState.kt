@@ -1,6 +1,5 @@
 package io.github.kitswas.virtualgamepadmobile.network
 
-
 data class ConnectionState(
     val connected: Boolean = false,
     val ipAddress: String = "",

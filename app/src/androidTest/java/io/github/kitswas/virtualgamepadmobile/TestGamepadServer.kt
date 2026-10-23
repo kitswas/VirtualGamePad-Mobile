@@ -21,7 +21,9 @@ object TestGamepadServer {
 
         try {
             serverSocket = ServerSocket(port)
-            println("[TestGamepadServer] Listening on port ${serverSocket?.localPort} on interfaces:")
+            println(
+                "[TestGamepadServer] Listening on port ${serverSocket?.localPort} on interfaces:"
+            )
             // List all network interfaces and addresses
             Collections.list(NetworkInterface.getNetworkInterfaces())
                 .filter { it.isUp && !it.isLoopback }.forEach { nif ->
@@ -38,10 +40,14 @@ object TestGamepadServer {
                             // Block waiting for client connection
                             val client = serverSocket?.accept()
                             if (client != null && running.get()) {
-                                println("[TestGamepadServer] Client connected: ${client.remoteSocketAddress}")
+                                println(
+                                    "[TestGamepadServer] Client connected: ${client.remoteSocketAddress}"
+                                )
                                 client.tcpNoDelay = true
                                 handleClient(client)
-                                println("[TestGamepadServer] Client disconnected, ready for new connections")
+                                println(
+                                    "[TestGamepadServer] Client disconnected, ready for new connections"
+                                )
                             }
                         } catch (e: Exception) {
                             if (running.get()) {
@@ -107,7 +113,9 @@ object TestGamepadServer {
                                     readings.add(reading)
                                     logGamepadReading(reading)
                                 } catch (e: Exception) {
-                                    System.err.println("[TestGamepadServer] Failed to unmarshal at offset $offset: $e")
+                                    System.err.println(
+                                        "[TestGamepadServer] Failed to unmarshal at offset $offset: $e"
+                                    )
                                     break
                                 }
                             }
@@ -136,13 +144,13 @@ object TestGamepadServer {
         val downNames = getButtonNames(r.ButtonsDown)
         println(
             "[GamepadReading] ButtonsUp: $upNames" +
-                    ", ButtonsDown: $downNames" +
-                    ", LeftThumbstickX: ${r.LeftThumbstickX}" +
-                    ", LeftThumbstickY: ${r.LeftThumbstickY}" +
-                    ", RightThumbstickX: ${r.RightThumbstickX}" +
-                    ", RightThumbstickY: ${r.RightThumbstickY}" +
-                    ", LeftTrigger: ${r.LeftTrigger}" +
-                    ", RightTrigger: ${r.RightTrigger}"
+                ", ButtonsDown: $downNames" +
+                ", LeftThumbstickX: ${r.LeftThumbstickX}" +
+                ", LeftThumbstickY: ${r.LeftThumbstickY}" +
+                ", RightThumbstickX: ${r.RightThumbstickX}" +
+                ", RightThumbstickY: ${r.RightThumbstickY}" +
+                ", LeftTrigger: ${r.LeftTrigger}" +
+                ", RightTrigger: ${r.RightTrigger}"
         )
     }
 }

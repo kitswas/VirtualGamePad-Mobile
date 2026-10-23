@@ -68,7 +68,6 @@ fun VirtualGamePadMobileTheme(
     baseColor: BaseColor,
     content: @Composable () -> Unit
 ) {
-
     val darkTheme: Boolean = when (darkMode) {
         ColorScheme.LIGHT -> false
         ColorScheme.DARK -> true

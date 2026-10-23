@@ -29,7 +29,8 @@ import io.github.kitswas.virtualgamepadmobile.R
 import io.github.kitswas.virtualgamepadmobile.ui.utils.HapticUtils
 
 enum class TriggerType {
-    LEFT, RIGHT
+    LEFT,
+    RIGHT
 }
 
 @Composable

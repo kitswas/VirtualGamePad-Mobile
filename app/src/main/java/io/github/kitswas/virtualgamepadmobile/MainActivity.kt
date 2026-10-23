@@ -21,10 +21,10 @@ import io.github.kitswas.virtualgamepadmobile.data.SettingsRepository
 import io.github.kitswas.virtualgamepadmobile.data.applyPlatformNightMode
 import io.github.kitswas.virtualgamepadmobile.data.defaultBaseColor
 import io.github.kitswas.virtualgamepadmobile.data.defaultColorScheme
-import io.github.kitswas.virtualgamepadmobile.data.defaultFullScreenEnabled
-import io.github.kitswas.virtualgamepadmobile.data.defaultKeepScreenOnEnabled
-import io.github.kitswas.virtualgamepadmobile.data.defaultHapticFeedbackEnabled
-import io.github.kitswas.virtualgamepadmobile.data.defaultSaveConnectionCredentials
+import io.github.kitswas.virtualgamepadmobile.data.DEFAULT_FULL_SCREEN_ENABLED
+import io.github.kitswas.virtualgamepadmobile.data.DEFAULT_KEEP_SCREEN_ON_ENABLED
+import io.github.kitswas.virtualgamepadmobile.data.DEFAULT_HAPTIC_FEEDBACK_ENABLED
+import io.github.kitswas.virtualgamepadmobile.data.DEFAULT_SAVE_CONNECTION_CREDENTIALS
 import io.github.kitswas.virtualgamepadmobile.network.ConnectionViewModel
 import io.github.kitswas.virtualgamepadmobile.network.ConnectionViewModelFactory
 import io.github.kitswas.virtualgamepadmobile.ui.navigation.Screen
@@ -67,7 +67,7 @@ class MainActivity : ComponentActivity() {
         settingsRepository: SettingsRepository,
     ) {
         val hapticEnabled = settingsRepository.hapticFeedbackEnabled.collectAsStateWithLifecycle(
-            initialValue = defaultHapticFeedbackEnabled
+            initialValue = DEFAULT_HAPTIC_FEEDBACK_ENABLED
         )
 
         LaunchedEffect(hapticEnabled.value) {
@@ -75,7 +75,7 @@ class MainActivity : ComponentActivity() {
         }
 
         val fullScreenEnabled = settingsRepository.fullScreenEnabled.collectAsStateWithLifecycle(
-            initialValue = defaultFullScreenEnabled
+            initialValue = DEFAULT_FULL_SCREEN_ENABLED
         )
 
         LaunchedEffect(fullScreenEnabled.value) {
@@ -91,9 +91,10 @@ class MainActivity : ComponentActivity() {
             }
         }
 
-        val keepScreenOnEnabled = settingsRepository.keepScreenOnEnabled.collectAsStateWithLifecycle(
-            initialValue = defaultKeepScreenOnEnabled
-        )
+        val keepScreenOnEnabled =
+            settingsRepository.keepScreenOnEnabled.collectAsStateWithLifecycle(
+                initialValue = DEFAULT_KEEP_SCREEN_ON_ENABLED
+            )
 
         LaunchedEffect(keepScreenOnEnabled.value) {
             if (keepScreenOnEnabled.value) {
@@ -140,15 +141,18 @@ class MainActivity : ComponentActivity() {
                 )
             }
             composable<Screen.Connect> {
-                val lastIpAddress by settingsRepository.lastConnectionIpAddress.collectAsStateWithLifecycle(
-                    initialValue = ""
-                )
-                val lastPort by settingsRepository.lastConnectionPort.collectAsStateWithLifecycle(
-                    initialValue = ""
-                )
-                val saveCredentials by settingsRepository.saveConnectionCredentials.collectAsStateWithLifecycle(
-                    initialValue = defaultSaveConnectionCredentials
-                )
+                val lastIpAddress by
+                    settingsRepository.lastConnectionIpAddress.collectAsStateWithLifecycle(
+                        initialValue = ""
+                    )
+                val lastPort by
+                    settingsRepository.lastConnectionPort.collectAsStateWithLifecycle(
+                        initialValue = ""
+                    )
+                val saveCredentials by
+                    settingsRepository.saveConnectionCredentials.collectAsStateWithLifecycle(
+                        initialValue = DEFAULT_SAVE_CONNECTION_CREDENTIALS
+                    )
 
                 val initialIp = if (saveCredentials) lastIpAddress else ""
                 val initialPort = if (saveCredentials) lastPort else ""
@@ -190,7 +194,9 @@ class MainActivity : ComponentActivity() {
             composable<Screen.Settings> {
                 SettingsScreen(
                     onNavigateBack = { navController.popBackStack() },
-                    onNavigateToGamepadCustomization = { navController.navigate(Screen.GamepadCustomization) },
+                    onNavigateToGamepadCustomization = {
+                        navController.navigate(Screen.GamepadCustomization)
+                    },
                     settingsRepository = settingsRepository
                 )
             }

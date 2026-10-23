@@ -6,8 +6,8 @@ import androidx.compose.runtime.Composable
 import io.github.kitswas.virtualgamepadmobile.ui.theme.VirtualGamePadMobileTheme
 
 // The width and height of the preview surface in dp
-const val PreviewWidthDp = 960
-const val PreviewHeightDp = 540
+const val PREVIEW_WIDTH_DP = 960
+const val PREVIEW_HEIGHT_DP = 540
 
 @Composable
 fun PreviewBase(content: @Composable () -> Unit) {

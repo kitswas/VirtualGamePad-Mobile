@@ -34,9 +34,11 @@ import io.github.kitswas.virtualgamepadmobile.ui.theme.faceButtonTextStyle
 import io.github.kitswas.virtualgamepadmobile.ui.theme.lighten
 import io.github.kitswas.virtualgamepadmobile.ui.utils.HapticUtils
 
-
 enum class FaceButtonType {
-    A, B, X, Y
+    A,
+    B,
+    X,
+    Y
 }
 
 private val faceButtonColourMap = mapOf(
@@ -76,7 +78,7 @@ fun FaceButton(
         Log.d("FaceButton ${type.name}", "Pressed")
         HapticUtils.performButtonPressFeedback(view)
         gamepadState.ButtonsDown = gamepadState.ButtonsDown or gameButton.value
-        //Use if + DisposableEffect to wait for the press action is completed
+        // Use if + DisposableEffect to wait for the press action is completed
         DisposableEffect(Unit) {
             onDispose {
                 Log.d("FaceButton ${type.name}", "Released")

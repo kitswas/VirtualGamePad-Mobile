@@ -34,7 +34,10 @@ import io.github.kitswas.virtualgamepadmobile.ui.theme.darken
 import io.github.kitswas.virtualgamepadmobile.ui.utils.HapticUtils
 
 enum class DpadButtonType {
-    UP, DOWN, LEFT, RIGHT
+    UP,
+    DOWN,
+    LEFT,
+    RIGHT
 }
 
 @Composable
@@ -66,7 +69,7 @@ fun DpadButton(
         Log.d("DPadButton ${type.name}", "Pressed")
         HapticUtils.performButtonPressFeedback(view)
         gamepadState.ButtonsDown = gamepadState.ButtonsDown or gameButton.value
-        //Use if + DisposableEffect to wait for the press action is completed
+        // Use if + DisposableEffect to wait for the press action is completed
         DisposableEffect(Unit) {
             onDispose {
                 Log.d("DPadButton ${type.name}", "Released")

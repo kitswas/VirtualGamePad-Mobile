@@ -27,11 +27,11 @@ class SettingsRepository(context: Context) {
     }
 
     val pollingDelay: Flow<Int> = dataStore.data.map { preferences ->
-        preferences[POLLING_DELAY] ?: defaultPollingDelay
+        preferences[POLLING_DELAY] ?: DEFAULT_POLLING_DELAY
     }
 
     val hapticFeedbackEnabled: Flow<Boolean> = dataStore.data.map { preferences ->
-        preferences[HAPTIC_FEEDBACK_ENABLED] ?: defaultHapticFeedbackEnabled
+        preferences[HAPTIC_FEEDBACK_ENABLED] ?: DEFAULT_HAPTIC_FEEDBACK_ENABLED
     }
 
     val buttonConfigs: Flow<Map<ButtonComponent, ButtonConfig>> =
@@ -57,15 +57,15 @@ class SettingsRepository(context: Context) {
     }
 
     val saveConnectionCredentials: Flow<Boolean> = dataStore.data.map { preferences ->
-        preferences[SAVE_CONNECTION_CREDENTIALS] ?: defaultSaveConnectionCredentials
+        preferences[SAVE_CONNECTION_CREDENTIALS] ?: DEFAULT_SAVE_CONNECTION_CREDENTIALS
     }
 
     val fullScreenEnabled: Flow<Boolean> = dataStore.data.map { preferences ->
-        preferences[FULL_SCREEN_ENABLED] ?: defaultFullScreenEnabled
+        preferences[FULL_SCREEN_ENABLED] ?: DEFAULT_FULL_SCREEN_ENABLED
     }
 
     val keepScreenOnEnabled: Flow<Boolean> = dataStore.data.map { preferences ->
-        preferences[KEEP_SCREEN_ON_ENABLED] ?: defaultKeepScreenOnEnabled
+        preferences[KEEP_SCREEN_ON_ENABLED] ?: DEFAULT_KEEP_SCREEN_ON_ENABLED
     }
 
     suspend fun setBaseColor(baseColor: BaseColor) {

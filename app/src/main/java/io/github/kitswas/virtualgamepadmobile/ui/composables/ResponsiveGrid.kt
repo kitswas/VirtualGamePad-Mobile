@@ -18,7 +18,7 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.times
 
-private const val LogTag = "ResponsiveGrid"
+private const val LOG_TAG = "ResponsiveGrid"
 
 /**
  * A responsive grid composable that automatically calculates the number of columns
@@ -63,7 +63,7 @@ fun <T> ResponsiveGrid(
     val columns = maxOf(1, (availableWidth / itemWidthWithSpacing).toInt())
 
     Log.d(
-        LogTag,
+        LOG_TAG,
         "screenWidth=$screenWidth, availableWidth=$availableWidth, itemWidthWithSpacing=$itemWidthWithSpacing, columns=$columns"
     )
 
@@ -97,7 +97,7 @@ fun <T> ResponsiveGrid(
     // Batch items into grid rows
     val rows = renderedItems.chunked(columns)
 
-    Log.d(LogTag, "Rendering grid with $columns columns and ${rows.size} rows.")
+    Log.d(LOG_TAG, "Rendering grid with $columns columns and ${rows.size} rows.")
 
     rows.forEach { rowItems ->
         Row(

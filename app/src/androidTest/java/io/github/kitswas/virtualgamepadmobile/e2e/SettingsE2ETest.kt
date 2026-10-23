@@ -30,12 +30,12 @@ class SettingsE2ETest {
     fun testSettingsChangeAndPersistence() {
         composeTestRule.onNodeWithText(getString(R.string.menu_settings)).performClick()
 
-        // Find Haptic Feedback switch. 
+        // Find Haptic Feedback switch.
         // In SettingsScreen.kt, it's a Switch with Text label.
         // We can find it by its text label and then its sibling switch, or use testTag if available.
         // Since there's only one Switch in SettingsScreen, we can find by role or use a more specific search.
 
-        // Check initial state (default should be on based on defaultHapticFeedbackEnabled=true)
+        // Check initial state (default should be on based on DEFAULT_HAPTIC_FEEDBACK_ENABLED=true)
         // composeTestRule.onNodeWithText(getString(R.string.settings_haptic_feedback)).assertIsDisplayed()
 
         // Actually, let's just toggle it and save.
@@ -58,7 +58,8 @@ class SettingsE2ETest {
         composeTestRule.onNodeWithText(getString(R.string.save)).performClick()
 
         composeTestRule.onNodeWithText(getString(R.string.menu_settings)).performClick()
-        composeTestRule.onNodeWithTag("keepScreenOnSwitch").performScrollTo().assertIsOff().performClick()
+        composeTestRule.onNodeWithTag("keepScreenOnSwitch")
+            .performScrollTo().assertIsOff().performClick()
         composeTestRule.onNodeWithTag("keepScreenOnSwitch").assertIsOn()
         composeTestRule.onNodeWithText(getString(R.string.save)).performClick()
 

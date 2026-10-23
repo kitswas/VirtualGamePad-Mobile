@@ -44,9 +44,10 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import io.github.kitswas.virtualgamepadmobile.R
 import io.github.kitswas.virtualgamepadmobile.data.PreviewBase
-import io.github.kitswas.virtualgamepadmobile.data.PreviewHeightDp
-import io.github.kitswas.virtualgamepadmobile.data.PreviewWidthDp
+import io.github.kitswas.virtualgamepadmobile.data.PREVIEW_HEIGHT_DP
+import io.github.kitswas.virtualgamepadmobile.data.PREVIEW_WIDTH_DP
 import io.github.kitswas.virtualgamepadmobile.network.ConnectionViewModel
+import io.github.kitswas.virtualgamepadmobile.network.NetworkDiagnostics
 import io.github.kitswas.virtualgamepadmobile.ui.theme.SuccessGreen
 import kotlinx.coroutines.launch
 
@@ -227,9 +228,17 @@ fun DiagnosticsDialog(
                             verticalAlignment = Alignment.Top
                         ) {
                             Icon(
-                                imageVector = if (result.isPassed) Icons.Default.CheckCircle else Icons.Default.Error,
+                                imageVector = if (result.isPassed) {
+                                    Icons.Default.CheckCircle
+                                } else {
+                                    Icons.Default.Error
+                                },
                                 contentDescription = null,
-                                tint = if (result.isPassed) SuccessGreen else MaterialTheme.colorScheme.error,
+                                tint = if (result.isPassed) {
+                                    SuccessGreen
+                                } else {
+                                    MaterialTheme.colorScheme.error
+                                },
                                 modifier = Modifier.padding(top = 2.dp)
                             )
                             Column {
@@ -253,8 +262,8 @@ fun DiagnosticsDialog(
 }
 
 @Preview(
-    widthDp = PreviewWidthDp,
-    heightDp = PreviewHeightDp,
+    widthDp = PREVIEW_WIDTH_DP,
+    heightDp = PREVIEW_HEIGHT_DP,
 )
 @Composable
 private fun DiagnosticsDialogPreview() {
@@ -270,18 +279,18 @@ private fun DiagnosticsDialogPreview() {
             isConnecting = false,
             isRunningDiagnostics = true,
             diagnosticResults = listOf(
-                io.github.kitswas.virtualgamepadmobile.network.NetworkDiagnostics.DiagnosticResult(
-                    io.github.kitswas.virtualgamepadmobile.network.NetworkDiagnostics.DiagnosticStep.WIFI,
+                NetworkDiagnostics.DiagnosticResult(
+                    NetworkDiagnostics.DiagnosticStep.WIFI,
                     true,
                     "Device connected to Wi-Fi"
                 ),
-                io.github.kitswas.virtualgamepadmobile.network.NetworkDiagnostics.DiagnosticResult(
-                    io.github.kitswas.virtualgamepadmobile.network.NetworkDiagnostics.DiagnosticStep.IP,
+                NetworkDiagnostics.DiagnosticResult(
+                    NetworkDiagnostics.DiagnosticStep.IP,
                     true,
                     "Local IP: $clientIP"
                 ),
-                io.github.kitswas.virtualgamepadmobile.network.NetworkDiagnostics.DiagnosticResult(
-                    io.github.kitswas.virtualgamepadmobile.network.NetworkDiagnostics.DiagnosticStep.PING,
+                NetworkDiagnostics.DiagnosticResult(
+                    NetworkDiagnostics.DiagnosticStep.PING,
                     false,
                     "Ping to server failed",
                     "Timeout"
