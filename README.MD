@@ -13,6 +13,16 @@ It is a part of [the VirtualGamePad project](https://kitswas.github.io/VirtualGa
 
 ## For Developers
 
+Building needs a JDK 21 and an Android SDK. [mise](https://mise.jdx.dev/) pins Java and runs the common commands:
+
+```bash
+mise run doctor # Check prerequisites
+mise run build  # Debug APK
+mise tasks ls   # List all tasks
+```
+
+`mise run build` (and `test`, `lint`, `check`, `launch`, `connected-test`) reuses a system Android SDK from `local.properties` or `ANDROID_HOME`/`ANDROID_SDK_ROOT`. Only when none is found does it install `cmdline-tools` via `mise`, accept the licenses and write `sdk.dir` to `local.properties`; Gradle then downloads the platform and build-tools on first build.
+
 Check formatting/lint with the [ktlint](https://pinterest.github.io/ktlint/) Gradle plugin:
 
 ```bash
