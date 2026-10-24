@@ -5,7 +5,7 @@ java = "21"
 description = "Check prerequisites (detect only - never installs anything)"
 run = '''
 java -version
-sdk="$(sed -n 's/^sdk\.dir=//p' local.properties 2>/dev/null)"
+sdk="$(sed -n 's/^sdk\.dir=//p' local.properties 2>/dev/null || true)"
 sdk="${sdk:-${ANDROID_HOME:-$ANDROID_SDK_ROOT}}"
 if [ -d "$sdk" ]; then
   echo "Android SDK: $sdk"
@@ -17,12 +17,13 @@ run_windows = '''
 #!/usr/bin/env -S powershell -NoProfile
 $ErrorActionPreference = 'Stop'
 java -version
-$sdk = $env:ANDROID_HOME
-if (-not $sdk) { $sdk = $env:ANDROID_SDK_ROOT }
+$sdk = $null
 if (Test-Path local.properties) {
   $line = Select-String -Path local.properties -SimpleMatch 'sdk.dir=' | Select-Object -First 1
   if ($line) { $sdk = ($line.Line -split '=', 2)[1].Replace('\\', '\').Replace('\:', ':') }
 }
+if (-not $sdk) { $sdk = $env:ANDROID_HOME }
+if (-not $sdk) { $sdk = $env:ANDROID_SDK_ROOT }
 if ($sdk -and (Test-Path $sdk)) {
   Write-Host "Android SDK: $sdk"
 } else {
@@ -33,7 +34,7 @@ if ($sdk -and (Test-Path $sdk)) {
 [tasks.setup]
 description = "Use system Android SDK if present; otherwise install cmdline-tools via mise and configure local.properties"
 run = '''
-sdk="$(sed -n 's/^sdk\.dir=//p' local.properties 2>/dev/null)"
+sdk="$(sed -n 's/^sdk\.dir=//p' local.properties 2>/dev/null || true)"
 sdk="${sdk:-${ANDROID_HOME:-$ANDROID_SDK_ROOT}}"
 if [ -d "$sdk" ]; then
   echo "Using existing Android SDK: $sdk"
@@ -63,6 +64,7 @@ mise use --env local android-sdk@23.0
 if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
 $sdk = (mise where android-sdk@23.0).Trim()
 1..20 | ForEach-Object { 'y' } | mise exec android-sdk@23.0 -- sdkmanager --licenses | Out-Null
+if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
 $escaped = $sdk.Replace('\', '\\').Replace(':', '\:')
 Set-Content -Path local.properties -Value "sdk.dir=$escaped"
 Write-Host "Provisioned Android SDK: $sdk (declared in gitignored mise.local.toml)"
