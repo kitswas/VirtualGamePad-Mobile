@@ -21,7 +21,7 @@ mise run build  # Debug APK
 mise tasks ls   # List all tasks
 ```
 
-`mise run build` (and `test`, `lint`, `check`, `launch`, `connected-test`) reuses a system Android SDK from `local.properties` or `ANDROID_HOME`/`ANDROID_SDK_ROOT`. Only when none is found does it install `cmdline-tools` via `mise`, accept the licenses and write `sdk.dir` to `local.properties`; the tool is declared in a gitignored `mise.local.toml`, so the SDK tools are on PATH in this checkout and Gradle downloads the platform and build-tools on first build.
+`mise run build` (and `test`, `lint`, `check`, `launch`, `connected-test`) reuses a system Android SDK from `local.properties` or `ANDROID_HOME`/`ANDROID_SDK_ROOT`. Only when none is found does it install `cmdline-tools` and `platform-tools` via `mise`, accept the licenses and write `sdk.dir` to `local.properties`; the tool is declared in a gitignored `mise.local.toml`, so the SDK tools (including `adb`) are on PATH in this checkout and Gradle downloads the platform and build-tools on first build.
 
 Check formatting/lint with the [ktlint](https://pinterest.github.io/ktlint/) Gradle plugin:
 

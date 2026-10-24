@@ -43,6 +43,7 @@ fi
 mise use --env local android-sdk@23.0
 sdk="$(mise where android-sdk@23.0)"
 yes | mise exec android-sdk@23.0 -- sdkmanager --licenses >/dev/null
+mise exec android-sdk@23.0 -- sdkmanager platform-tools >/dev/null
 printf 'sdk.dir=%s\n' "$sdk" > local.properties
 echo "Provisioned Android SDK: $sdk (declared in gitignored mise.local.toml)"
 '''
@@ -64,6 +65,8 @@ mise use --env local android-sdk@23.0
 if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
 $sdk = (mise where android-sdk@23.0).Trim()
 1..20 | ForEach-Object { 'y' } | mise exec android-sdk@23.0 -- sdkmanager --licenses | Out-Null
+if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+mise exec android-sdk@23.0 -- sdkmanager platform-tools | Out-Null
 if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
 $escaped = $sdk.Replace('\', '\\').Replace(':', '\:')
 Set-Content -Path local.properties -Value "sdk.dir=$escaped"
