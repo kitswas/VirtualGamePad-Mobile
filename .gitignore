@@ -47,3 +47,6 @@ replay_pid*
 
 # Ignore the following file to keep keystore information private
 signing.properties
+
+# Personal mise overrides written by `mise use --env local` (provisioned tools)
+mise.local.toml

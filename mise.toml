@@ -10,7 +10,7 @@ sdk="${sdk:-${ANDROID_HOME:-$ANDROID_SDK_ROOT}}"
 if [ -d "$sdk" ]; then
   echo "Android SDK: $sdk"
 else
-  echo "Android SDK: not found (will be provisioned by mise on build/setup)"
+  echo "Android SDK: not found - run \`mise run setup\` to provision it via mise"
 fi
 '''
 run_windows = '''
@@ -26,7 +26,7 @@ if (Test-Path local.properties) {
 if ($sdk -and (Test-Path $sdk)) {
   Write-Host "Android SDK: $sdk"
 } else {
-  Write-Host 'Android SDK: not found (will be provisioned by mise on build/setup)'
+  Write-Host 'Android SDK: not found - run `mise run setup` to provision it via mise'
 }
 '''
 
@@ -39,11 +39,11 @@ if [ -d "$sdk" ]; then
   echo "Using existing Android SDK: $sdk"
   exit 0
 fi
-mise install android-sdk@23.0
+mise use --env local android-sdk@23.0
 sdk="$(mise where android-sdk@23.0)"
 yes | mise exec android-sdk@23.0 -- sdkmanager --licenses >/dev/null
 printf 'sdk.dir=%s\n' "$sdk" > local.properties
-echo "Provisioned Android SDK: $sdk"
+echo "Provisioned Android SDK: $sdk (declared in gitignored mise.local.toml)"
 '''
 run_windows = '''
 #!/usr/bin/env -S powershell -NoProfile
@@ -59,13 +59,13 @@ if ($sdk -and (Test-Path $sdk)) {
   Write-Host "Using existing Android SDK: $sdk"
   exit 0
 }
-mise install android-sdk@23.0
+mise use --env local android-sdk@23.0
 if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
 $sdk = (mise where android-sdk@23.0).Trim()
 1..20 | ForEach-Object { 'y' } | mise exec android-sdk@23.0 -- sdkmanager --licenses | Out-Null
 $escaped = $sdk.Replace('\', '\\').Replace(':', '\:')
 Set-Content -Path local.properties -Value "sdk.dir=$escaped"
-Write-Host "Provisioned Android SDK: $sdk"
+Write-Host "Provisioned Android SDK: $sdk (declared in gitignored mise.local.toml)"
 '''
 
 [tasks.build]
