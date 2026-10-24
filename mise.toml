@@ -1,24 +1,31 @@
 [tools]
 java = "21"
 
-# Heavy prerequisite: Android SDK. Set sdk.dir in local.properties or ANDROID_HOME.
-
 [tasks.doctor]
-description = "Check prerequisites"
-run = "java -version"
+description = "Check prerequisites (detect only - never installs anything)"
+run = "java -version && sdk=\"${ANDROID_HOME:-${ANDROID_SDK_ROOT:-$(grep '^sdk\\.dir=' local.properties 2>/dev/null | head -n1 | cut -d= -f2-)}}\"; if [ -n \"$sdk\" ] && [ -d \"$sdk\" ]; then echo \"Android SDK: $sdk\"; else echo \"Android SDK: not found (will be provisioned by mise on build/setup)\"; fi"
+run_windows = "powershell -NoProfile -Command \"java -version; $sdk=$env:ANDROID_HOME; if (-not $sdk) { $sdk=$env:ANDROID_SDK_ROOT }; if ((Test-Path local.properties)) { $l=(Select-String -Path local.properties -SimpleMatch 'sdk.dir=' | Select-Object -First 1); if ($l) { $sdk=$l.Line.Substring($l.Line.IndexOf('=')+1).Replace('\\\\','\\').Replace('\\:',':') } }; if ($sdk -and (Test-Path $sdk)) { Write-Host \\\"Android SDK: $sdk\\\" } else { Write-Host 'Android SDK: not found (will be provisioned by mise on build/setup)' }\""
+
+[tasks.setup]
+description = "Use system Android SDK if present; otherwise install cmdline-tools via mise and configure local.properties"
+run = "sdk=\"$(grep '^sdk\\.dir=' local.properties 2>/dev/null | head -n1 | cut -d= -f2-)\"; sdk=\"${sdk:-${ANDROID_HOME:-$ANDROID_SDK_ROOT}}\"; if [ -n \"$sdk\" ] && [ -d \"$sdk\" ]; then exit 0; fi; mise install android-sdk@23.0 && sdk=\"$(mise where android-sdk@23.0)\" && yes | mise exec android-sdk@23.0 -- sdkmanager --sdk_root=\"$sdk\" --licenses >/dev/null && printf 'sdk.dir=%s\\n' \"$sdk\" > local.properties"
+run_windows = "powershell -NoProfile -Command \"$sdk=$null; if (Test-Path local.properties) { $l=(Select-String -Path local.properties -SimpleMatch 'sdk.dir=' | Select-Object -First 1); if ($l) { $sdk=$l.Line.Substring($l.Line.IndexOf('=')+1).Replace('\\\\','\\').Replace('\\:',':') } }; if (-not $sdk) { $sdk=$env:ANDROID_HOME }; if (-not $sdk) { $sdk=$env:ANDROID_SDK_ROOT }; if ($sdk -and (Test-Path $sdk)) { exit 0 }; mise install android-sdk@23.0; if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }; $sdk=(mise where android-sdk@23.0).Trim(); 1..20 | ForEach-Object { 'y' } | mise exec android-sdk@23.0 -- sdkmanager --sdk_root=$sdk --licenses | Out-Null; $esc=$sdk.Replace('\\','\\\\').Replace(':','\\:'); Set-Content -Path local.properties -Value \\\"sdk.dir=$esc\\\"\""
 
 [tasks.build]
 description = "Build the debug APK"
+depends = ["setup"]
 run = "./gradlew assembleDebug"
 run_windows = ".\\gradlew.bat assembleDebug"
 
 [tasks.test]
 description = "Run unit tests"
+depends = ["setup"]
 run = "./gradlew test"
 run_windows = ".\\gradlew.bat test"
 
 [tasks.lint]
 description = "Run Android lint"
+depends = ["setup"]
 run = "./gradlew lint"
 run_windows = ".\\gradlew.bat lint"
 
@@ -34,6 +41,7 @@ run_windows = ".\\gradlew.bat ktlintCheck"
 
 [tasks.check]
 description = "Build, lint and unit test (same as CI's first job)"
+depends = ["setup"]
 run = "./gradlew build lint test"
 run_windows = ".\\gradlew.bat build lint test"
 
@@ -44,11 +52,13 @@ run_windows = ".\\gradlew.bat clean"
 
 [tasks.launch]
 description = "Install the debug build on the connected device and launch it"
+depends = ["setup"]
 run = "./gradlew installDebug && adb shell monkey -p io.github.kitswas.virtualgamepadmobile -c android.intent.category.LAUNCHER 1"
 run_windows = ".\\gradlew.bat installDebug && adb shell monkey -p io.github.kitswas.virtualgamepadmobile -c android.intent.category.LAUNCHER 1"
 
 [tasks.connected-test]
 description = "Run instrumented tests on a connected device or emulator (log in out.log)"
+depends = ["setup"]
 run = "./gradlew connectedAndroidTest 2>&1 | tee out.log"
 run_windows = "powershell -NoProfile -Command \".\\gradlew.bat connectedAndroidTest 2>&1 | Tee-Object out.log\""
 
